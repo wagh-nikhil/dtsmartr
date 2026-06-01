@@ -1,13 +1,13 @@
-# DTExploR - Shiny Example App
-# Demonstrates all Shiny usage patterns for the DTExploR package.
+# dtsmartr - Shiny Example App
+# Demonstrates all Shiny usage patterns for the dtsmartr package.
 #
 # Run from R with:
 #   shiny::runApp("d:/AI_stuff/DTExploR/app.R")
 # OR (after installing the package):
-#   library(DTExploR); shiny::runApp(system.file("app.R", package = "DTExploR"))
+#   library(dtsmartr); shiny::runApp(system.file("app.R", package = "dtsmartr"))
 
 library(shiny)
-library(DTExploR)
+library(dtsmartr)
 
 # ── Built-in demo datasets ────────────────────────────────────────────────────
 DATASETS <- list(
@@ -35,7 +35,7 @@ ui <- fluidPage(
     tags$style(HTML("
       body        { font-family: 'Segoe UI', system-ui, sans-serif;
                     background: #f8fafc; margin: 0; }
-      .navbar-top { background: #1e293b; padding: 14px 24px;
+      .navbar-top { background: #0f172a; padding: 14px 24px;
                     display: flex; align-items: center; gap: 16px;
                     box-shadow: 0 2px 8px rgba(0,0,0,.18); }
       .navbar-top h1 { color: #fff; margin: 0; font-size: 20px; font-weight: 700; }
@@ -55,10 +55,10 @@ ui <- fluidPage(
 
   # ── Top navigation bar ──────────────────────────────────────────────────────
   div(class = "navbar-top",
-    tags$h1("🔭 DTExploR"),
+    tags$h1("🔭 dtsmartr"),
     span(class = "badge", "Interactive Data Explorer"),
     div(style = "margin-left:auto; color:#94a3b8; font-size:12px;",
-      "Built with ", tags$b(style = "color:#60a5fa;", "DTExploR"), " + Shiny")
+      "Built with ", tags$b(style = "color:#60a5fa;", "dtsmartr"), " + Shiny")
   ),
 
   # ── Controls bar ────────────────────────────────────────────────────────────
@@ -100,9 +100,9 @@ ui <- fluidPage(
   div(class = "widget-wrap",
     uiOutput("info_bar"),
 
-    # ── DTExploR widget ────────────────────────────────────────────────────────
+    # ── dtsmartr widget ────────────────────────────────────────────────────────
     # height = "100vh" fills the full remaining viewport (maximised by default)
-    dtexplorOutput("explorer", width = "100%", height = "calc(100vh - 160px)")
+    dtsmartrOutput("explorer", width = "100%", height = "calc(100vh - 160px)")
   )
 )
 
@@ -139,9 +139,9 @@ server <- function(input, output, session) {
     )
   })
 
-  # ── Render DTExploR widget ──────────────────────────────────────────────────
-  output$explorer <- renderDtexplor({
-    dtexplor(active_data())
+  # ── Render dtsmartr widget ──────────────────────────────────────────────────
+  output$explorer <- renderDtsmartr({
+    dtsmartr(active_data())
   })
 
   # ── Download handler: save current dataset as HTML ───────────────────────────
@@ -154,11 +154,11 @@ server <- function(input, output, session) {
       paste0(nm, "_explorer.html")
     },
     content = function(file_path) {
-      save_dtexplor(
+      save_dtsmartr(
         data          = active_data(),
         file          = file_path,
         selfcontained = FALSE,   # Shiny temp dir; external assets written alongside
-        title         = paste(gsub("\\s.*", "", input$dataset), "— DTExploR"),
+        title         = paste(gsub("\\s.*", "", input$dataset), "— dtsmartr"),
         verbose       = FALSE
       )
     },

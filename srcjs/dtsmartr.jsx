@@ -59,7 +59,7 @@ const getOperatorsForType = (type) => {
   ];
 };
 
-const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => {
+const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange, colors, isDarkMode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const containerRef = useRef(null);
@@ -111,10 +111,10 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
         onClick={() => setIsOpen(!isOpen)}
         style={{
           padding: '6px 12px',
-          border: '1.5px solid #cbd5e1',
+          border: `1.5px solid ${colors.border}`,
           borderRadius: 6,
-          background: '#fff',
-          color: '#334155',
+          background: colors.btnBg,
+          color: colors.text,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -138,7 +138,7 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
               ? selectedVals[0]
               : `${selectedVals.length} values selected`}
         </span>
-        <span style={{ fontSize: 10, color: '#94a3b8' }}>▼</span>
+        <span style={{ fontSize: 10, color: colors.subText }}>▼</span>
       </button>
 
       {isOpen && (
@@ -149,10 +149,10 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
           zIndex: 1000,
           marginTop: 4,
           width: 250,
-          background: '#fff',
-          border: '1px solid #e2e8f0',
+          background: colors.cardBg,
+          border: `1px solid ${colors.border}`,
           borderRadius: 8,
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.15)',
           padding: 8,
           boxSizing: 'border-box'
         }}>
@@ -165,30 +165,31 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
               width: '100%',
               boxSizing: 'border-box',
               padding: '6px 8px',
-              border: '1px solid #cbd5e1',
+              border: `1px solid ${colors.border}`,
               borderRadius: 6,
               outline: 'none',
               fontSize: 12,
               marginBottom: 6,
-              background: '#f8fafc'
+              background: colors.bg,
+              color: colors.text
             }}
           />
 
-          <div style={{ display: 'flex', gap: 10, padding: '0 4px 6px 4px', borderBottom: '1px solid #f1f5f9', marginBottom: 6 }}>
+          <div style={{ display: 'flex', gap: 10, padding: '0 4px 6px 4px', borderBottom: `1px solid ${colors.border}`, marginBottom: 6 }}>
             <span onClick={selectAll} style={{ fontSize: 11, color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }}>
               Select All
             </span>
-            <span onClick={clearAll} style={{ fontSize: 11, color: '#94a3b8', cursor: 'pointer', textDecoration: 'underline' }}>
+            <span onClick={clearAll} style={{ fontSize: 11, color: colors.subText, cursor: 'pointer', textDecoration: 'underline' }}>
               Clear
             </span>
-            <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: colors.subText }}>
               {selectedVals.length} chosen
             </span>
           </div>
 
           <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
             {filteredVals.length === 0 ? (
-              <div style={{ padding: '6px 4px', color: '#94a3b8', fontStyle: 'italic', fontSize: 12 }}>
+              <div style={{ padding: '6px 4px', color: colors.subText, fontStyle: 'italic', fontSize: 12 }}>
                 No matches
               </div>
             ) : (
@@ -205,11 +206,11 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
                       padding: '4px 6px',
                       borderRadius: 4,
                       cursor: 'pointer',
-                      background: isChecked ? '#eff6ff' : 'transparent',
+                      background: isChecked ? (isDarkMode ? '#1e3a8a' : '#eff6ff') : 'transparent',
                       fontSize: 12,
                       userSelect: 'none'
                     }}
-                    onMouseEnter={e => { if (!isChecked) e.currentTarget.style.background = '#f8fafc'; }}
+                    onMouseEnter={e => { if (!isChecked) e.currentTarget.style.background = colors.hoverBg; }}
                     onMouseLeave={e => { if (!isChecked) e.currentTarget.style.background = 'transparent'; }}
                   >
                     <input
@@ -224,7 +225,7 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
                         margin: 0
                       }}
                     />
-                    <span style={{ color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ color: colors.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {strVal}
                     </span>
                   </label>
@@ -238,11 +239,19 @@ const MultiSelectCheckboxDropdown = ({ uniqueVals, selectedVals, onChange }) => 
   );
 };
 
-const RCodeModal = ({ codeObj, onClose }) => {
+const RCodeModal = ({ codeObj, onClose, colors, isDarkMode }) => {
   const [activeTab, setActiveTab] = useState('dplyr');
   const [copied, setCopied] = useState(false);
 
-  const codeText = activeTab === 'dplyr' ? codeObj.dplyr : activeTab === 'baseR' ? codeObj.baseR : codeObj.sql;
+  const codeText = activeTab === 'dplyr'
+    ? codeObj.dplyr
+    : activeTab === 'baseR'
+      ? codeObj.baseR
+      : activeTab === 'sql'
+        ? codeObj.sql
+        : activeTab === 'arrow'
+          ? codeObj.arrow
+          : codeObj.duckdb;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeText);
@@ -262,26 +271,27 @@ const RCodeModal = ({ codeObj, onClose }) => {
       zIndex: 10000
     }}>
       <div style={{
-        background: '#fff',
+        background: colors.cardBg,
         borderRadius: 12,
         width: '90%',
-        maxWidth: 600,
+        maxWidth: 700,
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        border: `1px solid ${colors.border}`
       }}>
         <div style={{
           padding: '16px 20px',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: `1px solid ${colors.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: '#f8fafc'
+          background: colors.toolbarBg
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 20 }}>📊</span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: '#0f172a' }}>Reproduce Query Code</span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: colors.text }}>Reproduce Query Code</span>
           </div>
           <button 
             onClick={onClose}
@@ -289,7 +299,7 @@ const RCodeModal = ({ codeObj, onClose }) => {
               border: 'none',
               background: 'transparent',
               fontSize: 20,
-              color: '#94a3b8',
+              color: colors.subText,
               cursor: 'pointer',
               fontWeight: 'bold',
               lineHeight: 1
@@ -301,14 +311,17 @@ const RCodeModal = ({ codeObj, onClose }) => {
 
         <div style={{
           display: 'flex',
-          borderBottom: '1px solid #e2e8f0',
-          background: '#f1f5f9',
-          padding: '0 12px'
+          borderBottom: `1px solid ${colors.border}`,
+          background: isDarkMode ? '#1e293b' : '#f1f5f9',
+          padding: '0 12px',
+          overflowX: 'auto'
         }}>
           {[
-            { id: 'dplyr', label: 'tidyverse (dplyr)' },
-            { id: 'baseR', label: 'Base R' },
-            { id: 'sql',   label: 'SQL Query' }
+            { id: 'dplyr',  label: 'tidyverse (dplyr)' },
+            { id: 'baseR',  label: 'Base R' },
+            { id: 'sql',    label: 'SQL Query' },
+            { id: 'arrow',  label: 'Arrow' },
+            { id: 'duckdb', label: 'DuckDB / dbplyr' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -318,10 +331,11 @@ const RCodeModal = ({ codeObj, onClose }) => {
                 border: 'none',
                 background: 'transparent',
                 borderBottom: activeTab === tab.id ? '3px solid #2563eb' : '3px solid transparent',
-                color: activeTab === tab.id ? '#2563eb' : '#64748b',
+                color: activeTab === tab.id ? '#2563eb' : colors.subText,
                 fontWeight: 600,
                 fontSize: 13,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
               }}
             >
               {tab.label}
@@ -330,7 +344,7 @@ const RCodeModal = ({ codeObj, onClose }) => {
         </div>
 
         <div style={{ padding: 20, flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ fontSize: 13, color: '#64748b' }}>
+          <div style={{ fontSize: 13, color: colors.subText }}>
             Copy and paste this code to reproduce your current filters:
           </div>
           <div style={{ position: 'relative', flex: 1 }}>
@@ -377,8 +391,8 @@ const RCodeModal = ({ codeObj, onClose }) => {
 
         <div style={{
           padding: '12px 20px',
-          borderTop: '1px solid #e2e8f0',
-          background: '#f8fafc',
+          borderTop: `1px solid ${colors.border}`,
+          background: colors.toolbarBg,
           display: 'flex',
           justifyContent: 'flex-end',
           gap: 8
@@ -388,9 +402,9 @@ const RCodeModal = ({ codeObj, onClose }) => {
             style={{
               padding: '8px 16px',
               borderRadius: 6,
-              border: '1px solid #cbd5e1',
-              background: '#fff',
-              color: '#334155',
+              border: `1px solid ${colors.border}`,
+              background: colors.btnBg,
+              color: colors.text,
               fontSize: 13,
               fontWeight: 600,
               cursor: 'pointer'
@@ -831,11 +845,293 @@ const generateSQLCode = (datasetName, filters, queryRules, queryLogical, metadat
   return `SELECT ${selectCols}\nFROM ${datasetName}\nWHERE\n  ${whereClause.replace(/\n/g, '\n  ')};`;
 };
 
-const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpdateRule, onUpdateLogical, onClearRules, uniqueVals }) => {
+const generateArrowCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+  const conditions = [];
+
+  Object.entries(filters).forEach(([col, val]) => {
+    if (val == null) return;
+    const colMeta = metadata.find(m => m.name === col);
+    if (!colMeta) return;
+
+    if (Array.isArray(val)) {
+      if (val.length === 0) return;
+      const hasNA = val.includes(null);
+      const nonNAVals = val.filter(v => v !== null);
+      let expr = '';
+      if (nonNAVals.length > 0) {
+        const listStr = nonNAVals.map(v => `"${String(v).replace(/"/g, '\\"')}"`).join(', ');
+        expr = `${col} %in% c(${listStr})`;
+      }
+      if (hasNA) {
+        expr = expr ? `(${expr} | is.na(${col}))` : `is.na(${col})`;
+      }
+      conditions.push(expr);
+    } else if (typeof val === 'string' && val.trim() !== '') {
+      conditions.push(`grepl("${val.replace(/"/g, '\\"')}", ${col}, ignore.case = TRUE)`);
+    }
+  });
+
+  const ruleConditions = [];
+  queryRules.forEach(rule => {
+    const col = rule.col;
+    const op = rule.op;
+    const val = rule.val;
+    const colMeta = metadata.find(m => m.name === col);
+    const isNumeric = colMeta ? (colMeta.type === 'numeric' || colMeta.type === 'integer') : false;
+
+    if (op === 'is_null') {
+      ruleConditions.push(`is.na(${col})`);
+      return;
+    }
+    if (op === 'is_not_null') {
+      ruleConditions.push(`!is.na(${col})`);
+      return;
+    }
+
+    if (op === 'in' || op === 'not_in') {
+      let allowed = [];
+      try { allowed = JSON.parse(val || '[]'); } catch(e) {}
+      if (allowed.length === 0) return;
+
+      const hasNA = allowed.includes('NA') || allowed.includes(null);
+      const nonNAVals = allowed.filter(v => v !== 'NA' && v !== null);
+
+      let expr = '';
+      if (nonNAVals.length > 0) {
+        const listStr = nonNAVals.map(v => isNumeric ? Number(v) : `"${String(v).replace(/"/g, '\\"')}"`).join(', ');
+        expr = `${col} %in% c(${listStr})`;
+      }
+
+      if (op === 'in') {
+        if (hasNA) {
+          expr = expr ? `(${expr} | is.na(${col}))` : `is.na(${col})`;
+        }
+      } else {
+        if (expr) {
+          expr = `!(${expr})`;
+        }
+        if (hasNA) {
+          expr = expr ? `(${expr} & !is.na(${col}))` : `!is.na(${col})`;
+        }
+      }
+      if (expr) {
+        ruleConditions.push(expr);
+      }
+      return;
+    }
+
+    let rVal = val;
+    if (isNumeric) {
+      rVal = Number(val);
+      if (isNaN(rVal)) rVal = `"${val}"`;
+    } else if (colMeta?.type === 'logical') {
+      rVal = val.toUpperCase();
+    } else {
+      rVal = `"${val.replace(/"/g, '\\"')}"`;
+    }
+
+    switch (op) {
+      case '==':
+        ruleConditions.push(`${col} == ${rVal}`);
+        break;
+      case '!=':
+        ruleConditions.push(`${col} != ${rVal}`);
+        break;
+      case '>':
+        ruleConditions.push(`${col} > ${rVal}`);
+        break;
+      case '<':
+        ruleConditions.push(`${col} < ${rVal}`);
+        break;
+      case '>=':
+        ruleConditions.push(`${col} >= ${rVal}`);
+        break;
+      case '<=':
+        ruleConditions.push(`${col} <= ${rVal}`);
+        break;
+      case 'contains':
+        ruleConditions.push(`grepl(${rVal}, ${col}, ignore.case = TRUE)`);
+        break;
+      case 'not_contains':
+        ruleConditions.push(`!grepl(${rVal}, ${col}, ignore.case = TRUE)`);
+        break;
+      case 'starts_with':
+        ruleConditions.push(`grepl("^${val.replace(/"/g, '\\"')}", ${col}, ignore.case = TRUE)`);
+        break;
+      case 'ends_with':
+        ruleConditions.push(`grepl("${val.replace(/"/g, '\\"')}$", ${col}, ignore.case = TRUE)`);
+        break;
+    }
+  });
+
+  if (ruleConditions.length > 0) {
+    if (ruleConditions.length === 1) {
+      conditions.push(ruleConditions[0]);
+    } else {
+      const connector = queryLogical === 'OR' ? ' | ' : ' & ';
+      conditions.push(`(${ruleConditions.join(connector)})`);
+    }
+  }
+
+  let selectExpr = '';
+  if (visibleCols && visibleCols.length < totalColsCount) {
+    selectExpr = ` %>%\n  select(${visibleCols.join(', ')})`;
+  }
+
+  if (conditions.length === 0) {
+    return `library(arrow)\nlibrary(dplyr)\n\n# Assuming ${datasetName} is an Arrow Table or Dataset pointer\nfiltered_arrow <- ${datasetName}${selectExpr} %>%\n  collect()`;
+  }
+
+  const filterExpression = conditions.join(' &\n  ');
+  return `library(arrow)\nlibrary(dplyr)\n\n# Assuming ${datasetName} is an Arrow Table or Dataset pointer\nfiltered_arrow <- ${datasetName} %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${selectExpr} %>%\n  collect()`;
+};
+
+const generateDuckDBCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+  const conditions = [];
+
+  Object.entries(filters).forEach(([col, val]) => {
+    if (val == null) return;
+    const colMeta = metadata.find(m => m.name === col);
+    if (!colMeta) return;
+
+    if (Array.isArray(val)) {
+      if (val.length === 0) return;
+      const hasNA = val.includes(null);
+      const nonNAVals = val.filter(v => v !== null);
+      let expr = '';
+      if (nonNAVals.length > 0) {
+        const listStr = nonNAVals.map(v => `"${String(v).replace(/"/g, '\\"')}"`).join(', ');
+        expr = `${col} %in% c(${listStr})`;
+      }
+      if (hasNA) {
+        expr = expr ? `(${expr} | is.na(${col}))` : `is.na(${col})`;
+      }
+      conditions.push(expr);
+    } else if (typeof val === 'string' && val.trim() !== '') {
+      conditions.push(`grepl("${val.replace(/"/g, '\\"')}", ${col}, ignore.case = TRUE)`);
+    }
+  });
+
+  const ruleConditions = [];
+  queryRules.forEach(rule => {
+    const col = rule.col;
+    const op = rule.op;
+    const val = rule.val;
+    const colMeta = metadata.find(m => m.name === col);
+    const isNumeric = colMeta ? (colMeta.type === 'numeric' || colMeta.type === 'integer') : false;
+
+    if (op === 'is_null') {
+      ruleConditions.push(`is.na(${col})`);
+      return;
+    }
+    if (op === 'is_not_null') {
+      ruleConditions.push(`!is.na(${col})`);
+      return;
+    }
+
+    if (op === 'in' || op === 'not_in') {
+      let allowed = [];
+      try { allowed = JSON.parse(val || '[]'); } catch(e) {}
+      if (allowed.length === 0) return;
+
+      const hasNA = allowed.includes('NA') || allowed.includes(null);
+      const nonNAVals = allowed.filter(v => v !== 'NA' && v !== null);
+
+      let expr = '';
+      if (nonNAVals.length > 0) {
+        const listStr = nonNAVals.map(v => isNumeric ? Number(v) : `"${String(v).replace(/"/g, '\\"')}"`).join(', ');
+        expr = `${col} %in% c(${listStr})`;
+      }
+
+      if (op === 'in') {
+        if (hasNA) {
+          expr = expr ? `(${expr} | is.na(${col}))` : `is.na(${col})`;
+        }
+      } else {
+        if (expr) {
+          expr = `!(${expr})`;
+        }
+        if (hasNA) {
+          expr = expr ? `(${expr} & !is.na(${col}))` : `!is.na(${col})`;
+        }
+      }
+      if (expr) {
+        ruleConditions.push(expr);
+      }
+      return;
+    }
+
+    let rVal = val;
+    if (isNumeric) {
+      rVal = Number(val);
+      if (isNaN(rVal)) rVal = `"${val}"`;
+    } else if (colMeta?.type === 'logical') {
+      rVal = val.toUpperCase();
+    } else {
+      rVal = `"${val.replace(/"/g, '\\"')}"`;
+    }
+
+    switch (op) {
+      case '==':
+        ruleConditions.push(`${col} == ${rVal}`);
+        break;
+      case '!=':
+        ruleConditions.push(`${col} != ${rVal}`);
+        break;
+      case '>':
+        ruleConditions.push(`${col} > ${rVal}`);
+        break;
+      case '<':
+        ruleConditions.push(`${col} < ${rVal}`);
+        break;
+      case '>=':
+        ruleConditions.push(`${col} >= ${rVal}`);
+        break;
+      case '<=':
+        ruleConditions.push(`${col} <= ${rVal}`);
+        break;
+      case 'contains':
+        ruleConditions.push(`grepl(${rVal}, ${col}, ignore.case = TRUE)`);
+        break;
+      case 'not_contains':
+        ruleConditions.push(`!grepl(${rVal}, ${col}, ignore.case = TRUE)`);
+        break;
+      case 'starts_with':
+        ruleConditions.push(`grepl("^${val.replace(/"/g, '\\"')}", ${col}, ignore.case = TRUE)`);
+        break;
+      case 'ends_with':
+        ruleConditions.push(`grepl("${val.replace(/"/g, '\\"')}$", ${col}, ignore.case = TRUE)`);
+        break;
+    }
+  });
+
+  if (ruleConditions.length > 0) {
+    if (ruleConditions.length === 1) {
+      conditions.push(ruleConditions[0]);
+    } else {
+      const connector = queryLogical === 'OR' ? ' | ' : ' & ';
+      conditions.push(`(${ruleConditions.join(connector)})`);
+    }
+  }
+
+  let selectExpr = '';
+  if (visibleCols && visibleCols.length < totalColsCount) {
+    selectExpr = ` %>%\n  select(${visibleCols.join(', ')})`;
+  }
+
+  if (conditions.length === 0) {
+    return `library(duckdb)\nlibrary(dplyr)\nlibrary(dbplyr)\n\n# Assuming tbl_duckdb is a dbplyr table pointer connected to DuckDB\nfiltered_duck <- tbl_duckdb${selectExpr} %>%\n  collect()`;
+  }
+
+  const filterExpression = conditions.join(' &\n  ');
+  return `library(duckdb)\nlibrary(dplyr)\nlibrary(dbplyr)\n\n# Assuming tbl_duckdb is a dbplyr table pointer connected to DuckDB\nfiltered_duck <- tbl_duckdb %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${selectExpr} %>%\n  collect()`;
+};
+
+const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpdateRule, onUpdateLogical, onClearRules, uniqueVals, colors, isDarkMode }) => {
   return (
     <div style={{
-      background: '#f8fafc',
-      borderBottom: '1px solid #e2e8f0',
+      background: colors.toolbarBg,
+      borderBottom: `1px solid ${colors.border}`,
       padding: '14px 18px',
       fontFamily: "'Inter','Segoe UI',sans-serif",
       fontSize: 13,
@@ -845,17 +1141,17 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
     }}>
       {/* Control row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <span style={{ fontWeight: 600, color: '#334155' }}>Match</span>
+        <span style={{ fontWeight: 600, color: colors.text }}>Match</span>
         <select 
           value={logical} 
           onChange={e => onUpdateLogical(e.target.value)}
           style={{
             padding: '5px 8px',
-            border: '1.5px solid #cbd5e1',
+            border: `1.5px solid ${colors.border}`,
             borderRadius: 6,
-            background: '#fff',
+            background: colors.btnBg,
             fontWeight: 600,
-            color: '#1e293b',
+            color: colors.text,
             outline: 'none',
             cursor: 'pointer'
           }}
@@ -863,7 +1159,7 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
           <option value="AND">ALL (AND)</option>
           <option value="OR">ANY (OR)</option>
         </select>
-        <span style={{ color: '#64748b' }}>of the following conditions:</span>
+        <span style={{ color: colors.subText }}>of the following conditions:</span>
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
           <button 
@@ -904,7 +1200,7 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
 
       {/* Rules list */}
       {rules.length === 0 ? (
-        <div style={{ color: '#94a3b8', fontStyle: 'italic', padding: '6px 0' }}>
+        <div style={{ color: colors.subText, fontStyle: 'italic', padding: '6px 0' }}>
           No query conditions added. Click "+ Add Condition" to filter this dataset.
         </div>
       ) : (
@@ -933,12 +1229,12 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                   }}
                   style={{
                     padding: '6px 10px',
-                    border: '1.5px solid #cbd5e1',
+                    border: `1.5px solid ${colors.border}`,
                     borderRadius: 6,
                     minWidth: 150,
                     outline: 'none',
-                    background: '#fff',
-                    color: '#334155'
+                    background: colors.btnBg,
+                    color: colors.text
                   }}
                 >
                   {metadata.map(m => (
@@ -959,11 +1255,11 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                   }}
                   style={{
                     padding: '6px 10px',
-                    border: '1.5px solid #cbd5e1',
+                    border: `1.5px solid ${colors.border}`,
                     borderRadius: 6,
                     outline: 'none',
-                    background: '#fff',
-                    color: '#334155'
+                    background: colors.btnBg,
+                    color: colors.text
                   }}
                 >
                   {ops.map(o => (
@@ -980,11 +1276,11 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                         onChange={e => onUpdateRule(rule.id, { val: e.target.value })}
                         style={{
                           padding: '6px 10px',
-                          border: '1.5px solid #cbd5e1',
+                          border: `1.5px solid ${colors.border}`,
                           borderRadius: 6,
                           outline: 'none',
-                          background: '#fff',
-                          color: '#334155'
+                          background: colors.btnBg,
+                          color: colors.text
                         }}
                       >
                         <option value="true">TRUE</option>
@@ -1003,6 +1299,8 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                             uniqueVals={uniqueVals[selectedColName]}
                             selectedVals={selectedList}
                             onChange={(next) => onUpdateRule(rule.id, { val: JSON.stringify(next) })}
+                            colors={colors}
+                            isDarkMode={isDarkMode}
                           />
                         );
                       })()
@@ -1012,11 +1310,11 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                         onChange={e => onUpdateRule(rule.id, { val: e.target.value })}
                         style={{
                           padding: '6px 10px',
-                          border: '1.5px solid #cbd5e1',
+                          border: `1.5px solid ${colors.border}`,
                           borderRadius: 6,
                           outline: 'none',
-                          background: '#fff',
-                          color: '#334155',
+                          background: colors.btnBg,
+                          color: colors.text,
                           maxWidth: 220
                         }}
                       >
@@ -1036,9 +1334,11 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                         onChange={e => onUpdateRule(rule.id, { val: e.target.value })}
                         style={{
                           padding: '6px 10px',
-                          border: '1.5px solid #cbd5e1',
+                          border: `1.5px solid ${colors.border}`,
                           borderRadius: 6,
                           outline: 'none',
+                          background: colors.btnBg,
+                          color: colors.text,
                           width: 130
                         }}
                       />
@@ -1049,10 +1349,11 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                         onChange={e => onUpdateRule(rule.id, { val: e.target.value })}
                         style={{
                           padding: '6px 10px',
-                          border: '1.5px solid #cbd5e1',
+                          border: `1.5px solid ${colors.border}`,
                           borderRadius: 6,
                           outline: 'none',
-                          color: '#334155'
+                          background: colors.btnBg,
+                          color: colors.text
                         }}
                       />
                     ) : (
@@ -1063,9 +1364,11 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                         onChange={e => onUpdateRule(rule.id, { val: e.target.value })}
                         style={{
                           padding: '6px 10px',
-                          border: '1.5px solid #cbd5e1',
+                          border: `1.5px solid ${colors.border}`,
                           borderRadius: 6,
                           outline: 'none',
+                          background: colors.btnBg,
+                          color: colors.text,
                           width: 150
                         }}
                       />
@@ -1080,8 +1383,8 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: '#fef2f2',
-                    border: '1px solid #fee2e2',
+                    background: isDarkMode ? '#7f1d1d' : '#fef2f2',
+                    border: `1px solid ${isDarkMode ? '#991b1b' : '#fee2e2'}`,
                     borderRadius: 6,
                     width: 28,
                     height: 28,
@@ -1104,7 +1407,7 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
 };
 
 // ── Filter Panel (floating popup) ────────────────────────────────────────────
-const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, onClose, onSort }) => {
+const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, onClose, onSort, colors, isDarkMode }) => {
   const isCat = CATEGORICAL.has(meta.type);
   const initSel = new Set(applied && Array.isArray(applied) ? applied : []);
   const initTxt = (!isCat && applied && typeof applied === 'string') ? applied : '';
@@ -1139,16 +1442,16 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
   return (
     <div ref={ref} onMouseDown={e => e.stopPropagation()} style={{
       position:'fixed', zIndex:9999, left, top, width:panelW,
-      background:'#fff', border:'1px solid #e2e8f0', borderRadius:10,
-      boxShadow:'0 16px 48px rgba(0,0,0,0.16)',
+      background:colors.cardBg, border:`1px solid ${colors.border}`, borderRadius:10,
+      boxShadow:'0 16px 48px rgba(0,0,0,0.18)',
       fontFamily:"'Inter','Segoe UI',sans-serif", fontSize:13, overflow:'hidden',
     }}>
       {/* Sort */}
-      <div style={{ borderBottom:'1px solid #f1f5f9' }}>
+      <div style={{ borderBottom:`1px solid ${colors.border}` }}>
         {[['asc','↑  Sort ascending'],['desc','↓  Sort descending']].map(([d,lbl]) => (
           <div key={d} onClick={() => { onSort(meta.name,d); onClose(); }}
-            style={{ padding:'10px 16px', cursor:'pointer', color:'#334155', display:'flex', alignItems:'center', gap:8 }}
-            onMouseEnter={e=>e.currentTarget.style.background='#f8fafc'}
+            style={{ padding:'10px 16px', cursor:'pointer', color:colors.text, display:'flex', alignItems:'center', gap:8 }}
+            onMouseEnter={e=>e.currentTarget.style.background=colors.hoverBg}
             onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
             {lbl}
           </div>
@@ -1156,39 +1459,39 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
       </div>
 
       {/* Search */}
-      <div style={{ padding:'10px 12px', borderBottom:'1px solid #f1f5f9' }}>
+      <div style={{ padding:'10px 12px', borderBottom:`1px solid ${colors.border}` }}>
         <div style={{ position:'relative' }}>
           <input autoFocus type="text"
             placeholder={isCat ? 'Search values…' : 'Filter value…'}
             value={isCat ? search : text}
             onChange={e => isCat ? setSearch(e.target.value) : setText(e.target.value)}
             style={{ width:'100%', boxSizing:'border-box', padding:'7px 32px 7px 10px',
-              border:'1px solid #e2e8f0', borderRadius:6, fontSize:12, outline:'none',
-              color:'#334155', background:'#f8fafc' }} />
+              border:`1px solid ${colors.border}`, borderRadius:6, fontSize:12, outline:'none',
+              color:colors.text, background:colors.bg }} />
           <span style={{ position:'absolute', right:9, top:'50%', transform:'translateY(-50%)',
-            color:'#94a3b8', fontSize:14, pointerEvents:'none' }}>🔍</span>
+            color:colors.subText, fontSize:14, pointerEvents:'none' }}>🔍</span>
         </div>
       </div>
 
       {/* Checkboxes */}
       {isCat && (
         <>
-          <div style={{ display:'flex', gap:12, padding:'6px 16px', borderBottom:'1px solid #f1f5f9' }}>
+          <div style={{ display:'flex', gap:12, padding:'6px 16px', borderBottom:`1px solid ${colors.border}` }}>
             <span onClick={() => setSelected(new Set(listVals||[]))}
               style={{ fontSize:11, color:'#3b82f6', cursor:'pointer', textDecoration:'underline' }}>
               Select all
             </span>
             <span onClick={() => setSelected(new Set())}
-              style={{ fontSize:11, color:'#94a3b8', cursor:'pointer', textDecoration:'underline' }}>
+              style={{ fontSize:11, color:colors.subText, cursor:'pointer', textDecoration:'underline' }}>
               Clear
             </span>
-            <span style={{ marginLeft:'auto', fontSize:11, color:'#94a3b8' }}>
+            <span style={{ marginLeft:'auto', fontSize:11, color:colors.subText }}>
               {selected.size} selected
             </span>
           </div>
           <div style={{ maxHeight:220, overflowY:'auto' }}>
             {listVals.length === 0 && (
-              <div style={{ padding:'12px 16px', color:'#94a3b8', fontSize:12 }}>No matching values</div>
+              <div style={{ padding:'12px 16px', color:colors.subText, fontSize:12 }}>No matching values</div>
             )}
             {listVals.map(v => {
               const lbl = v == null ? 'NA' : String(v);
@@ -1196,12 +1499,12 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
               return (
                 <label key={lbl} style={{ display:'flex', alignItems:'center', gap:10,
                   padding:'8px 16px', cursor:'pointer',
-                  background: chk ? '#eff6ff' : 'transparent' }}
-                  onMouseEnter={e => { if(!chk) e.currentTarget.style.background='#f8fafc'; }}
+                  background: chk ? (isDarkMode ? '#1e3a8a' : '#eff6ff') : 'transparent' }}
+                  onMouseEnter={e => { if(!chk) e.currentTarget.style.background=colors.hoverBg; }}
                   onMouseLeave={e => { if(!chk) e.currentTarget.style.background='transparent'; }}>
                   <input type="checkbox" checked={chk} onChange={() => toggle(v)}
                     style={{ accentColor:'#3b82f6', width:14, height:14, cursor:'pointer', flexShrink:0 }} />
-                  <span style={{ color:'#334155' }}>{lbl}</span>
+                  <span style={{ color:colors.text }}>{lbl}</span>
                 </label>
               );
             })}
@@ -1211,12 +1514,12 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
 
       {/* Buttons */}
       <div style={{ display:'flex', gap:8, padding:'12px 16px',
-        borderTop:'1px solid #f1f5f9', background:'#fafafa' }}>
+        borderTop:`1px solid ${colors.border}`, background:colors.toolbarBg }}>
         <button onClick={clear} style={{ flex:1, padding:'8px 0', borderRadius:20,
-          border:'1.5px solid #e2e8f0', background:'#fff', color:'#475569',
+          border:`1.5px solid ${colors.border}`, background:colors.btnBg, color:colors.text,
           fontSize:13, fontWeight:500, cursor:'pointer' }}>Clear</button>
         <button onClick={apply} style={{ flex:1, padding:'8px 0', borderRadius:20,
-          border:'none', background:'#1e293b', color:'#fff',
+          border:'none', background:colors.text, color:colors.bg,
           fontSize:13, fontWeight:600, cursor:'pointer' }}>Apply</button>
       </div>
     </div>
@@ -1224,7 +1527,7 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
 };
 
 // ── Column Visibility Panel ───────────────────────────────────────────────────
-const ColVisPanel = ({ metadata, visible, onChange, onClose }) => {
+const ColVisPanel = ({ metadata, visible, onChange, onClose, colors, isDarkMode }) => {
   const [search, setSearch] = useState('');
   const ref = useRef(null);
 
@@ -1247,34 +1550,34 @@ const ColVisPanel = ({ metadata, visible, onChange, onClose }) => {
   return (
     <div ref={ref} style={{
       position:'absolute', top:'100%', right:0, marginTop:4, zIndex:9999,
-      width:240, background:'#fff', border:'1px solid #e2e8f0', borderRadius:10,
-      boxShadow:'0 12px 40px rgba(0,0,0,0.14)',
+      width:240, background:colors.cardBg, border:`1px solid ${colors.border}`, borderRadius:10,
+      boxShadow:'0 12px 40px rgba(0,0,0,0.15)',
       fontFamily:"'Inter','Segoe UI',sans-serif", fontSize:13, overflow:'hidden',
     }}>
-      <div style={{ padding:'10px 12px', borderBottom:'1px solid #f1f5f9',
-        fontWeight:600, color:'#1e293b', fontSize:13 }}>
+      <div style={{ padding:'10px 12px', borderBottom:`1px solid ${colors.border}`,
+        fontWeight:600, color:colors.text, fontSize:13 }}>
         Columns
       </div>
       {/* Search */}
-      <div style={{ padding:'8px 12px', borderBottom:'1px solid #f1f5f9' }}>
+      <div style={{ padding:'8px 12px', borderBottom:`1px solid ${colors.border}` }}>
         <input type="text" placeholder="Search columns…" value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ width:'100%', boxSizing:'border-box', padding:'6px 10px',
-            border:'1px solid #e2e8f0', borderRadius:6, fontSize:12,
-            outline:'none', color:'#334155', background:'#f8fafc' }} />
+            border:`1px solid ${colors.border}`, borderRadius:6, fontSize:12,
+            outline:'none', color:colors.text, background:colors.bg }} />
       </div>
       {/* Select all / none */}
       <div style={{ display:'flex', gap:12, padding:'6px 16px',
-        borderBottom:'1px solid #f1f5f9' }}>
+        borderBottom:`1px solid ${colors.border}` }}>
         <span onClick={() => onChange(new Set(metadata.map(m=>m.name)))}
           style={{ fontSize:11, color:'#3b82f6', cursor:'pointer', textDecoration:'underline' }}>
           Show all
         </span>
         <span onClick={() => onChange(new Set())}
-          style={{ fontSize:11, color:'#94a3b8', cursor:'pointer', textDecoration:'underline' }}>
+          style={{ fontSize:11, color:colors.subText, cursor:'pointer', textDecoration:'underline' }}>
           Hide all
         </span>
-        <span style={{ marginLeft:'auto', fontSize:11, color:'#94a3b8' }}>
+        <span style={{ marginLeft:'auto', fontSize:11, color:colors.subText }}>
           {visible.size} / {metadata.length}
         </span>
       </div>
@@ -1286,16 +1589,16 @@ const ColVisPanel = ({ metadata, visible, onChange, onClose }) => {
           return (
             <label key={meta.name} style={{ display:'flex', alignItems:'center', gap:10,
               padding:'8px 16px', cursor:'pointer',
-              background: on ? '#f0fdf4' : 'transparent' }}
-              onMouseEnter={e => e.currentTarget.style.background = on ? '#f0fdf4' : '#f8fafc'}
-              onMouseLeave={e => e.currentTarget.style.background = on ? '#f0fdf4' : 'transparent'}>
+              background: on ? (isDarkMode ? '#064e3b' : '#f0fdf4') : 'transparent' }}
+              onMouseEnter={e => e.currentTarget.style.background = on ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.hoverBg}
+              onMouseLeave={e => e.currentTarget.style.background = on ? (isDarkMode ? '#064e3b' : '#f0fdf4') : 'transparent'}>
               <input type="checkbox" checked={on} onChange={() => toggle(meta.name)}
                 style={{ accentColor:'#22c55e', width:14, height:14, cursor:'pointer', flexShrink:0 }} />
               <span style={{ fontSize:10, padding:'1px 4px', borderRadius:3,
                 background:t.bg, color:t.text, fontWeight:700, flexShrink:0 }}>
                 {t.icon}
               </span>
-              <span style={{ color:'#334155', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+              <span style={{ color:colors.text, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                 {meta.name}
               </span>
             </label>
@@ -1307,7 +1610,7 @@ const ColVisPanel = ({ metadata, visible, onChange, onClose }) => {
 };
 
 // ── Column Header Cell ────────────────────────────────────────────────────────
-const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel }) => {
+const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, colors, isDarkMode }) => {
   const active  = sortCol === meta.name;
   const t       = tm(meta.type);
   const btnRef  = useRef(null);
@@ -1324,18 +1627,18 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
       width: COL_WIDTH, flexShrink:0, height:HEADER_HEIGHT,
       padding:'5px 8px 5px 10px', display:'flex', flexDirection:'column',
       justifyContent:'center', cursor:'pointer', userSelect:'none',
-      borderRight:'1px solid #e2e8f0', boxSizing:'border-box',
-      background: active ? '#eff6ff' : isFiltered ? '#f0fdf4' : '#f8fafc',
+      borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
+      background: active ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
     }}>
       {/* Row 1: type icon + column name + sort arrow */}
       <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:2 }}>
         <span style={{ fontSize:10, color:t.text, fontWeight:700,
           background:t.bg, borderRadius:3, padding:'0 4px', flexShrink:0 }}>{t.icon}</span>
-        <span style={{ fontWeight:600, fontSize:13, color:'#1e293b',
+        <span style={{ fontWeight:600, fontSize:13, color:colors.text,
           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>
           {meta.name}
         </span>
-        <span style={{ fontSize:10, color: active?'#3b82f6':'#cbd5e1', flexShrink:0 }}>
+        <span style={{ fontSize:10, color: active?'#3b82f6':colors.subText, flexShrink:0 }}>
           {active ? (sortDir==='asc'?'▲':'▼') : '⇅'}
         </span>
       </div>
@@ -1361,13 +1664,13 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
         <span style={{ fontSize:10, padding:'1px 5px', borderRadius:3,
           background:t.bg, color:t.text, fontWeight:600 }}>{meta.type}</span>
         <span style={{ fontSize:10, padding:'1px 5px', borderRadius:3,
-          background:'#f1f5f9', color:'#64748b' }}>{meta.unique_values} uniq</span>
+          background:isDarkMode ? '#334155' : '#f1f5f9', color:colors.subText }}>{meta.unique_values} uniq</span>
         <button ref={btnRef} onClick={openPanel} title="Filter / Sort"
           style={{ marginLeft:'auto', width:20, height:20, border:'none', borderRadius:4,
             cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
             fontSize:13, flexShrink:0,
             background: isFiltered?'#3b82f6':'transparent',
-            color: isFiltered?'#fff':'#94a3b8' }}>
+            color: isFiltered?'#fff':colors.subText }}>
           ≡
         </button>
       </div>
@@ -1376,7 +1679,17 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
 });
 
 // ── Main Component ────────────────────────────────────────────────────────────
-const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
+const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} }) => {
+  const {
+    advanced_filter = true,
+    show_labels     = true,
+    column_picker   = true,
+    allow_export    = true,
+    theme           = 'auto',
+    na_string       = 'NA',
+    hidden_columns  = []
+  } = options;
+
   const [showRCodeModal,   setShowRCodeModal]   = useState(false);
   const [sortCol,          setSortCol]          = useState(null);
   const [sortDir,          setSortDir]          = useState('asc');
@@ -1385,7 +1698,7 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
   const [showColVis,       setShowColVis]       = useState(false);
   const [visible,          setVisible]          = useState(null);
   const [scrollTop,        setScrollTop]        = useState(0);
-  const [showLabels,       setShowLabels]       = useState(true);   // label toggle
+  const [showLabels,       setShowLabels]       = useState(show_labels);   // label toggle
   const [wrapH,            setWrapH]            = useState(400);
   const [showQueryBuilder, setShowQueryBuilder] = useState(false); // advanced filter open/close
   const [queryRules,       setQueryRules]       = useState([]);     // rules list
@@ -1395,6 +1708,56 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
   // Whether any column in this dataset carries a label
   const hasAnyLabel = useMemo(() =>
     (metadata || []).some(m => m.label), [metadata]);
+
+  // Dark Mode detection
+  const isDarkMode = useMemo(() => {
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    // 'auto'
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  }, [theme]);
+
+  // Theme palettes
+  const colors = useMemo(() => {
+    if (isDarkMode) {
+      return {
+        bg: '#0f172a',
+        text: '#f8fafc',
+        border: '#334155',
+        cardBg: '#1e293b',
+        stripe: '#1e293b',
+        rowBg: '#0f172a',
+        toolbarBg: '#1e293b',
+        hoverBg: '#334155',
+        subText: '#94a3b8',
+        btnBg: '#334155',
+        btnText: '#f8fafc',
+        headerBg: '#1e293b',
+        headerActiveBg: '#1e3a8a',
+        headerActiveBorder: '#3b82f6',
+      };
+    } else {
+      return {
+        bg: '#ffffff',
+        text: '#1e293b',
+        border: '#e2e8f0',
+        cardBg: '#ffffff',
+        stripe: '#fafafa',
+        rowBg: '#ffffff',
+        toolbarBg: '#f8fafc',
+        hoverBg: '#f1f5f9',
+        subText: '#64748b',
+        btnBg: '#ffffff',
+        btnText: '#334155',
+        headerBg: '#f8fafc',
+        headerActiveBg: '#eff6ff',
+        headerActiveBorder: '#bfdbfe',
+      };
+    }
+  }, [isDarkMode]);
 
   // Track scroll wrapper height via ResizeObserver
   useEffect(() => {
@@ -1420,12 +1783,16 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
     });
   }, [data]);
 
-  // Default: all columns visible
+  // Default: initialize visible columns using hidden_columns preference
   useEffect(() => {
     if (metadata && visible === null) {
-      setVisible(new Set(metadata.map(m => m.name)));
+      const hiddenSet = new Set(hidden_columns || []);
+      const initialVisible = new Set(
+        metadata.map(m => m.name).filter(name => !hiddenSet.has(name))
+      );
+      setVisible(initialVisible);
     }
-  }, [metadata]);
+  }, [metadata, hidden_columns]);
 
   const cols = useMemo(() =>
     (metadata || []).filter(m => visible ? visible.has(m.name) : true),
@@ -1613,44 +1980,44 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
   const containerStyle = {
     height: '100%', display: 'flex', flexDirection: 'column',
     fontFamily: "'Inter','Segoe UI',system-ui,sans-serif",
-    fontSize: 13, background: '#fff',
-    border: '1px solid #e2e8f0', boxSizing: 'border-box',
+    fontSize: 13, background: colors.bg, color: colors.text,
+    border: `1px solid ${colors.border}`, boxSizing: 'border-box',
   };
 
   return (
     <div style={containerStyle}>
       <style>{`
-        .dtex-row:hover { background-color: #f1f5f9 !important; }
-        .dtex-row:hover .dtex-rownum { background-color: #f1f5f9 !important; }
-        .dtex-header-cell:hover { background-color: #f1f5f9 !important; }
+        .dtex-row:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
+        .dtex-row:hover .dtex-rownum { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
+        .dtex-header-cell:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
       `}</style>
 
       {/* ── Toolbar ── */}
-      <div style={{ flexShrink:0, padding:'8px 14px', borderBottom:'1px solid #e2e8f0',
-        background:'#f8fafc', display:'flex', alignItems:'center', gap:12 }}>
+      <div style={{ flexShrink:0, padding:'8px 14px', borderBottom:`1px solid ${colors.border}`,
+        background:colors.toolbarBg, display:'flex', alignItems:'center', gap:12 }}>
         {/* Stats */}
-        <span style={{ color:'#64748b', fontSize:12 }}>
-          <b style={{color:'#1e293b'}}>{rows.length}</b>
+        <span style={{ color:colors.subText, fontSize:12 }}>
+          <b style={{color:colors.text}}>{rows.length}</b>
           {rows.length!==rawRows.length && <> / {rawRows.length}</>} rows ·{' '}
-          <b style={{color:'#1e293b'}}>{cols.length}</b>
+          <b style={{color:colors.text}}>{cols.length}</b>
           {cols.length!==(metadata||[]).length && <> / {(metadata||[]).length}</>} columns
         </span>
         {sortCol && (
-          <span style={{ fontSize:11, color:'#64748b', background:'#e2e8f0',
+          <span style={{ fontSize:11, color:colors.text, background:isDarkMode ? '#334155' : '#e2e8f0',
             padding:'2px 8px', borderRadius:10 }}>
             ↕ {sortCol} {sortDir}
           </span>
         )}
         {activeFilterCount>0 && (
-          <span style={{ fontSize:11, color:'#3b82f6', background:'#dbeafe',
+          <span style={{ fontSize:11, color:'#3b82f6', background:isDarkMode ? '#1e3a8a' : '#dbeafe',
             padding:'2px 8px', borderRadius:10 }}>
             🔍 {activeFilterCount} filter{activeFilterCount>1?'s':''}
           </span>
         )}
         {activeFilterCount>0 && (
           <button onClick={()=>setFilters({})} style={{ fontSize:11, padding:'3px 10px',
-            border:'1px solid #e2e8f0', borderRadius:10, background:'#fff',
-            color:'#64748b', cursor:'pointer' }}>
+            border:`1px solid ${colors.border}`, borderRadius:10, background:colors.btnBg,
+            color:colors.text, cursor:'pointer' }}>
             Clear filters
           </button>
         )}
@@ -1663,74 +2030,82 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
           <button onClick={() => setShowLabels(v => !v)}
             title={showLabels ? 'Hide column labels' : 'Show column labels'}
             style={{ display:'flex', alignItems:'center', gap:5,
-              padding:'6px 10px', border:'1px solid #e2e8f0', borderRadius:8,
-              background: showLabels ? '#f5f3ff' : '#fff',
-              color: showLabels ? '#7c3aed' : '#94a3b8',
+              padding:'6px 10px', border:`1px solid ${colors.border}`, borderRadius:8,
+              background: showLabels ? (isDarkMode ? '#2e1065' : '#f5f3ff') : colors.btnBg,
+              color: showLabels ? '#7c3aed' : colors.subText,
               fontSize:12, fontWeight:500, cursor:'pointer',
               boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-              borderColor: showLabels ? '#c4b5fd' : '#e2e8f0' }}>
+              borderColor: showLabels ? '#c4b5fd' : colors.border }}>
             <span style={{fontSize:13}}>🏷</span>
             {showLabels ? 'Labels on' : 'Labels off'}
           </button>
         )}
 
         {/* Advanced Filter button */}
-        <button onClick={() => setShowQueryBuilder(v => !v)} style={{
-          display:'flex', alignItems:'center', gap:6,
-          padding:'6px 12px', border:'1px solid #e2e8f0', borderRadius:8,
-          background: showQueryBuilder ? '#eff6ff' : '#fff',
-          color: showQueryBuilder ? '#2563eb' : '#334155',
-          borderColor: showQueryBuilder ? '#bfdbfe' : '#e2e8f0',
-          fontSize:12, fontWeight:500, cursor:'pointer',
-          boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-        }} title="Build advanced multi-condition search queries">
-          <span style={{fontSize:14}}>🔍</span> Advanced Filter
-          {queryRules.length > 0 && (
-            <span style={{ fontSize:10, background:'#2563eb', color:'#fff',
-              borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
-              {queryRules.length}
-            </span>
-          )}
-        </button>
-
-        {/* Query Code Button */}
-        <button onClick={() => setShowRCodeModal(true)} style={{
-          display:'flex', alignItems:'center', gap:6,
-          padding:'6px 12px', border:'1px solid #e2e8f0', borderRadius:8,
-          background:'#fff', color:'#334155',
-          fontSize:12, fontWeight:500, cursor:'pointer',
-          boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-        }} title="Show reproducible R or SQL query for these filters">
-          <span style={{fontSize:14}}>📊</span> Query Code
-        </button>
-
-        {/* Column visibility toggle */}
-        <div style={{ position:'relative' }}>
-          <button onClick={()=>setShowColVis(v=>!v)} style={{
+        {advanced_filter && (
+          <button onClick={() => setShowQueryBuilder(v => !v)} style={{
             display:'flex', alignItems:'center', gap:6,
-            padding:'6px 12px', border:'1px solid #e2e8f0', borderRadius:8,
-            background: showColVis?'#1e293b':'#fff',
-            color: showColVis?'#fff':'#334155',
+            padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+            background: showQueryBuilder ? (isDarkMode ? '#1e3a8a' : '#eff6ff') : colors.btnBg,
+            color: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#2563eb') : colors.text,
+            borderColor: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#bfdbfe') : colors.border,
             fontSize:12, fontWeight:500, cursor:'pointer',
             boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-          }}>
-            <span style={{fontSize:14}}>⊞</span> Columns
-            {visible && visible.size < (metadata||[]).length && (
-              <span style={{ fontSize:10, background:'#ef4444', color:'#fff',
+          }} title="Build advanced multi-condition search queries">
+            <span style={{fontSize:14}}>🔍</span> Advanced Filter
+            {queryRules.length > 0 && (
+              <span style={{ fontSize:10, background:'#2563eb', color:'#fff',
                 borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
-                {(metadata||[]).length - visible.size} hidden
+                {queryRules.length}
               </span>
             )}
           </button>
-          {showColVis && (
-            <ColVisPanel
-              metadata={metadata||[]}
-              visible={visible || new Set()}
-              onChange={setVisible}
-              onClose={()=>setShowColVis(false)}
-            />
-          )}
-        </div>
+        )}
+
+        {/* Query Code Button */}
+        {allow_export && (
+          <button onClick={() => setShowRCodeModal(true)} style={{
+            display:'flex', alignItems:'center', gap:6,
+            padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+            background:colors.btnBg, color:colors.text,
+            fontSize:12, fontWeight:500, cursor:'pointer',
+            boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+          }} title="Show reproducible R or SQL query for these filters">
+            <span style={{fontSize:14}}>📊</span> Query Code
+          </button>
+        )}
+
+        {/* Column visibility toggle */}
+        {column_picker && (
+          <div style={{ position:'relative' }}>
+            <button onClick={()=>setShowColVis(v=>!v)} style={{
+              display:'flex', alignItems:'center', gap:6,
+              padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+              background: showColVis ? colors.text : colors.btnBg,
+              color: showColVis ? colors.bg : colors.text,
+              fontSize:12, fontWeight:500, cursor:'pointer',
+              boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+            }}>
+              <span style={{fontSize:14}}>⊞</span> Columns
+              {visible && visible.size < (metadata||[]).length && (
+                <span style={{ fontSize:10, background:'#ef4444', color:'#fff',
+                  borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
+                  {(metadata||[]).length - visible.size} hidden
+                </span>
+              )}
+            </button>
+            {showColVis && (
+              <ColVisPanel
+                metadata={metadata||[]}
+                visible={visible || new Set()}
+                onChange={setVisible}
+                onClose={()=>setShowColVis(false)}
+                colors={colors}
+                isDarkMode={isDarkMode}
+              />
+            )}
+          </div>
+        )}
         </div> {/* end right-side buttons */}
       </div>
 
@@ -1763,14 +2138,16 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
           onUpdateLogical={setQueryLogical}
           onClearRules={() => setQueryRules([])}
           uniqueVals={uniqueVals}
+          colors={colors}
+          isDarkMode={isDarkMode}
         />
       )}
 
-      {/* ── Single scroll container (fixes horiz scroll of headers) ── */}
+      {/* ── Single scroll container ── */}
       <div
         ref={wrapRef}
         onScroll={e => setScrollTop(e.currentTarget.scrollTop)}
-        style={{ flex:1, overflow:'auto', position:'relative' }}
+        style={{ flex:1, overflow:'auto', position:'relative', background: colors.bg }}
       >
         {/* Inner — full virtual width + height */}
         <div style={{ width: tableW, minWidth:'100%',
@@ -1779,13 +2156,13 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
           {/* ── Sticky header row ── */}
           <div style={{ position:'sticky', top:0, zIndex:10, display:'flex',
             width: tableW, minWidth: '100%', boxSizing: 'border-box',
-            borderBottom:'2px solid #e2e8f0', background:'#f8fafc' }}>
+            borderBottom:`2px solid ${colors.border}`, background:colors.headerBg }}>
             {/* Row-number corner — sticky left AND top */}
             <div style={{ position:'sticky', left:0, zIndex:11,
               width:ROW_NUM_W, flexShrink:0, height:HEADER_HEIGHT,
-              background:'#f8fafc', borderRight:'1px solid #e2e8f0', boxSizing: 'border-box',
+              background:colors.headerBg, borderRight:`1px solid ${colors.border}`, boxSizing: 'border-box',
               display:'flex', alignItems:'center', justifyContent:'center',
-              color:'#cbd5e1', fontSize:10 }}>#</div>
+              color:colors.subText, fontSize:10 }}>#</div>
             {cols.map(meta => (
               <ColHeader key={meta.name} meta={meta}
                 sortCol={sortCol} sortDir={sortDir}
@@ -1794,6 +2171,8 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
                   (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
                 onSort={handleSort}
                 onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
+                colors={colors}
+                isDarkMode={isDarkMode}
               />
             ))}
           </div>
@@ -1804,7 +2183,7 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
               <div style={{
                 position:'absolute', inset:0, display:'flex',
                 alignItems:'center', justifyContent:'center',
-                color:'#94a3b8', fontSize:13, fontStyle:'italic'
+                color:colors.subText, fontSize:13, fontStyle:'italic'
               }}>
                 No records found
               </div>
@@ -1812,16 +2191,16 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
               <div style={{ position:'absolute', top: startIdx * ROW_HEIGHT, width:'100%' }}>
                 {visibleRows.map((row, vi) => {
                   const idx = startIdx + vi;
-                  const stripe = idx%2===0 ? '#fff' : '#fafafa';
+                  const stripe = idx%2===0 ? colors.rowBg : colors.stripe;
                   return (
                     <div key={idx} className="dtex-row" style={{ display:'flex', height:ROW_HEIGHT,
-                      alignItems:'center', borderBottom:'1px solid #f1f5f9',
+                      alignItems:'center', borderBottom:`1px solid ${colors.border}`,
                       background:stripe }}>
                       {/* Row number — sticky left */}
                       <div className="dtex-rownum" style={{ position:'sticky', left:0, zIndex:1,
                         width:ROW_NUM_W, flexShrink:0, height:'100%',
                         display:'flex', alignItems:'center', justifyContent:'center',
-                        color:'#94a3b8', fontSize:11, borderRight:'1px solid #e8edf2',
+                        color:colors.subText, borderRight:`1px solid ${colors.border}`,
                         background:stripe, boxSizing: 'border-box' }}>
                         {idx+1}
                       </div>
@@ -1829,13 +2208,13 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
                         <div key={meta.name} style={{
                           width:COL_WIDTH, flexShrink:0, padding:'0 10px',
                           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-                          borderRight:'1px solid #f1f5f9', color:'#334155',
+                          borderRight:`1px solid ${colors.border}`, color:colors.text,
                           fontVariantNumeric:'tabular-nums', height:'100%',
                           display:'flex', alignItems:'center', boxSizing: 'border-box'
                         }} title={row[meta.name]!=null?String(row[meta.name]):'NA'}>
                           {row[meta.name]!=null
                             ? String(row[meta.name])
-                            : <span style={{color:'#cbd5e1',fontStyle:'italic'}}>NA</span>}
+                            : <span style={{color:isDarkMode ? '#475569' : '#cbd5e1',fontStyle:'italic'}}>{na_string}</span>}
                         </div>
                       ))}
                     </div>
@@ -1858,18 +2237,24 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
           onClear={handleClear}
           onClose={()=>setPopup(null)}
           onSort={handleSort}
+          colors={colors}
+          isDarkMode={isDarkMode}
         />
       )}
 
-      {/* ── R & SQL Code modal ── */}
+      {/* ── Reproducible Code modal ── */}
       {showRCodeModal && (
         <RCodeModal
           codeObj={{
             dplyr: generateRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
             baseR: generateBaseRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-            sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
+            sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
+            arrow: generateArrowCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
+            duckdb: generateDuckDBCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
           }}
           onClose={() => setShowRCodeModal(false)}
+          colors={colors}
+          isDarkMode={isDarkMode}
         />
       )}
     </div>
@@ -1878,14 +2263,19 @@ const DTExploRComponent = ({ data, metadata, datasetName = 'df' }) => {
 
 // ── HTMLWidgets binding ───────────────────────────────────────────────────────
 window.HTMLWidgets.widget({
-  name: 'dtexplor',
+  name: 'dtsmartr',
   type: 'output',
   factory: function(el, width, height) {
     let root = null;
     return {
       renderValue: function(x) {
         el.style.height = el.style.height || (height + 'px');
-        const elem = React.createElement(DTExploRComponent, { data:x.data, metadata:x.metadata, datasetName:x.dataset_name || 'df' });
+        const elem = React.createElement(DTSmartRComponent, {
+          data: x.data,
+          metadata: x.metadata,
+          datasetName: x.dataset_name || 'df',
+          options: x.options
+        });
         if (window.ReactDOM.createRoot) {
           if (!root) root = window.ReactDOM.createRoot(el);
           root.render(elem);

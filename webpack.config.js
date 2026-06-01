@@ -1,10 +1,10 @@
 var path = require('path');
 
 module.exports = {
-    entry: path.join(__dirname, 'srcjs', 'dtexplor.jsx'),
+    entry: path.join(__dirname, 'srcjs', 'dtsmartr.jsx'),
     output: {
         path: path.join(__dirname, 'inst/htmlwidgets'),
-        filename: 'dtexplor.js'
+        filename: 'dtsmartr.js'
     },
     module: {
         rules: [

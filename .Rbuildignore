@@ -4,3 +4,4 @@
 ^package\.json$
 ^webpack\.config\.js$
 ^yarn\.lock$
+^outputs$

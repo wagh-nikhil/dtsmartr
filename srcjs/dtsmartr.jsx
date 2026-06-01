@@ -2444,6 +2444,44 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     setShowInsights(true);
   }, []);
 
+  // Raw rows from R column-oriented format
+  const rawRows = useMemo(() => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    const keys = Object.keys(data);
+    if (!keys.length) return [];
+    const n = data[keys[0]].length;
+    return Array.from({ length:n }, (_, i) => {
+      const row = {};
+      for (const k of keys) row[k] = data[k][i];
+      return row;
+    });
+  }, [data]);
+
+  // Unique values per column (including NA values)
+  const uniqueVals = useMemo(() => {
+    const out = {};
+    for (const meta of (metadata||[])) {
+      const seen = new Set();
+      let hasNull = false;
+      for (const row of rawRows) {
+        const v = row[meta.name];
+        if (v == null) {
+          hasNull = true;
+        } else {
+          seen.add(v);
+        }
+      }
+      const sorted = [...seen].sort((a,b) =>
+        typeof a==='number' && typeof b==='number' ? a-b : String(a).localeCompare(String(b)));
+      if (hasNull) {
+        sorted.push(null);
+      }
+      out[meta.name] = sorted;
+    }
+    return out;
+  }, [rawRows, metadata]);
+
   // Precalculated summaries for all columns in this dataset (Kaggle-style)
   const colSummaries = useMemo(() => {
     const summaries = {};
@@ -2692,19 +2730,6 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     return () => obs.disconnect();
   }, []);
 
-  // Raw rows from R column-oriented format
-  const rawRows = useMemo(() => {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    const keys = Object.keys(data);
-    if (!keys.length) return [];
-    const n = data[keys[0]].length;
-    return Array.from({ length:n }, (_, i) => {
-      const row = {};
-      for (const k of keys) row[k] = data[k][i];
-      return row;
-    });
-  }, [data]);
 
   // Default: initialize visible columns using hidden_columns preference
   useEffect(() => {
@@ -2721,29 +2746,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     (metadata || []).filter(m => visible ? visible.has(m.name) : true),
     [metadata, visible]);
 
-  // Unique values per column (including NA values)
-  const uniqueVals = useMemo(() => {
-    const out = {};
-    for (const meta of (metadata||[])) {
-      const seen = new Set();
-      let hasNull = false;
-      for (const row of rawRows) {
-        const v = row[meta.name];
-        if (v == null) {
-          hasNull = true;
-        } else {
-          seen.add(v);
-        }
-      }
-      const sorted = [...seen].sort((a,b) =>
-        typeof a==='number' && typeof b==='number' ? a-b : String(a).localeCompare(String(b)));
-      if (hasNull) {
-        sorted.push(null);
-      }
-      out[meta.name] = sorted;
-    }
-    return out;
-  }, [rawRows, metadata]);
+
 
   // Filter
   const filteredRows = useMemo(() => {

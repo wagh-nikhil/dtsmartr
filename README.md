@@ -146,7 +146,7 @@ The frontend is implemented in React inside `srcjs/dtsmartr.jsx` and compiled wi
 
 ```bash
 # Navigate into the package directory
-cd DTExploR
+cd dtsmartr
 
 # Install NodeJS dependencies
 npm install

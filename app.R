@@ -2,7 +2,7 @@
 # Demonstrates all Shiny usage patterns for the dtsmartr package.
 #
 # Run from R with:
-#   shiny::runApp("d:/AI_stuff/DTExploR/app.R")
+#   shiny::runApp("d:/AI_stuff/dtsmartr/app.R")
 # OR (after installing the package):
 #   library(dtsmartr); shiny::runApp(system.file("app.R", package = "dtsmartr"))
 

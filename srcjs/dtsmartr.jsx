@@ -247,11 +247,7 @@ const RCodeModal = ({ codeObj, onClose, colors, isDarkMode }) => {
     ? codeObj.dplyr
     : activeTab === 'baseR'
       ? codeObj.baseR
-      : activeTab === 'sql'
-        ? codeObj.sql
-        : activeTab === 'arrow'
-          ? codeObj.arrow
-          : codeObj.duckdb;
+      : codeObj.sql;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeText);
@@ -319,9 +315,9 @@ const RCodeModal = ({ codeObj, onClose, colors, isDarkMode }) => {
           {[
             { id: 'dplyr',  label: 'tidyverse (dplyr)' },
             { id: 'baseR',  label: 'Base R' },
-            { id: 'sql',    label: 'SQL Query' },
-            { id: 'arrow',  label: 'Arrow' },
-            { id: 'duckdb', label: 'DuckDB / dbplyr' }
+            { id: 'sql',    label: 'SQL Query' }
+            // { id: 'arrow',  label: 'Arrow' },
+            // { id: 'duckdb', label: 'DuckDB / dbplyr' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -2491,9 +2487,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
           codeObj={{
             dplyr: generateRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
             baseR: generateBaseRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-            sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-            arrow: generateArrowCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-            duckdb: generateDuckDBCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
+            sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
           }}
           onClose={() => setShowRCodeModal(false)}
           colors={colors}

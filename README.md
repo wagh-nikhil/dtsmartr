@@ -95,17 +95,24 @@ Spins up a temporary background Shiny server and opens the dataset in the defaul
 - `data`: A `data.frame` to explore.
 - `port`: Optional numeric port. If `NULL`, R automatically chooses a free port.
 
-### `save_dtexplor(widget, file)`
-Saves the active widget and all compiled CSS/JS assets into a self-contained, standalone HTML file.
-- `widget`: A `dtexplor` widget object.
-- `file`: Path to save the self-contained HTML file.
+### `save_dtexplor(data, file, selfcontained = TRUE, title = "DTExploR", open = FALSE, ...)`
+Exports a `data.frame` as a fully interactive, standalone HTML file.
+- `data`: A `data.frame` to explore.
+- `file`: Path to the output HTML file (the `.html` extension is appended automatically if omitted).
+- `selfcontained`: Logical. When `TRUE` (default), all JavaScript, CSS, and data assets are embedded directly inside the single portable HTML file. When `FALSE`, a companion `_files/` directory is created containing the assets (ideal for extremely large datasets).
+- `title`: Browser tab / window title for the saved page.
+- `open`: Logical. When `TRUE`, opens the saved HTML file in your default web browser immediately after saving.
 
 ```r
 library(DTExploR)
 
-# Generate and save widget to a standalone report
-widget <- dtexplor(mtcars)
-save_dtexplor(widget, "mtcars_explorer.html")
+# Save mtcars as a fully self-contained portable HTML report
+save_dtexplor(
+  data          = mtcars, 
+  file          = "mtcars_explorer.html", 
+  selfcontained = TRUE,
+  open          = TRUE
+)
 ```
 
 ---

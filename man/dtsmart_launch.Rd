@@ -24,13 +24,11 @@ browser origin security policies (CORS) that block \verb{file://} resources.
 
 When \code{data = NULL} (default), the Shiny server boots into Wizard Mode. An
 interactive interface (powered by the \code{datamods} package) allows users to
-select from two distinct tabs:
-\itemize{
-\item \strong{External file}: Drag-and-drop or select \code{.csv}, \code{.xlsx}, \code{.sas7bdat}, or \code{.rds} files.
-\item \strong{pharmaverse ADaM datasets}: Explore standard clinical ADaM datasets directly from the \code{pharmaverseadam} package environment.
-}
+upload local files (CSV, Excel, SAS, RDS). It also features direct "View"
+and "Update" panels to verify and customize columns or variable classes
+before loading.
 
-Once a file is successfully uploaded or selected, the wizard parses the dataset and feeds it
+Once a file is successfully uploaded and confirmed, the wizard parses the dataset and feeds it
 directly into the React-powered virtualized grid explorer.
 }
 }

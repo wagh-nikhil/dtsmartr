@@ -1,0 +1,32 @@
+Package: DTExploR
+Title: Interactive Kaggle-Style Data Explorer Widget
+Version: 0.1.0
+Authors@R:
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = ""))
+Description: Provides an interactive, Kaggle-style HTML widget for exploring
+    data frames in R. Built on React (via 'reactR') and 'htmlwidgets', it
+    offers column-type detection, multi-value filtering, sorting, column
+    visibility toggling, virtual scrolling for large datasets, and a
+    full-screen maximise mode. Widgets can be embedded in R Markdown / Quarto
+    documents, Shiny applications, or exported to standalone HTML files for
+    offline use and sharing via save_dtexplor().
+License: MIT + file LICENSE
+URL: https://github.com/user/DTExploR
+BugReports: https://github.com/user/DTExploR/issues
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    htmltools,
+    htmlwidgets,
+    jsonlite,
+    reactR,
+    shiny,
+    tools,
+    utils
+Suggests:
+    pharmaverseadam,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

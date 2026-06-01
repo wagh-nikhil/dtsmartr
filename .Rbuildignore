@@ -1,0 +1,6 @@
+^node_modules$
+^srcjs$
+^app\.R$
+^package\.json$
+^webpack\.config\.js$
+^yarn\.lock$

@@ -1,0 +1,230 @@
+#' Save a DTExploR widget to an HTML file
+#'
+#' Exports any `data.frame` as a fully interactive, standalone HTML file powered
+#' by the DTExploR widget. The resulting file can be opened in any modern web
+#' browser without an active R session or internet connection, making it ideal
+#' for offline use and sharing with collaborators.
+#'
+#' @param data A `data.frame` (or object coercible to one) to explore.
+#' @param file Character string. Path to the output HTML file. The `.html`
+#'   extension is appended automatically if omitted.
+#' @param selfcontained Logical. When `TRUE` (default), all JavaScript, CSS, and
+#'   data are embedded directly inside the HTML file, producing a single portable
+#'   file. When `FALSE`, a companion `<file>_files/` directory is created next
+#'   to the HTML file containing the JS/CSS assets — both must be kept together
+#'   when sharing. Use `FALSE` for large datasets where a single file would be
+#'   impractically large.
+#' @param title Character string. Browser tab / window title for the saved HTML
+#'   page. Defaults to `"DTExploR"`.
+#' @param open Logical. When `TRUE` and the session is interactive, the saved
+#'   HTML file is opened automatically in the default web browser immediately
+#'   after saving. Defaults to `FALSE`.
+#' @param background Character string. CSS colour for the page background.
+#'   Defaults to `"white"`.
+#' @param libdir Character string or `NULL`. When `selfcontained = FALSE`, the
+#'   path to write the dependency libraries. Passed directly to
+#'   [htmlwidgets::saveWidget()]. Defaults to `NULL` (creates `<file>_files/`
+#'   next to the output file).
+#' @param width Numeric or `NULL`. Widget width in pixels. `NULL` (default)
+#'   uses the full page width.
+#' @param height Numeric or `NULL`. Widget height in pixels. `NULL` (default)
+#'   fills the viewport (maximised mode).
+#' @param elementId Character string or `NULL`. CSS id for the widget's
+#'   root `<div>`. Defaults to `NULL` (auto-generated).
+#' @param verbose Logical. When `TRUE`, prints a confirmation message with the
+#'   resolved absolute path of the saved file. Defaults to `TRUE`.
+#'
+#' @return The absolute path to the saved HTML file, invisibly.
+#'
+#' @details
+#' ## Selfcontained vs. non-selfcontained
+#'
+#' | `selfcontained` | Output | Best for |
+#' |---|---|---|
+#' | `TRUE` (default) | Single `.html` file | Email / sharing |
+#' | `FALSE` | `.html` + `_files/` folder | Local use / large datasets |
+#'
+#' ## File size
+#' Self-contained files embed the React runtime and widget code (~120 KB
+#' gzipped) along with the data. For very large datasets (> 100 k rows) or
+#' when generating many files, prefer `selfcontained = FALSE`.
+#'
+#' ## Browser compatibility
+#' The generated HTML works in all modern browsers (Chrome, Firefox, Edge,
+#' Safari 14+). No internet connection is required.
+#'
+#' @seealso [dtexplor()] for creating the widget object interactively,
+#'   [htmlwidgets::saveWidget()] for the underlying save mechanism.
+#'
+#' @importFrom htmlwidgets saveWidget
+#' @importFrom utils browseURL
+#'
+#' @examples
+#' \dontrun{
+#' # ── Basic usage ─────────────────────────────────────────────────────────────
+#'
+#' # Save mtcars as a self-contained HTML (single portable file)
+#' save_dtexplor(mtcars, "mtcars_explorer.html")
+#'
+#' # Open in the browser right after saving
+#' save_dtexplor(mtcars, "mtcars_explorer.html", open = TRUE)
+#'
+#' # ── Sharing mode ────────────────────────────────────────────────────────────
+#'
+#' # Single file — ideal for attaching to an email or uploading to SharePoint
+#' save_dtexplor(iris, "iris_explorer.html", selfcontained = TRUE)
+#'
+#' # ── Large datasets ───────────────────────────────────────────────────────────
+#'
+#' # Separate assets folder — smaller HTML, better for large clinical datasets
+#' save_dtexplor(
+#'   data         = pharmaverseadam::adsl,
+#'   file         = "outputs/adsl_explorer.html",
+#'   selfcontained = FALSE,
+#'   title        = "ADSL Data Explorer",
+#'   open         = TRUE
+#' )
+#'
+#' # ── Custom appearance ────────────────────────────────────────────────────────
+#'
+#' save_dtexplor(
+#'   data       = mtcars,
+#'   file       = "mtcars_dark.html",
+#'   title      = "Motor Trend Cars",
+#'   background = "#0f172a",
+#'   verbose    = TRUE
+#' )
+#'
+#' # ── Batch export — save multiple datasets at once ────────────────────────────
+#'
+#' datasets <- list(
+#'   adsl = pharmaverseadam::adsl,
+#'   adae = pharmaverseadam::adae,
+#'   adlb = pharmaverseadam::adlb
+#' )
+#'
+#' output_dir <- "clinical_outputs"
+#' dir.create(output_dir, showWarnings = FALSE)
+#'
+#' invisible(lapply(names(datasets), function(nm) {
+#'   save_dtexplor(
+#'     data  = datasets[[nm]],
+#'     file  = file.path(output_dir, paste0(nm, "_explorer.html")),
+#'     title = paste(toupper(nm), "Explorer")
+#'   )
+#' }))
+#' }
+#'
+#' @export
+save_dtexplor <- function(
+    data,
+    file,
+    selfcontained = TRUE,
+    title         = "DTExploR",
+    open          = FALSE,
+    background    = "white",
+    libdir        = NULL,
+    width         = NULL,
+    height        = NULL,
+    elementId     = NULL,
+    verbose       = TRUE
+) {
+
+  # ── Input validation ────────────────────────────────────────────────────────
+  if (!is.data.frame(data)) {
+    stop("`data` must be a data.frame or an object coercible to one.",
+         call. = FALSE)
+  }
+  if (!is.character(file) || length(file) != 1L || nchar(trimws(file)) == 0L) {
+    stop("`file` must be a single non-empty character string.", call. = FALSE)
+  }
+  if (!is.logical(selfcontained) || length(selfcontained) != 1L) {
+    stop("`selfcontained` must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (!is.logical(open) || length(open) != 1L) {
+    stop("`open` must be TRUE or FALSE.", call. = FALSE)
+  }
+  if (!is.logical(verbose) || length(verbose) != 1L) {
+    stop("`verbose` must be TRUE or FALSE.", call. = FALSE)
+  }
+
+  # ── Ensure .html extension ───────────────────────────────────────────────────
+  if (!grepl("\\.html?$", file, ignore.case = TRUE)) {
+    file <- paste0(file, ".html")
+  }
+
+  # ── Ensure output directory exists ──────────────────────────────────────────
+  out_dir <- dirname(file)
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+
+  # ── Pandoc check (required for selfcontained = TRUE) ────────────────────────
+  # htmlwidgets::saveWidget with selfcontained=TRUE relies on pandoc to inline
+  # JS/CSS assets. If pandoc is absent, fall back gracefully to FALSE.
+  has_pandoc <- isTRUE(
+    tryCatch(
+      nzchar(rmarkdown::find_pandoc()$dir),
+      error = function(e) FALSE
+    )
+  )
+
+  if (isTRUE(selfcontained) && !has_pandoc) {
+    warning(
+      "selfcontained = TRUE requires pandoc, which was not found on this system.\n",
+      "Falling back to selfcontained = FALSE (HTML + companion '_files/' folder).\n",
+      "Install pandoc from https://pandoc.org/installing.html to enable single-file export.",
+      call. = FALSE
+    )
+    selfcontained <- FALSE
+  }
+
+  # ── Build widget ─────────────────────────────────────────────────────────────
+  widget <- dtexplor(
+    data      = data,
+    width     = width,
+    height    = height,
+    elementId = elementId
+  )
+
+  # ── Save ─────────────────────────────────────────────────────────────────────
+  htmlwidgets::saveWidget(
+    widget        = widget,
+    file          = normalizePath(file, mustWork = FALSE),
+    selfcontained = selfcontained,
+    title         = title,
+    background    = background,
+    libdir        = libdir
+  )
+
+  abs_path <- normalizePath(file, mustWork = TRUE)
+
+  # ── Reporting ────────────────────────────────────────────────────────────────
+  if (isTRUE(verbose)) {
+    mode_label <- if (selfcontained) "self-contained" else "with external assets"
+    message(
+      sprintf(
+        "DTExploR saved (%s): %s",
+        mode_label,
+        abs_path
+      )
+    )
+    if (!selfcontained) {
+      message(
+        sprintf(
+          "  -> Asset folder: %s",
+          file.path(dirname(abs_path),
+                    paste0(tools::file_path_sans_ext(basename(abs_path)),
+                           "_files"))
+        )
+      )
+    }
+  }
+
+  # ── Auto-open ────────────────────────────────────────────────────────────────
+  if (isTRUE(open) && interactive()) {
+    utils::browseURL(abs_path)
+  }
+
+  invisible(abs_path)
+}

@@ -104,7 +104,6 @@ dtsmart_launch <- function(
                    style = "color: #64748b; text-align: center; margin-bottom: 35px; font-size: 15px;"),
           datamods::import_ui(
             id              = "importer",
-            allowed_status  = c("ok", "coercible"),
             file_extensions = c(".csv", ".xlsx", ".sas7bdat", ".rds")
           )
         )
@@ -121,8 +120,7 @@ dtsmart_launch <- function(
 
     server <- function(input, output, session) {
       imported <- datamods::import_server(
-        id             = "importer",
-        trigger_return = "change"
+        id = "importer"
       )
 
       has_data <- shiny::reactive({

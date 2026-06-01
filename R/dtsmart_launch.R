@@ -13,17 +13,15 @@
 #' ## Zero-Code Ingestion Wizard (Wizard Mode)
 #' When `data = NULL` (default), the Shiny server boots into Wizard Mode. An
 #' interactive interface (powered by the `datamods` package) allows users to
-#' drag-and-drop or select:
-#' - CSV files (`.csv`)
-#' - Excel files (`.xlsx`)
-#' - SAS datasets (`.sas7bdat`)
-#' - RDS files (`.rds`)
+#' select from two distinct tabs:
+#' - **External file**: Drag-and-drop or select `.csv`, `.xlsx`, `.sas7bdat`, or `.rds` files.
+#' - **pharmaverse ADaM datasets**: Explore standard clinical ADaM datasets directly from the `pharmaverseadam` package environment.
 #'
-#' Once a file is successfully uploaded, the wizard parses the dataset and feeds it
+#' Once a file is successfully uploaded or selected, the wizard parses the dataset and feeds it
 #' directly into the React-powered virtualized grid explorer.
 #'
-#' @importFrom shiny fluidPage tags HTML runApp conditionalPanel div h2 p reactive req outputOptions
-#' @importFrom datamods import_ui import_server
+#' @importFrom shiny fluidPage tags HTML runApp conditionalPanel div h2 p reactive req outputOptions tabsetPanel tabPanel icon
+#' @importFrom datamods import_file_ui import_file_server import_globalenv_ui import_globalenv_server
 #'
 #' @export
 #'
@@ -71,7 +69,7 @@ dtsmart_launch <- function(
     }
 
   } else {
-    # ── Wizard Mode: File Uploader Ingestion ──────────────────────────────────
+    # ── Wizard Mode: Custom File & ADaM Ingestion ──────────────────────────────
     theme_val <- if (requireNamespace("bslib", quietly = TRUE)) {
       bslib::bs_theme(version = 5, bootswatch = "flatly")
     } else {
@@ -85,10 +83,29 @@ dtsmart_launch <- function(
         shiny::tags$style(shiny::HTML("
           body { background: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
           .wizard-card {
-            max-width: 800px; margin: 60px auto; padding: 40px;
+            max-width: 900px; margin: 60px auto; padding: 40px;
             background: #ffffff; border-radius: 16px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+          }
+          .nav-tabs {
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+            justify-content: center;
+            gap: 15px;
+          }
+          .nav-item .nav-link {
+            font-weight: 600;
+            color: #64748b;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 10px 20px;
+            font-size: 15px;
+          }
+          .nav-item .nav-link.active {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            background: transparent;
           }
           #grid { height: 100vh !important; }
         "))
@@ -100,11 +117,30 @@ dtsmart_launch <- function(
           class = "wizard-card",
           shiny::h2("dtsmartr Data Ingestion Wizard",
                     style = "font-weight: 800; color: #0f172a; margin-bottom: 8px; text-align: center; letter-spacing: -0.025em;"),
-          shiny::p("Upload CSV, Excel (.xlsx), SAS (.sas7bdat), or RDS datasets to start exploring.",
+          shiny::p("Explore your own datasets or clinical ADaM datasets instantly.",
                    style = "color: #64748b; text-align: center; margin-bottom: 35px; font-size: 15px;"),
-          datamods::import_ui(
-            id              = "importer",
-            file_extensions = c(".csv", ".xlsx", ".sas7bdat", ".rds")
+          
+          shiny::tabsetPanel(
+            id = "import_tabs",
+            shiny::tabPanel(
+              title = "External file",
+              shiny::tags$br(),
+              datamods::import_file_ui(
+                id = "file_importer",
+                title = NULL,
+                file_extensions = c(".csv", ".xlsx", ".sas7bdat", ".rds")
+              )
+            ),
+            shiny::tabPanel(
+              title = "pharmaverse ADaM datasets",
+              shiny::tags$br(),
+              datamods::import_globalenv_ui(
+                id = "env_importer",
+                globalenv = FALSE,
+                packages = "pharmaverseadam",
+                title = NULL
+              )
+            )
           )
         )
       ),
@@ -119,12 +155,37 @@ dtsmart_launch <- function(
     )
 
     server <- function(input, output, session) {
-      imported <- datamods::import_server(
-        id = "importer"
+      # File Uploader Sub-module
+      file_data <- datamods::import_file_server(
+        id            = "file_importer",
+        trigger_return = "change",
+        btn_show_data = FALSE
       )
 
+      # ADaM Environment/Package Sub-module
+      env_data <- datamods::import_globalenv_server(
+        id            = "env_importer",
+        trigger_return = "change",
+        btn_show_data = FALSE
+      )
+
+      # Reactive values to hold selected dataframe and name
+      imported <- shiny::reactiveValues(data = NULL, name = NULL)
+
+      shiny::observeEvent(file_data$data(), {
+        shiny::req(file_data$data())
+        imported$data <- file_data$data()
+        imported$name <- file_data$name()
+      })
+
+      shiny::observeEvent(env_data$data(), {
+        shiny::req(env_data$data())
+        imported$data <- env_data$data()
+        imported$name <- env_data$name()
+      })
+
       has_data <- shiny::reactive({
-        !is.null(imported$data()) && is.data.frame(imported$data())
+        !is.null(imported$data) && is.data.frame(imported$data)
       })
 
       output$has_data <- shiny::reactive({
@@ -134,8 +195,7 @@ dtsmart_launch <- function(
 
       output$grid <- renderDtsmartr({
         shiny::req(has_data())
-        df <- imported$data()
-        dtsmartr(df, datasetName = imported$name(), options = options)
+        dtsmartr(imported$data, datasetName = imported$name, options = options)
       })
     }
   }

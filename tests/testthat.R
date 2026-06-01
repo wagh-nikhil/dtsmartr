@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(DTExploR)
+library(dtsmartr)
 
-test_check("DTExploR")
+test_check("dtsmartr")

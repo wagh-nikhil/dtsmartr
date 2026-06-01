@@ -1,9 +1,8 @@
 Package: dtsmartr
-Title: Interactive virtualized data explorer grid widget
+Title: Interactive Virtualized Data Explorer Grid Widget
 Version: 0.1.0
 Authors@R:
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = ""))
+    person("Nikhil", "Wagh", , "nikhil.wagh@example.com", role = c("aut", "cre"))
 Description: Provides an interactive, virtualized data explorer widget for R.
     Built on React (via 'reactR') and 'htmlwidgets', it offers column-type
     detection, multi-value checkbox filtering, sorting, column visibility

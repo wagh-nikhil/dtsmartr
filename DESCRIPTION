@@ -27,6 +27,7 @@ Imports:
     tools,
     utils
 Suggests:
+    bslib,
     pharmaverseadam,
     rmarkdown,
     testthat (>= 3.0.0)

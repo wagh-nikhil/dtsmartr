@@ -1609,12 +1609,184 @@ const ColVisPanel = ({ metadata, visible, onChange, onClose, colors, isDarkMode 
   );
 };
 
+// ── Column Metadata Tooltip ────────────────────────────────────────────────────
+const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
+  const isNumeric = meta.type === 'numeric' || meta.type === 'integer';
+  const totalRows = rawRows.length;
+
+  const { validCount, naCount, topValues, minVal, maxVal, meanVal } = useMemo(() => {
+    let valid = 0, na = 0;
+    const freq = {};
+    let min = Infinity, max = -Infinity, sum = 0, numCount = 0;
+
+    for (const row of rawRows) {
+      const v = row[meta.name];
+      if (v == null) {
+        na++;
+      } else {
+        valid++;
+        if (isNumeric) {
+          const n = Number(v);
+          if (!isNaN(n)) {
+            if (n < min) min = n;
+            if (n > max) max = n;
+            sum += n;
+            numCount++;
+          }
+        } else {
+          const s = String(v);
+          freq[s] = (freq[s] || 0) + 1;
+        }
+      }
+    }
+
+    const top = isNumeric ? [] : Object.entries(freq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([val, cnt]) => ({ val, cnt }));
+
+    return {
+      validCount: valid,
+      naCount: na,
+      topValues: top,
+      minVal: isNumeric && numCount > 0 ? min : null,
+      maxVal: isNumeric && numCount > 0 ? max : null,
+      meanVal: isNumeric && numCount > 0 ? (sum / numCount) : null,
+    };
+  }, [rawRows, meta.name, isNumeric]);
+
+  const missPct = totalRows > 0 ? ((naCount / totalRows) * 100).toFixed(1) : '0.0';
+  const validPct = 100 - parseFloat(missPct);
+
+  const fmt = (n) => {
+    if (n == null) return '—';
+    if (Math.abs(n) >= 1e6) return n.toExponential(2);
+    if (!Number.isInteger(n) && Math.abs(n) < 1e4) return n.toFixed(3);
+    return n.toLocaleString();
+  };
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      zIndex: 15000,
+      marginTop: 4,
+      width: 210,
+      background: isDarkMode ? '#1e293b' : '#ffffff',
+      border: `1px solid ${colors.border}`,
+      borderRadius: 10,
+      boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
+      padding: '10px 12px',
+      pointerEvents: 'none',
+      fontFamily: "'Inter','Segoe UI',sans-serif",
+    }}>
+      {/* Column title */}
+      <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, marginBottom: 6,
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {meta.name}
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+        {[
+          { label: 'Rows', value: totalRows.toLocaleString() },
+          { label: 'Unique', value: (meta.unique_values ?? '—').toLocaleString() },
+          { label: 'Missing', value: `${missPct}%` },
+        ].map(({ label, value }) => (
+          <div key={label} style={{
+            flex: '1 1 auto',
+            background: isDarkMode ? '#0f172a' : '#f8fafc',
+            borderRadius: 6, padding: '4px 6px', textAlign: 'center',
+            border: `1px solid ${colors.border}`,
+          }}>
+            <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: colors.text }}>{value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Data quality bar */}
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 3,
+          textTransform: 'uppercase', letterSpacing: '0.05em' }}>Data quality</div>
+        <div style={{ height: 6, borderRadius: 3, background: isDarkMode ? '#334155' : '#e2e8f0',
+          overflow: 'hidden', position: 'relative' }}>
+          <div style={{
+            position: 'absolute', left: 0, top: 0, height: '100%',
+            width: `${validPct}%`,
+            background: validPct >= 90 ? '#22c55e' : validPct >= 70 ? '#f59e0b' : '#ef4444',
+            borderRadius: 3,
+            transition: 'width 0.3s ease',
+          }} />
+        </div>
+        <div style={{ fontSize: 9, color: colors.subText, marginTop: 2 }}>
+          {validCount.toLocaleString()} valid · {naCount.toLocaleString()} NA
+        </div>
+      </div>
+
+      {/* Numeric stats OR top values */}
+      {isNumeric ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
+          {[['Min', fmt(minVal)], ['Mean', fmt(meanVal)], ['Max', fmt(maxVal)]].map(([lbl, val]) => (
+            <div key={lbl} style={{
+              background: isDarkMode ? '#0f172a' : '#f8fafc',
+              borderRadius: 6, padding: '3px 5px', textAlign: 'center',
+              border: `1px solid ${colors.border}`,
+            }}>
+              <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600 }}>{lbl}</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: colors.text }}>{val}</div>
+            </div>
+          ))}
+        </div>
+      ) : topValues.length > 0 ? (
+        <div>
+          <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 4,
+            textTransform: 'uppercase', letterSpacing: '0.05em' }}>Top values</div>
+          {topValues.map(({ val, cnt }) => {
+            const pct = totalRows > 0 ? (cnt / totalRows) * 100 : 0;
+            return (
+              <div key={val} style={{ marginBottom: 3 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10,
+                  color: colors.text, marginBottom: 1 }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 130 }}>{val}</span>
+                  <span style={{ color: colors.subText, flexShrink: 0, marginLeft: 4 }}>{cnt.toLocaleString()}</span>
+                </div>
+                <div style={{ height: 3, borderRadius: 2, background: isDarkMode ? '#334155' : '#e2e8f0', overflow: 'hidden' }}>
+                  <div style={{ width: `${pct}%`, height: '100%', background: '#3b82f6', borderRadius: 2 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
 // ── Column Header Cell ────────────────────────────────────────────────────────
-const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, colors, isDarkMode }) => {
+const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, rawRows, colors, isDarkMode }) => {
   const active  = sortCol === meta.name;
   const t       = tm(meta.type);
   const btnRef  = useRef(null);
+  const [hoveringName, setHoveringName] = useState(false);
   const HEADER_HEIGHT = showLabels ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE;
+  const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
+
+  // Data-quality bar calculation (memoized per column metadata + rawRows)
+  const { validPct, naCount } = useMemo(() => {
+    if (!rawRows || rawRows.length === 0) return { validPct: 100, naCount: 0 };
+    let na = 0;
+    for (const row of rawRows) {
+      if (row[meta.name] == null) na++;
+    }
+    return {
+      validPct: ((rawRows.length - na) / rawRows.length) * 100,
+      naCount: na,
+    };
+  }, [rawRows, meta.name]);
+
+  const qualityColor = validPct >= 90 ? '#22c55e' : validPct >= 70 ? '#f59e0b' : '#ef4444';
 
   const openPanel = e => {
     e.stopPropagation();
@@ -1629,13 +1801,24 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
       justifyContent:'center', cursor:'pointer', userSelect:'none',
       borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
       background: active ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
+      position: 'relative',
     }}>
       {/* Row 1: type icon + column name + sort arrow */}
       <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:2 }}>
         <span style={{ fontSize:10, color:t.text, fontWeight:700,
           background:t.bg, borderRadius:3, padding:'0 4px', flexShrink:0 }}>{t.icon}</span>
-        <span style={{ fontWeight:600, fontSize:13, color:colors.text,
-          overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>
+        {/* Hoverable column name that triggers metadata tooltip */}
+        <span
+          onMouseEnter={e => { e.stopPropagation(); setHoveringName(true); }}
+          onMouseLeave={() => setHoveringName(false)}
+          style={{
+            fontWeight:600, fontSize:13, color:colors.text,
+            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1,
+            textAlign: isNumericCol ? 'right' : 'left',
+            borderBottom: hoveringName ? `1px dashed ${colors.subText}` : '1px solid transparent',
+            cursor: 'help',
+          }}
+        >
           {meta.name}
         </span>
         <span style={{ fontSize:10, color: active?'#3b82f6':colors.subText, flexShrink:0 }}>
@@ -1650,6 +1833,7 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
           marginBottom:2, lineHeight:'13px',
           background:'#f5f3ff', borderRadius:3, padding:'1px 4px',
+          textAlign: isNumericCol ? 'right' : 'left',
         }} title={meta.label}>
           {meta.label}
         </div>
@@ -1659,14 +1843,24 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
         <div style={{ height:15, marginBottom:2 }} />
       )}
 
-      {/* Row 3: type badge + uniq count + filter button */}
+      {/* Row 3: type badge + uniq count + quality bar + filter button */}
       <div style={{ display:'flex', gap:4, alignItems:'center' }}>
         <span style={{ fontSize:10, padding:'1px 5px', borderRadius:3,
           background:t.bg, color:t.text, fontWeight:600 }}>{meta.type}</span>
         <span style={{ fontSize:10, padding:'1px 5px', borderRadius:3,
           background:isDarkMode ? '#334155' : '#f1f5f9', color:colors.subText }}>{meta.unique_values} uniq</span>
+        {/* Thin data-quality bar */}
+        <div style={{ flex:1, height:4, borderRadius:2, background: isDarkMode ? '#334155' : '#e2e8f0',
+          overflow:'hidden', minWidth:20 }}
+          title={`${validPct.toFixed(1)}% valid · ${naCount} NA`}
+        >
+          <div style={{
+            width: `${validPct}%`, height:'100%',
+            background: qualityColor, borderRadius:2,
+          }} />
+        </div>
         <button ref={btnRef} onClick={openPanel} title="Filter / Sort"
-          style={{ marginLeft:'auto', width:20, height:20, border:'none', borderRadius:4,
+          style={{ width:20, height:20, border:'none', borderRadius:4,
             cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
             fontSize:13, flexShrink:0,
             background: isFiltered?'#3b82f6':'transparent',
@@ -1674,6 +1868,11 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
           ≡
         </button>
       </div>
+
+      {/* Metadata tooltip on column name hover */}
+      {hoveringName && rawRows && rawRows.length > 0 && (
+        <ColMetaTooltip meta={meta} rawRows={rawRows} colors={colors} isDarkMode={isDarkMode} />
+      )}
     </div>
   );
 });
@@ -1703,6 +1902,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
   const [showQueryBuilder, setShowQueryBuilder] = useState(false); // advanced filter open/close
   const [queryRules,       setQueryRules]       = useState([]);     // rules list
   const [queryLogical,     setQueryLogical]     = useState('AND');   // logic connector
+  const [pinnedRows,       setPinnedRows]       = useState(new Set()); // row-pinning by original index
   const wrapRef = useRef(null);
 
   // Whether any column in this dataset carries a label
@@ -2171,6 +2371,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
                   (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
                 onSort={handleSort}
                 onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
+                rawRows={rawRows}
                 colors={colors}
                 isDarkMode={isDarkMode}
               />
@@ -2191,32 +2392,74 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
               <div style={{ position:'absolute', top: startIdx * ROW_HEIGHT, width:'100%' }}>
                 {visibleRows.map((row, vi) => {
                   const idx = startIdx + vi;
-                  const stripe = idx%2===0 ? colors.rowBg : colors.stripe;
+                  const isPinned = pinnedRows.has(idx);
+                  const stripe = isPinned
+                    ? (isDarkMode ? '#78350f' : '#fef9c3')  // gold-tinted pinned background
+                    : (idx%2===0 ? colors.rowBg : colors.stripe);
+
+                  const togglePin = (e) => {
+                    e.stopPropagation();
+                    setPinnedRows(prev => {
+                      const next = new Set(prev);
+                      next.has(idx) ? next.delete(idx) : next.add(idx);
+                      return next;
+                    });
+                  };
+
                   return (
-                    <div key={idx} className="dtex-row" style={{ display:'flex', height:ROW_HEIGHT,
-                      alignItems:'center', borderBottom:`1px solid ${colors.border}`,
-                      background:stripe }}>
-                      {/* Row number — sticky left */}
-                      <div className="dtex-rownum" style={{ position:'sticky', left:0, zIndex:1,
-                        width:ROW_NUM_W, flexShrink:0, height:'100%',
-                        display:'flex', alignItems:'center', justifyContent:'center',
-                        color:colors.subText, borderRight:`1px solid ${colors.border}`,
-                        background:stripe, boxSizing: 'border-box' }}>
+                    <div
+                      key={idx}
+                      className="dtex-row"
+                      onClick={togglePin}
+                      style={{
+                        display:'flex', height:ROW_HEIGHT,
+                        alignItems:'center', borderBottom:`1px solid ${colors.border}`,
+                        background: stripe,
+                        cursor: 'pointer',
+                        outline: isPinned ? `2px solid #f59e0b` : 'none',
+                        outlineOffset: '-2px',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Row number — sticky left, with pin indicator */}
+                      <div
+                        className="dtex-rownum"
+                        style={{
+                          position:'sticky', left:0, zIndex:1,
+                          width:ROW_NUM_W, flexShrink:0, height:'100%',
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                          gap: 2,
+                          color: isPinned ? '#f59e0b' : colors.subText,
+                          fontWeight: isPinned ? 700 : 400,
+                          borderRight:`1px solid ${colors.border}`,
+                          background: stripe, boxSizing: 'border-box',
+                          fontSize: 11,
+                        }}
+                        title={isPinned ? 'Click to unpin row' : 'Click to pin row'}
+                      >
+                        {isPinned && <span style={{ fontSize:9, lineHeight:1 }}>📌</span>}
                         {idx+1}
                       </div>
-                      {cols.map(meta => (
-                        <div key={meta.name} style={{
-                          width:COL_WIDTH, flexShrink:0, padding:'0 10px',
-                          overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-                          borderRight:`1px solid ${colors.border}`, color:colors.text,
-                          fontVariantNumeric:'tabular-nums', height:'100%',
-                          display:'flex', alignItems:'center', boxSizing: 'border-box'
-                        }} title={row[meta.name]!=null?String(row[meta.name]):'NA'}>
-                          {row[meta.name]!=null
-                            ? String(row[meta.name])
-                            : <span style={{color:isDarkMode ? '#475569' : '#cbd5e1',fontStyle:'italic'}}>{na_string}</span>}
-                        </div>
-                      ))}
+                      {cols.map(meta => {
+                        const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
+                        const cellVal = row[meta.name];
+                        return (
+                          <div key={meta.name} style={{
+                            width:COL_WIDTH, flexShrink:0, padding:'0 10px',
+                            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+                            borderRight:`1px solid ${colors.border}`, color:colors.text,
+                            fontVariantNumeric:'tabular-nums', height:'100%',
+                            display:'flex', alignItems:'center', boxSizing: 'border-box',
+                            justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
+                            fontFamily: isNumericCol ? "'Fira Code', 'Consolas', monospace" : 'inherit',
+                            fontSize: isNumericCol ? 12 : 13,
+                          }} title={cellVal!=null?String(cellVal):'NA'}>
+                            {cellVal != null
+                              ? String(cellVal)
+                              : <span style={{color:isDarkMode ? '#475569' : '#cbd5e1',fontStyle:'italic'}}>{na_string}</span>}
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })}

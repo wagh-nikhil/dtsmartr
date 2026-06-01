@@ -12,8 +12,8 @@ Description: Provides an interactive, virtualized data explorer widget for R.
     using 'datamods'. Widgets can be embedded in R Markdown / Quarto documents,
     Shiny applications, or exported as standalone HTML files via save_dtsmartr().
 License: MIT + file LICENSE
-URL: https://github.com/wagh-nikhil/DTExploR
-BugReports: https://github.com/wagh-nikhil/DTExploR/issues
+URL: https://github.com/wagh-nikhil/dtsmartr
+BugReports: https://github.com/wagh-nikhil/dtsmartr/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

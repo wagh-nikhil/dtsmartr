@@ -47,7 +47,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 }
 
 # Install dtsmartr
-remotes::install_github("wagh-nikhil/DTExploR") # Rebranded to dtsmartr
+remotes::install_github("wagh-nikhil/dtsmartr")
 ```
 
 ---

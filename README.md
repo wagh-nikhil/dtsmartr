@@ -1,4 +1,4 @@
-# dtsmartr <img src="inst/htmlwidgets/dtsmartr.yaml" align="right" height="139" style="display:none;" />
+# dtsmartr <img src="man/figures/logo.png" align="right" height="139" />
 
 **dtsmartr** is an interactive, Kaggle-style data explorer widget for R. Built with modern React (via `reactR`) and `htmlwidgets`, it provides a high-fidelity, ultra-responsive virtualized grid to browse, sort, and filter large datasets seamlessly.
 

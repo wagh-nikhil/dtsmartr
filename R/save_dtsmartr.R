@@ -143,12 +143,15 @@ save_dtsmartr <- function(
   }
 
   # ── Build widget ─────────────────────────────────────────────────────────────
+  # skip_routing = TRUE bypasses the >50k row re-route to dtsmartr_launch()
+  # so we always get a widget object back for saving — never a Shiny app.
   widget <- dtsmartr(
-    data      = data,
-    width     = width,
-    height    = height,
-    elementId = elementId,
-    options   = options
+    data         = data,
+    width        = width,
+    height       = height,
+    elementId    = elementId,
+    options      = options,
+    skip_routing = TRUE
   )
 
   # ── Save ─────────────────────────────────────────────────────────────────────

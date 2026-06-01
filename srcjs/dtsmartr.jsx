@@ -2,8 +2,8 @@ import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const ROW_HEIGHT         = 36;
-const HEADER_HEIGHT_BASE = 64;   // without labels
-const HEADER_HEIGHT_LBL  = 82;   // with labels row
+const HEADER_HEIGHT_BASE = 125;   // without labels
+const HEADER_HEIGHT_LBL  = 145;   // with labels row
 const COL_WIDTH          = 160;
 const ROW_NUM_W          = 52;
 const OVERSCAN           = 8;
@@ -1606,11 +1606,208 @@ const ColVisPanel = ({ metadata, visible, onChange, onClose, colors, isDarkMode 
 };
 
 // ── Column Metadata Tooltip ────────────────────────────────────────────────────
-const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
-  const isNumeric = meta.type === 'numeric' || meta.type === 'integer';
-  const totalRows = rawRows.length;
+// ── Collapsible Side Panel Drawer ──
+const DataInsightsDrawer = ({ summary, onClose, colors, isDarkMode }) => {
+  if (!summary) return null;
 
-  const { validCount, naCount, topValues, minVal, maxVal, meanVal } = useMemo(() => {
+  const isNumeric = summary.type === 'numeric' || summary.type === 'integer';
+
+  // Format utility
+  const fmt = (n) => {
+    if (n == null) return '—';
+    if (Math.abs(n) >= 1e6) return n.toExponential(2);
+    if (!Number.isInteger(n) && Math.abs(n) < 1e4) return n.toFixed(3);
+    return n.toLocaleString();
+  };
+
+  return (
+    <div style={{
+      width: 360,
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: colors.cardBg,
+      borderLeft: `1px solid ${colors.border}`,
+      boxSizing: 'border-box',
+      fontFamily: "'Inter','Segoe UI',sans-serif"
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: `1px solid ${colors.border}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: colors.toolbarBg
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow:'hidden' }}>
+          <span style={{ fontSize: 16 }}>📊</span>
+          <span style={{ fontWeight: 700, fontSize: 14, color: colors.text, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+            Data Insights: {summary.col}
+          </span>
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            fontSize: 20,
+            color: colors.subText,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            lineHeight: 1
+          }}
+          title="Close drawer"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{ padding: '20px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        
+        {/* Type and overall summary */}
+        <div>
+          <h4 style={{ margin: '0 0 8px 0', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: colors.subText, letterSpacing: '0.05em' }}>
+            Column Overview
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ background: isDarkMode ? '#0f172a' : '#f8fafc', padding: 10, borderRadius: 8, border: `1px solid ${colors.border}` }}>
+              <div style={{ fontSize: 10, color: colors.subText }}>Data Type</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: colors.text, textTransform: 'capitalize' }}>{summary.type}</div>
+            </div>
+            <div style={{ background: isDarkMode ? '#0f172a' : '#f8fafc', padding: 10, borderRadius: 8, border: `1px solid ${colors.border}` }}>
+              <div style={{ fontSize: 10, color: colors.subText }}>Unique Values</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: colors.text }}>{summary.uniqueCount.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quality Metrics */}
+        <div>
+          <h4 style={{ margin: '0 0 8px 0', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: colors.subText, letterSpacing: '0.05em' }}>
+            Completeness & Quality
+          </h4>
+          <div style={{ background: isDarkMode ? '#0f172a' : '#f8fafc', padding: 12, borderRadius: 8, border: `1px solid ${colors.border}`, display:'flex', flexDirection:'column', gap:8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+              <span style={{ color: colors.text, fontWeight: 600 }}>Valid Data</span>
+              <span style={{ color: '#22c55e', fontWeight: 700 }}>{summary.validCount.toLocaleString()} ({summary.validPct.toFixed(1)}%)</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+              <span style={{ color: colors.text, fontWeight: 600 }}>Missing (NA)</span>
+              <span style={{ color: '#ef4444', fontWeight: 700 }}>{summary.naCount.toLocaleString()} ({summary.naPct.toFixed(1)}%)</span>
+            </div>
+            
+            {/* Visual Bar */}
+            <div style={{ height: 8, borderRadius: 4, background: isDarkMode ? '#334155' : '#e2e8f0', overflow: 'hidden', display: 'flex', marginTop: 4 }}>
+              <div style={{ width: `${summary.validPct}%`, height: '100%', background: '#22c55e' }} />
+              <div style={{ width: `${summary.naPct}%`, height: '100%', background: '#ef4444' }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Statistics (for Numeric) */}
+        {isNumeric && (
+          <div>
+            <h4 style={{ margin: '0 0 8px 0', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: colors.subText, letterSpacing: '0.05em' }}>
+              Descriptive Statistics
+            </h4>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 8,
+              background: isDarkMode ? '#0f172a' : '#f8fafc',
+              padding: 12,
+              borderRadius: 8,
+              border: `1px solid ${colors.border}`
+            }}>
+              {[
+                { label: 'Minimum', value: fmt(summary.min) },
+                { label: 'Maximum', value: fmt(summary.max) },
+                { label: 'Mean', value: fmt(summary.mean) },
+                { label: 'Median', value: fmt(summary.mean) }
+              ].map(({ label, value }) => (
+                <div key={label} style={{ padding: '4px 0' }}>
+                  <div style={{ fontSize: 10, color: colors.subText }}>{label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>{value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Distribution profile visual chart */}
+        <div>
+          <h4 style={{ margin: '0 0 8px 0', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: colors.subText, letterSpacing: '0.05em' }}>
+            Distribution Profile
+          </h4>
+          
+          {isNumeric || summary.type === 'datetime' ? (
+            <div style={{
+              background: isDarkMode ? '#0f172a' : '#f8fafc',
+              padding: 16,
+              borderRadius: 8,
+              border: `1px solid ${colors.border}`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10
+            }}>
+              {/* Detailed Spark Chart */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 100, width: '100%' }}>
+                {summary.histogramBins.map((pct, idx) => (
+                  <div key={idx} style={{
+                    flex: 1,
+                    height: `${pct}%`,
+                    background: isDarkMode ? '#38bdf8' : '#0284c7',
+                    borderRadius: '2px 2px 0 0',
+                    minHeight: pct > 0 ? 2 : 0
+                  }} title={`${pct.toFixed(0)}% frequency`} />
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: colors.subText }}>
+                <span>{summary.minDisplay}</span>
+                <span>{summary.maxDisplay}</span>
+              </div>
+            </div>
+          ) : (
+            /* Categorical detailed top list with bar charts */
+            <div style={{
+              background: isDarkMode ? '#0f172a' : '#f8fafc',
+              padding: 12,
+              borderRadius: 8,
+              border: `1px solid ${colors.border}`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8
+            }}>
+              {summary.topCats.map((cat, idx) => (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+                    <span style={{ color: colors.text, fontWeight: 600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth: 180 }}>{cat.val}</span>
+                    <span style={{ color: colors.subText }}>{cat.count.toLocaleString()} ({cat.pct}%)</span>
+                  </div>
+                  {/* Progress bar */}
+                  <div style={{ height: 6, borderRadius: 3, background: isDarkMode ? '#334155' : '#e2e8f0', overflow: 'hidden' }}>
+                    <div style={{ width: `${cat.pct}%`, height: '100%', background: '#3b82f6', borderRadius: 3 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Column Metadata Tooltip ────────────────────────────────────────────────────
+const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = null }) => {
+  const isNumeric = meta.type === 'numeric' || meta.type === 'integer';
+
+  const summary = useMemo(() => {
+    if (customSummary) return customSummary;
+
+    // Fallback if customSummary is not passed
     let valid = 0, na = 0;
     const freq = {};
     let min = Infinity, max = -Infinity, sum = 0, numCount = 0;
@@ -1641,18 +1838,34 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
       .slice(0, 5)
       .map(([val, cnt]) => ({ val, cnt }));
 
-    return {
-      validCount: valid,
-      naCount: na,
-      topValues: top,
-      minVal: isNumeric && numCount > 0 ? min : null,
-      maxVal: isNumeric && numCount > 0 ? max : null,
-      meanVal: isNumeric && numCount > 0 ? (sum / numCount) : null,
-    };
-  }, [rawRows, meta.name, isNumeric]);
+    const totalRows = rawRows.length;
+    const missPct = totalRows > 0 ? ((na / totalRows) * 100).toFixed(1) : '0.0';
+    const validPct = 100 - parseFloat(missPct);
 
-  const missPct = totalRows > 0 ? ((naCount / totalRows) * 100).toFixed(1) : '0.0';
-  const validPct = 100 - parseFloat(missPct);
+    return {
+      totalRows,
+      uniqueCount: meta.unique_values,
+      naCount: na,
+      validCount: valid,
+      validPct,
+      naPct: parseFloat(missPct),
+      min: numCount > 0 ? min : null,
+      max: numCount > 0 ? max : null,
+      mean: numCount > 0 ? (sum / numCount) : null,
+      topCats: top.map(({ val, cnt }) => ({
+        val,
+        count: cnt,
+        pct: totalRows > 0 ? ((cnt / totalRows) * 100).toFixed(0) : '0'
+      })),
+      histogramBins: [],
+    };
+  }, [rawRows, meta.name, isNumeric, customSummary]);
+
+  const totalRows = summary.totalRows;
+  const naCount = summary.naCount;
+  const validCount = summary.validCount ?? (summary.totalRows - summary.naCount);
+  const missPct = summary.naPct !== undefined ? summary.naPct.toFixed(1) : '0.0';
+  const validPct = summary.validPct !== undefined ? summary.validPct.toFixed(1) : '100.0';
 
   const fmt = (n) => {
     if (n == null) return '—';
@@ -1687,7 +1900,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
       <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
         {[
           { label: 'Rows', value: totalRows.toLocaleString() },
-          { label: 'Unique', value: (meta.unique_values ?? '—').toLocaleString() },
+          { label: 'Unique', value: (summary.uniqueCount ?? '—').toLocaleString() },
           { label: 'Missing', value: `${missPct}%` },
         ].map(({ label, value }) => (
           <div key={label} style={{
@@ -1711,7 +1924,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
           <div style={{
             position: 'absolute', left: 0, top: 0, height: '100%',
             width: `${validPct}%`,
-            background: validPct >= 90 ? '#22c55e' : validPct >= 70 ? '#f59e0b' : '#ef4444',
+            background: parseFloat(validPct) >= 90 ? '#22c55e' : parseFloat(validPct) >= 70 ? '#f59e0b' : '#ef4444',
             borderRadius: 3,
             transition: 'width 0.3s ease',
           }} />
@@ -1724,7 +1937,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
       {/* Numeric stats OR top values */}
       {isNumeric ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
-          {[['Min', fmt(minVal)], ['Mean', fmt(meanVal)], ['Max', fmt(maxVal)]].map(([lbl, val]) => (
+          {[['Min', fmt(summary.min)], ['Mean', fmt(summary.mean)], ['Max', fmt(summary.max)]].map(([lbl, val]) => (
             <div key={lbl} style={{
               background: isDarkMode ? '#0f172a' : '#f8fafc',
               borderRadius: 6, padding: '3px 5px', textAlign: 'center',
@@ -1735,18 +1948,17 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
             </div>
           ))}
         </div>
-      ) : topValues.length > 0 ? (
+      ) : summary.topCats.length > 0 ? (
         <div>
           <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 4,
             textTransform: 'uppercase', letterSpacing: '0.05em' }}>Top values</div>
-          {topValues.map(({ val, cnt }) => {
-            const pct = totalRows > 0 ? (cnt / totalRows) * 100 : 0;
+          {summary.topCats.map(({ val, count, pct }) => {
             return (
               <div key={val} style={{ marginBottom: 3 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10,
                   color: colors.text, marginBottom: 1 }}>
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 130 }}>{val}</span>
-                  <span style={{ color: colors.subText, flexShrink: 0, marginLeft: 4 }}>{cnt.toLocaleString()}</span>
+                  <span style={{ color: colors.subText, flexShrink: 0, marginLeft: 4 }}>{count.toLocaleString()}</span>
                 </div>
                 <div style={{ height: 3, borderRadius: 2, background: isDarkMode ? '#334155' : '#e2e8f0', overflow: 'hidden' }}>
                   <div style={{ width: `${pct}%`, height: '100%', background: '#3b82f6', borderRadius: 2 }} />
@@ -1761,7 +1973,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode }) => {
 };
 
 // ── Column Header Cell ────────────────────────────────────────────────────────
-const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, rawRows, colors, isDarkMode }) => {
+const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, colors, isDarkMode }) => {
   const active  = sortCol === meta.name;
   const t       = tm(meta.type);
   const btnRef  = useRef(null);
@@ -1769,41 +1981,86 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
   const HEADER_HEIGHT = showLabels ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE;
   const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
 
-  // Data-quality bar calculation (memoized per column metadata + rawRows)
-  const { validPct, naCount } = useMemo(() => {
-    if (!rawRows || rawRows.length === 0) return { validPct: 100, naCount: 0 };
-    let na = 0;
-    for (const row of rawRows) {
-      if (row[meta.name] == null) na++;
-    }
-    return {
-      validPct: ((rawRows.length - na) / rawRows.length) * 100,
-      naCount: na,
-    };
-  }, [rawRows, meta.name]);
-
-  const qualityColor = validPct >= 90 ? '#22c55e' : validPct >= 70 ? '#f59e0b' : '#ef4444';
-
   const openPanel = e => {
     e.stopPropagation();
     const r = btnRef.current.getBoundingClientRect();
     onOpenPanel(meta.name, { x: r.left, y: r.bottom });
   };
 
+  const renderSummaryZone = () => {
+    if (!summary) return null;
+
+    if (summary.mode === 'identifier') {
+      return (
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:60, gap:2 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: colors.text }}>
+            {summary.uniqueCount.toLocaleString()}
+          </div>
+          <div style={{ fontSize: 10, color: colors.subText, textTransform: 'lowercase' }}>
+            unique values
+          </div>
+        </div>
+      );
+    }
+
+    if (summary.mode === 'numeric' || summary.mode === 'datetime') {
+      return (
+        <div style={{ display:'flex', flexDirection:'column', justifyContent:'flex-end', height:60, padding: '4px 0 2px 0', boxSizing:'border-box' }}>
+          {/* Histogram bars */}
+          <div style={{ display:'flex', alignItems:'flex-end', gap:2, height:40, width:'100%', marginBottom:4 }}>
+            {summary.histogramBins.map((pct, idx) => (
+              <div key={idx} style={{
+                flex:1,
+                height: `${pct}%`,
+                background: isDarkMode ? '#38bdf8' : '#0284c7',
+                borderRadius: '1px 1px 0 0',
+                minHeight: pct > 0 ? 1 : 0
+              }} />
+            ))}
+          </div>
+          {/* Range text */}
+          <div style={{ display:'flex', justifyContent:'space-between', fontSize:9, color: colors.subText }}>
+            <span>{summary.minDisplay}</span>
+            <span>{summary.maxDisplay}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Categorical mode
+    return (
+      <div style={{ display:'flex', flexDirection:'column', justifyContent:'center', height:60, gap:4, padding: '2px 0', boxSizing:'border-box' }}>
+        {summary.topCats.map((cat, idx) => (
+          <div key={idx} style={{ display:'flex', justifyContent:'space-between', fontSize:10, color: colors.text, lineHeight: 1.2 }}>
+            <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth: 100 }} title={cat.val}>
+              {cat.val}
+            </span>
+            <span style={{ fontWeight: 600, color: colors.subText, marginLeft: 4, flexShrink: 0 }}>
+              {cat.pct}%
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const qualityColor = summary ? (summary.validPct >= 90 ? '#22c55e' : summary.validPct >= 70 ? '#f59e0b' : '#ef4444') : '#22c55e';
+
   return (
     <div onClick={() => onSort(meta.name)} className="dtex-header-cell" style={{
       width: COL_WIDTH, flexShrink:0, height:HEADER_HEIGHT,
-      padding:'5px 8px 5px 10px', display:'flex', flexDirection:'column',
-      justifyContent:'center', cursor:'pointer', userSelect:'none',
+      padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
+      justifyContent:'space-between', cursor:'pointer', userSelect:'none',
       borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
       background: active ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
       position: 'relative',
     }}>
-      {/* Row 1: type icon + column name + sort arrow */}
-      <div style={{ display:'flex', alignItems:'center', gap:4, marginBottom:2 }}>
+      {/* Row 1: type icon + column name + insights icon + sort arrow */}
+      <div style={{ display:'flex', alignItems:'center', gap:4 }}>
         <span style={{ fontSize:10, color:t.text, fontWeight:700,
           background:t.bg, borderRadius:3, padding:'0 4px', flexShrink:0 }}>{t.icon}</span>
-        {/* Hoverable column name that triggers metadata tooltip */}
+        
+        {/* Hoverable name */}
         <span
           onMouseEnter={e => { e.stopPropagation(); setHoveringName(true); }}
           onMouseLeave={() => setHoveringName(false)}
@@ -1817,6 +2074,32 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
         >
           {meta.name}
         </span>
+        
+        {/* Insights button */}
+        <button
+          onClick={e => {
+            e.stopPropagation(); // prevent sort
+            onOpenInsights(meta.name);
+          }}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            fontSize: 11,
+            padding: '2px',
+            borderRadius: 4,
+            color: colors.subText,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          title="Open Data Insights Drawer"
+          onMouseEnter={e => e.currentTarget.style.color = '#3b82f6'}
+          onMouseLeave={e => e.currentTarget.style.color = colors.subText}
+        >
+          📊
+        </button>
+
         <span style={{ fontSize:10, color: active?'#3b82f6':colors.subText, flexShrink:0 }}>
           {active ? (sortDir==='asc'?'▲':'▼') : '⇅'}
         </span>
@@ -1827,47 +2110,65 @@ const ColHeader = React.memo(({ meta, sortCol, sortDir, isFiltered, showLabels, 
         <div style={{
           fontSize:10, color:'#7c3aed', fontStyle:'italic',
           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-          marginBottom:2, lineHeight:'13px',
+          lineHeight:'13px',
           background:'#f5f3ff', borderRadius:3, padding:'1px 4px',
           textAlign: isNumericCol ? 'right' : 'left',
         }} title={meta.label}>
           {meta.label}
         </div>
       )}
-      {/* Spacer when labels on but no label for this column */}
-      {showLabels && !meta.label && (
-        <div style={{ height:15, marginBottom:2 }} />
-      )}
 
-      {/* Row 3: type badge + uniq count + quality bar + filter button */}
-      <div style={{ display:'flex', gap:4, alignItems:'center' }}>
-        <span style={{ fontSize:10, padding:'1px 5px', borderRadius:3,
-          background:t.bg, color:t.text, fontWeight:600 }}>{meta.type}</span>
-        <span style={{ fontSize:10, padding:'1px 5px', borderRadius:3,
-          background:isDarkMode ? '#334155' : '#f1f5f9', color:colors.subText }}>{meta.unique_values} uniq</span>
-        {/* Thin data-quality bar */}
-        <div style={{ flex:1, height:4, borderRadius:2, background: isDarkMode ? '#334155' : '#e2e8f0',
-          overflow:'hidden', minWidth:20 }}
-          title={`${validPct.toFixed(1)}% valid · ${naCount} NA`}
-        >
-          <div style={{
-            width: `${validPct}%`, height:'100%',
-            background: qualityColor, borderRadius:2,
-          }} />
-        </div>
-        <button ref={btnRef} onClick={openPanel} title="Filter / Sort"
-          style={{ width:20, height:20, border:'none', borderRadius:4,
-            cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-            fontSize:13, flexShrink:0,
-            background: isFiltered?'#3b82f6':'transparent',
-            color: isFiltered?'#fff':colors.subText }}>
-          ≡
-        </button>
+      {/* Summary Micro-Dashboard Zone */}
+      {renderSummaryZone()}
+
+      {/* Floating Panel Open Trigger button */}
+      <button ref={btnRef} onClick={openPanel} title="Filter / Sort Menu"
+        style={{
+          position: 'absolute',
+          right: 4,
+          bottom: 8,
+          width: 18,
+          height: 18,
+          border: 'none',
+          borderRadius: 4,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 11,
+          background: isFiltered ? '#3b82f6' : 'transparent',
+          color: isFiltered ? '#fff' : colors.subText,
+          zIndex: 5
+        }}>
+        ≡
+      </button>
+
+      {/* Thin data-quality bar at the bottom */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: 4,
+        background: isDarkMode ? '#334155' : '#e2e8f0',
+        overflow: 'hidden',
+        display: 'flex'
+      }} title={summary ? `${summary.totalRows.toLocaleString()} values · ${summary.naCount.toLocaleString()} missing (${(summary.naPct).toFixed(1)}%)` : ''}>
+        <div style={{
+          width: `${summary ? summary.validPct : 100}%`,
+          height: '100%',
+          background: '#22c55e'
+        }} />
+        <div style={{
+          width: `${summary ? summary.naPct : 0}%`,
+          height: '100%',
+          background: isDarkMode ? '#b91c1c' : '#f87171'
+        }} />
       </div>
 
       {/* Metadata tooltip on column name hover */}
-      {hoveringName && rawRows && rawRows.length > 0 && (
-        <ColMetaTooltip meta={meta} rawRows={rawRows} colors={colors} isDarkMode={isDarkMode} />
+      {hoveringName && summary && (
+        <ColMetaTooltip meta={meta} rawRows={[]} colors={colors} isDarkMode={isDarkMode} customSummary={summary} />
       )}
     </div>
   );
@@ -1900,6 +2201,178 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
   const [queryLogical,     setQueryLogical]     = useState('AND');   // logic connector
   const [pinnedRows,       setPinnedRows]       = useState(new Set()); // row-pinning by original index
   const wrapRef = useRef(null);
+
+  const [showInsights,     setShowInsights]     = useState(false);
+  const [activeInsightCol, setActiveInsightCol] = useState(null);
+
+  const handleOpenInsights = useCallback((col) => {
+    setActiveInsightCol(col);
+    setShowInsights(true);
+  }, []);
+
+  // Precalculated summaries for all columns in this dataset (Kaggle-style)
+  const colSummaries = useMemo(() => {
+    const summaries = {};
+    const totalRows = rawRows.length;
+
+    (metadata || []).forEach(meta => {
+      const col = meta.name;
+      const type = meta.type;
+      const isNum = type === 'numeric' || type === 'integer';
+
+      let validCount = 0;
+      let naCount = 0;
+      let min = Infinity;
+      let max = -Infinity;
+      let sum = 0;
+      let values = [];
+      const freq = {};
+
+      for (let i = 0; i < totalRows; i++) {
+        const v = rawRows[i]?.[col];
+        if (v == null) {
+          naCount++;
+        } else {
+          validCount++;
+          if (isNum) {
+            const n = Number(v);
+            if (!isNaN(n)) {
+              if (n < min) min = n;
+              if (n > max) max = n;
+              sum += n;
+            }
+          } else {
+            const s = String(v);
+            freq[s] = (freq[s] || 0) + 1;
+          }
+          values.push(v);
+        }
+      }
+
+      const uniqueCount = meta.unique_values ?? (uniqueVals[col] ? uniqueVals[col].length : 0);
+      const validPct = totalRows > 0 ? ((validCount / totalRows) * 100) : 100;
+      const naPct = totalRows > 0 ? ((naCount / totalRows) * 100) : 0;
+
+      // Check if it's in identifier mode
+      const isIdentifier = uniqueCount === totalRows || (uniqueCount > 0.8 * totalRows && !isNum);
+
+      let mode = 'categorical';
+      if (isIdentifier) {
+        mode = 'identifier';
+      } else if (isNum) {
+        mode = 'numeric';
+      } else if (type === 'datetime') {
+        mode = 'datetime';
+      }
+
+      // Calculate top values for categorical mode
+      let topCats = [];
+      if (mode === 'categorical') {
+        const sortedFreq = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+        if (sortedFreq.length <= 3) {
+          topCats = sortedFreq.map(([val, count]) => ({
+            val,
+            count,
+            pct: totalRows > 0 ? ((count / totalRows) * 100).toFixed(0) : '0'
+          }));
+        } else {
+          // Render top 2, and group rest as Other
+          topCats = sortedFreq.slice(0, 2).map(([val, count]) => ({
+            val,
+            count,
+            pct: totalRows > 0 ? ((count / totalRows) * 100).toFixed(0) : '0'
+          }));
+          const otherCount = sortedFreq.slice(2).reduce((s, item) => s + item[1], 0);
+          const otherPct = totalRows > 0 ? ((otherCount / totalRows) * 100).toFixed(0) : '0';
+          topCats.push({
+            val: `Other (${sortedFreq.length - 2} levels)`,
+            count: otherCount,
+            pct: otherPct
+          });
+        }
+      }
+
+      // Calculate histogram for numeric and datetime
+      let histogramBins = [];
+      let minDisplay = '';
+      let maxDisplay = '';
+
+      if (isNum && validCount > 0) {
+        const binCount = 12;
+        const range = max - min;
+        const binSize = range > 0 ? range / binCount : 1;
+        const bins = Array(binCount).fill(0);
+
+        for (let i = 0; i < values.length; i++) {
+          const v = Number(values[i]);
+          if (isNaN(v)) continue;
+          let binIdx = range > 0 ? Math.floor((v - min) / binSize) : 0;
+          if (binIdx >= binCount) binIdx = binCount - 1;
+          if (binIdx < 0) binIdx = 0;
+          bins[binIdx]++;
+        }
+
+        const maxBin = Math.max(...bins, 1);
+        histogramBins = bins.map(cnt => (cnt / maxBin) * 100);
+        
+        // Format min/max display
+        const fmt = (val) => {
+          if (Number.isInteger(val)) return val.toLocaleString();
+          return val.toFixed(1);
+        };
+        minDisplay = fmt(min);
+        maxDisplay = fmt(max);
+      } else if (type === 'datetime' && validCount > 0) {
+        const timestamps = values.map(v => new Date(v).getTime()).filter(t => !isNaN(t));
+        if (timestamps.length > 0) {
+          const tMin = Math.min(...timestamps);
+          const tMax = Math.max(...timestamps);
+          const binCount = 12;
+          const range = tMax - tMin;
+          const binSize = range > 0 ? range / binCount : 1;
+          const bins = Array(binCount).fill(0);
+
+          for (let i = 0; i < timestamps.length; i++) {
+            let binIdx = range > 0 ? Math.floor((timestamps[i] - tMin) / binSize) : 0;
+            if (binIdx >= binCount) binIdx = binCount - 1;
+            if (binIdx < 0) binIdx = 0;
+            bins[binIdx]++;
+          }
+
+          const maxBin = Math.max(...bins, 1);
+          histogramBins = bins.map(cnt => (cnt / maxBin) * 100);
+
+          const fmtDate = (ts) => {
+            const d = new Date(ts);
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          };
+          minDisplay = fmtDate(tMin);
+          maxDisplay = fmtDate(tMax);
+        }
+      }
+
+      summaries[col] = {
+        col,
+        type,
+        mode,
+        totalRows,
+        validCount,
+        naCount,
+        validPct,
+        naPct,
+        uniqueCount,
+        min: validCount > 0 && isNum ? min : null,
+        max: validCount > 0 && isNum ? max : null,
+        mean: validCount > 0 && isNum ? (sum / validCount) : null,
+        topCats,
+        histogramBins,
+        minDisplay,
+        maxDisplay,
+      };
+    });
+
+    return summaries;
+  }, [rawRows, metadata, uniqueVals]);
 
   // Whether any column in this dataset carries a label
   const hasAnyLabel = useMemo(() =>
@@ -2180,316 +2653,340 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     border: `1px solid ${colors.border}`, boxSizing: 'border-box',
   };
 
+  const outerStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    boxSizing: 'border-box'
+  };
+
   return (
-    <div style={containerStyle}>
-      <style>{`
-        .dtex-row:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
-        .dtex-row:hover .dtex-rownum { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
-        .dtex-header-cell:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
-      `}</style>
+    <div style={outerStyle}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={containerStyle}>
+          <style>{`
+            .dtex-row:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
+            .dtex-row:hover .dtex-rownum { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
+            .dtex-header-cell:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
+          `}</style>
 
-      {/* ── Toolbar ── */}
-      <div style={{ flexShrink:0, padding:'8px 14px', borderBottom:`1px solid ${colors.border}`,
-        background:colors.toolbarBg, display:'flex', alignItems:'center', gap:12 }}>
-        {/* Stats */}
-        <span style={{ color:colors.subText, fontSize:12 }}>
-          <b style={{color:colors.text}}>{rows.length}</b>
-          {rows.length!==rawRows.length && <> / {rawRows.length}</>} rows ·{' '}
-          <b style={{color:colors.text}}>{cols.length}</b>
-          {cols.length!==(metadata||[]).length && <> / {(metadata||[]).length}</>} columns
-        </span>
-        {sortCol && (
-          <span style={{ fontSize:11, color:colors.text, background:isDarkMode ? '#334155' : '#e2e8f0',
-            padding:'2px 8px', borderRadius:10 }}>
-            ↕ {sortCol} {sortDir}
-          </span>
-        )}
-        {activeFilterCount>0 && (
-          <span style={{ fontSize:11, color:'#3b82f6', background:isDarkMode ? '#1e3a8a' : '#dbeafe',
-            padding:'2px 8px', borderRadius:10 }}>
-            🔍 {activeFilterCount} filter{activeFilterCount>1?'s':''}
-          </span>
-        )}
-        {activeFilterCount>0 && (
-          <button onClick={()=>setFilters({})} style={{ fontSize:11, padding:'3px 10px',
-            border:`1px solid ${colors.border}`, borderRadius:10, background:colors.btnBg,
-            color:colors.text, cursor:'pointer' }}>
-            Clear filters
-          </button>
-        )}
-
-        {/* Right-side buttons */}
-        <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
-
-        {/* Label toggle — only shown when dataset has labelled columns */}
-        {hasAnyLabel && (
-          <button onClick={() => setShowLabels(v => !v)}
-            title={showLabels ? 'Hide column labels' : 'Show column labels'}
-            style={{ display:'flex', alignItems:'center', gap:5,
-              padding:'6px 10px', border:`1px solid ${colors.border}`, borderRadius:8,
-              background: showLabels ? (isDarkMode ? '#2e1065' : '#f5f3ff') : colors.btnBg,
-              color: showLabels ? '#7c3aed' : colors.subText,
-              fontSize:12, fontWeight:500, cursor:'pointer',
-              boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-              borderColor: showLabels ? '#c4b5fd' : colors.border }}>
-            <span style={{fontSize:13}}>🏷</span>
-            {showLabels ? 'Labels on' : 'Labels off'}
-          </button>
-        )}
-
-        {/* Advanced Filter button */}
-        {advanced_filter && (
-          <button onClick={() => setShowQueryBuilder(v => !v)} style={{
-            display:'flex', alignItems:'center', gap:6,
-            padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
-            background: showQueryBuilder ? (isDarkMode ? '#1e3a8a' : '#eff6ff') : colors.btnBg,
-            color: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#2563eb') : colors.text,
-            borderColor: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#bfdbfe') : colors.border,
-            fontSize:12, fontWeight:500, cursor:'pointer',
-            boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-          }} title="Build advanced multi-condition search queries">
-            <span style={{fontSize:14}}>🔍</span> Advanced Filter
-            {queryRules.length > 0 && (
-              <span style={{ fontSize:10, background:'#2563eb', color:'#fff',
-                borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
-                {queryRules.length}
+          {/* ── Toolbar ── */}
+          <div style={{ flexShrink:0, padding:'8px 14px', borderBottom:`1px solid ${colors.border}`,
+            background:colors.toolbarBg, display:'flex', alignItems:'center', gap:12 }}>
+            {/* Stats */}
+            <span style={{ color:colors.subText, fontSize:12 }}>
+              <b style={{color:colors.text}}>{rows.length}</b>
+              {rows.length!==rawRows.length && <> / {rawRows.length}</>} rows ·{' '}
+              <b style={{color:colors.text}}>{cols.length}</b>
+              {cols.length!==(metadata||[]).length && <> / {(metadata||[]).length}</>} columns
+            </span>
+            {sortCol && (
+              <span style={{ fontSize:11, color:colors.text, background:isDarkMode ? '#334155' : '#e2e8f0',
+                padding:'2px 8px', borderRadius:10 }}>
+                ↕ {sortCol} {sortDir}
               </span>
             )}
-          </button>
-        )}
-
-        {/* Query Code Button */}
-        {allow_export && (
-          <button onClick={() => setShowRCodeModal(true)} style={{
-            display:'flex', alignItems:'center', gap:6,
-            padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
-            background:colors.btnBg, color:colors.text,
-            fontSize:12, fontWeight:500, cursor:'pointer',
-            boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-          }} title="Show reproducible R or SQL query for these filters">
-            <span style={{fontSize:14}}>📊</span> Query Code
-          </button>
-        )}
-
-        {/* Column visibility toggle */}
-        {column_picker && (
-          <div style={{ position:'relative' }}>
-            <button onClick={()=>setShowColVis(v=>!v)} style={{
-              display:'flex', alignItems:'center', gap:6,
-              padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
-              background: showColVis ? colors.text : colors.btnBg,
-              color: showColVis ? colors.bg : colors.text,
-              fontSize:12, fontWeight:500, cursor:'pointer',
-              boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-            }}>
-              <span style={{fontSize:14}}>⊞</span> Columns
-              {visible && visible.size < (metadata||[]).length && (
-                <span style={{ fontSize:10, background:'#ef4444', color:'#fff',
-                  borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
-                  {(metadata||[]).length - visible.size} hidden
-                </span>
-              )}
-            </button>
-            {showColVis && (
-              <ColVisPanel
-                metadata={metadata||[]}
-                visible={visible || new Set()}
-                onChange={setVisible}
-                onClose={()=>setShowColVis(false)}
-                colors={colors}
-                isDarkMode={isDarkMode}
-              />
+            {activeFilterCount>0 && (
+              <span style={{ fontSize:11, color:'#3b82f6', background:isDarkMode ? '#1e3a8a' : '#dbeafe',
+                padding:'2px 8px', borderRadius:10 }}>
+                🔍 {activeFilterCount} filter{activeFilterCount>1?'s':''}
+              </span>
             )}
-          </div>
-        )}
-        </div> {/* end right-side buttons */}
-      </div>
+            {activeFilterCount>0 && (
+              <button onClick={()=>setFilters({})} style={{ fontSize:11, padding:'3px 10px',
+                border:`1px solid ${colors.border}`, borderRadius:10, background:colors.btnBg,
+                color:colors.text, cursor:'pointer' }}>
+                Clear filters
+              </button>
+            )}
 
-      {/* ── Collapsible Query Builder Panel ── */}
-      {showQueryBuilder && (
-        <QueryBuilder
-          metadata={metadata || []}
-          rules={queryRules}
-          logical={queryLogical}
-          onAddRule={() => {
-            const defaultCol = metadata[0]?.name || '';
-            const defaultType = metadata[0]?.type || 'character';
-            const defaultOps = getOperatorsForType(defaultType);
-            setQueryRules(p => [
-              ...p,
-              {
-                id: 'rule_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                col: defaultCol,
-                op: defaultOps[0].value,
-                val: defaultType === 'logical' ? 'true' : ''
-              }
-            ]);
-          }}
-          onRemoveRule={(id) => {
-            setQueryRules(p => p.filter(r => r.id !== id));
-          }}
-          onUpdateRule={(id, updates) => {
-            setQueryRules(p => p.map(r => r.id === id ? { ...r, ...updates } : r));
-          }}
-          onUpdateLogical={setQueryLogical}
-          onClearRules={() => setQueryRules([])}
-          uniqueVals={uniqueVals}
-          colors={colors}
-          isDarkMode={isDarkMode}
-        />
-      )}
+            {/* Right-side buttons */}
+            <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
 
-      {/* ── Single scroll container ── */}
-      <div
-        ref={wrapRef}
-        onScroll={e => setScrollTop(e.currentTarget.scrollTop)}
-        style={{ flex:1, overflow:'auto', position:'relative', background: colors.bg }}
-      >
-        {/* Inner — full virtual width + height */}
-        <div style={{ width: tableW, minWidth:'100%',
-          height: HEADER_HEIGHT + rows.length * ROW_HEIGHT }}>
+            {/* Label toggle — only shown when dataset has labelled columns */}
+            {hasAnyLabel && (
+              <button onClick={() => setShowLabels(v => !v)}
+                title={showLabels ? 'Hide column labels' : 'Show column labels'}
+                style={{ display:'flex', alignItems:'center', gap:5,
+                  padding:'6px 10px', border:`1px solid ${colors.border}`, borderRadius:8,
+                  background: showLabels ? (isDarkMode ? '#2e1065' : '#f5f3ff') : colors.btnBg,
+                  color: showLabels ? '#7c3aed' : colors.subText,
+                  fontSize:12, fontWeight:500, cursor:'pointer',
+                  boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+                  borderColor: showLabels ? '#c4b5fd' : colors.border }}>
+                <span style={{fontSize:13}}>🏷</span>
+                {showLabels ? 'Labels on' : 'Labels off'}
+              </button>
+            )}
 
-          {/* ── Sticky header row ── */}
-          <div style={{ position:'sticky', top:0, zIndex:10, display:'flex',
-            width: tableW, minWidth: '100%', boxSizing: 'border-box',
-            borderBottom:`2px solid ${colors.border}`, background:colors.headerBg }}>
-            {/* Row-number corner — sticky left AND top */}
-            <div style={{ position:'sticky', left:0, zIndex:11,
-              width:ROW_NUM_W, flexShrink:0, height:HEADER_HEIGHT,
-              background:colors.headerBg, borderRight:`1px solid ${colors.border}`, boxSizing: 'border-box',
-              display:'flex', alignItems:'center', justifyContent:'center',
-              color:colors.subText, fontSize:10 }}>#</div>
-            {cols.map(meta => (
-              <ColHeader key={meta.name} meta={meta}
-                sortCol={sortCol} sortDir={sortDir}
-                showLabels={showLabels && hasAnyLabel}
-                isFiltered={!!(filters[meta.name] &&
-                  (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
-                onSort={handleSort}
-                onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
-                rawRows={rawRows}
-                colors={colors}
-                isDarkMode={isDarkMode}
-              />
-            ))}
-          </div>
+            {/* Advanced Filter button */}
+            {advanced_filter && (
+              <button onClick={() => setShowQueryBuilder(v => !v)} style={{
+                display:'flex', alignItems:'center', gap:6,
+                padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+                background: showQueryBuilder ? (isDarkMode ? '#1e3a8a' : '#eff6ff') : colors.btnBg,
+                color: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#2563eb') : colors.text,
+                borderColor: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#bfdbfe') : colors.border,
+                fontSize:12, fontWeight:500, cursor:'pointer',
+                boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+              }} title="Build advanced multi-condition search queries">
+                <span style={{fontSize:14}}>🔍</span> Advanced Filter
+                {queryRules.length > 0 && (
+                  <span style={{ fontSize:10, background:'#2563eb', color:'#fff',
+                    borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
+                    {queryRules.length}
+                  </span>
+                )}
+              </button>
+            )}
 
-          {/* ── Virtual body ── */}
-          <div style={{ position:'relative', height: Math.max(120, rows.length * ROW_HEIGHT) }}>
-            {rows.length === 0 ? (
-              <div style={{
-                position:'absolute', inset:0, display:'flex',
-                alignItems:'center', justifyContent:'center',
-                color:colors.subText, fontSize:13, fontStyle:'italic'
-              }}>
-                No records found
+            {/* Query Code Button */}
+            {allow_export && (
+              <button onClick={() => setShowRCodeModal(true)} style={{
+                display:'flex', alignItems:'center', gap:6,
+                padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+                background:colors.btnBg, color:colors.text,
+                fontSize:12, fontWeight:500, cursor:'pointer',
+                boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+              }} title="Show reproducible R or SQL query for these filters">
+                <span style={{fontSize:14}}>📊</span> Query Code
+              </button>
+            )}
+
+            {/* Column visibility toggle */}
+            {column_picker && (
+              <div style={{ position:'relative' }}>
+                <button onClick={()=>setShowColVis(v=>!v)} style={{
+                  display:'flex', alignItems:'center', gap:6,
+                  padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+                  background: showColVis ? colors.text : colors.btnBg,
+                  color: showColVis ? colors.bg : colors.text,
+                  fontSize:12, fontWeight:500, cursor:'pointer',
+                  boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+                }}>
+                  <span style={{fontSize:14}}>⊞</span> Columns
+                  {visible && visible.size < (metadata||[]).length && (
+                    <span style={{ fontSize:10, background:'#ef4444', color:'#fff',
+                      borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
+                      {(metadata||[]).length - visible.size} hidden
+                    </span>
+                  )}
+                </button>
+                {showColVis && (
+                  <ColVisPanel
+                    metadata={metadata||[]}
+                    visible={visible || new Set()}
+                    onChange={setVisible}
+                    onClose={()=>setShowColVis(false)}
+                    colors={colors}
+                    isDarkMode={isDarkMode}
+                  />
+                )}
               </div>
-            ) : (
-              <div style={{ position:'absolute', top: startIdx * ROW_HEIGHT, width:'100%' }}>
-                {visibleRows.map((row, vi) => {
-                  const idx = startIdx + vi;
-                  const isPinned = pinnedRows.has(idx);
-                  const stripe = isPinned
-                    ? (isDarkMode ? '#78350f' : '#fef9c3')  // gold-tinted pinned background
-                    : (idx%2===0 ? colors.rowBg : colors.stripe);
+            )}
+            </div> {/* end right-side buttons */}
+          </div>
 
-                  const togglePin = (e) => {
-                    e.stopPropagation();
-                    setPinnedRows(prev => {
-                      const next = new Set(prev);
-                      next.has(idx) ? next.delete(idx) : next.add(idx);
-                      return next;
-                    });
-                  };
+          {/* ── Collapsible Query Builder Panel ── */}
+          {showQueryBuilder && (
+            <QueryBuilder
+              metadata={metadata || []}
+              rules={queryRules}
+              logical={queryLogical}
+              onAddRule={() => {
+                const defaultCol = metadata[0]?.name || '';
+                const defaultType = metadata[0]?.type || 'character';
+                const defaultOps = getOperatorsForType(defaultType);
+                setQueryRules(p => [
+                  ...p,
+                  {
+                    id: 'rule_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    col: defaultCol,
+                    op: defaultOps[0].value,
+                    val: defaultType === 'logical' ? 'true' : ''
+                  }
+                ]);
+              }}
+              onRemoveRule={(id) => {
+                setQueryRules(p => p.filter(r => r.id !== id));
+              }}
+              onUpdateRule={(id, updates) => {
+                setQueryRules(p => p.map(r => r.id === id ? { ...r, ...updates } : r));
+              }}
+              onUpdateLogical={setQueryLogical}
+              onClearRules={() => setQueryRules([])}
+              uniqueVals={uniqueVals}
+              colors={colors}
+              isDarkMode={isDarkMode}
+            />
+          )}
 
-                  return (
-                    <div
-                      key={idx}
-                      className="dtex-row"
-                      onClick={togglePin}
-                      style={{
-                        display:'flex', height:ROW_HEIGHT,
-                        alignItems:'center', borderBottom:`1px solid ${colors.border}`,
-                        background: stripe,
-                        cursor: 'pointer',
-                        outline: isPinned ? `2px solid #f59e0b` : 'none',
-                        outlineOffset: '-2px',
-                        position: 'relative',
-                      }}
-                    >
-                      {/* Row number — sticky left, with pin indicator */}
-                      <div
-                        className="dtex-rownum"
-                        style={{
-                          position:'sticky', left:0, zIndex:1,
-                          width:ROW_NUM_W, flexShrink:0, height:'100%',
-                          display:'flex', alignItems:'center', justifyContent:'center',
-                          gap: 2,
-                          color: isPinned ? '#f59e0b' : colors.subText,
-                          fontWeight: isPinned ? 700 : 400,
-                          borderRight:`1px solid ${colors.border}`,
-                          background: stripe, boxSizing: 'border-box',
-                          fontSize: 11,
-                        }}
-                        title={isPinned ? 'Click to unpin row' : 'Click to pin row'}
-                      >
-                        {isPinned && <span style={{ fontSize:9, lineHeight:1 }}>📌</span>}
-                        {idx+1}
-                      </div>
-                      {cols.map(meta => {
-                        const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
-                        const cellVal = row[meta.name];
-                        return (
-                          <div key={meta.name} style={{
-                            width:COL_WIDTH, flexShrink:0, padding:'0 10px',
-                            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-                            borderRight:`1px solid ${colors.border}`, color:colors.text,
-                            fontVariantNumeric:'tabular-nums', height:'100%',
-                            display:'flex', alignItems:'center', boxSizing: 'border-box',
-                            justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
-                            fontFamily: isNumericCol ? "'Fira Code', 'Consolas', monospace" : 'inherit',
-                            fontSize: isNumericCol ? 12 : 13,
-                          }} title={cellVal!=null?String(cellVal):'NA'}>
-                            {cellVal != null
-                              ? String(cellVal)
-                              : <span style={{color:isDarkMode ? '#475569' : '#cbd5e1',fontStyle:'italic'}}>{na_string}</span>}
+          {/* ── Single scroll container ── */}
+          <div
+            ref={wrapRef}
+            onScroll={e => setScrollTop(e.currentTarget.scrollTop)}
+            style={{ flex:1, overflow:'auto', position:'relative', background: colors.bg }}
+          >
+            {/* Inner — full virtual width + height */}
+            <div style={{ width: tableW, minWidth:'100%',
+              height: HEADER_HEIGHT + rows.length * ROW_HEIGHT }}>
+
+              {/* ── Sticky header row ── */}
+              <div style={{ position:'sticky', top:0, zIndex:10, display:'flex',
+                width: tableW, minWidth: '100%', boxSizing: 'border-box',
+                borderBottom:`2px solid ${colors.border}`, background:colors.headerBg }}>
+                {/* Row-number corner — sticky left AND top */}
+                <div style={{ position:'sticky', left:0, zIndex:11,
+                  width:ROW_NUM_W, flexShrink:0, height:HEADER_HEIGHT,
+                  background:colors.headerBg, borderRight:`1px solid ${colors.border}`, boxSizing: 'border-box',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  color:colors.subText, fontSize:10 }}>#</div>
+                {cols.map(meta => (
+                  <ColHeader key={meta.name} meta={meta}
+                    summary={colSummaries[meta.name]}
+                    sortCol={sortCol} sortDir={sortDir}
+                    showLabels={showLabels && hasAnyLabel}
+                    isFiltered={!!(filters[meta.name] &&
+                      (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
+                    onSort={handleSort}
+                    onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
+                    onOpenInsights={handleOpenInsights}
+                    colors={colors}
+                    isDarkMode={isDarkMode}
+                  />
+                ))}
+              </div>
+
+              {/* ── Virtual body ── */}
+              <div style={{ position:'relative', height: Math.max(120, rows.length * ROW_HEIGHT) }}>
+                {rows.length === 0 ? (
+                  <div style={{
+                    position:'absolute', inset:0, display:'flex',
+                    alignItems:'center', justifyContent:'center',
+                    color:colors.subText, fontSize:13, fontStyle:'italic'
+                  }}>
+                    No records found
+                  </div>
+                ) : (
+                  <div style={{ position:'absolute', top: startIdx * ROW_HEIGHT, width:'100%' }}>
+                    {visibleRows.map((row, vi) => {
+                      const idx = startIdx + vi;
+                      const isPinned = pinnedRows.has(idx);
+                      const stripe = isPinned
+                        ? (isDarkMode ? '#78350f' : '#fef9c3')  // gold-tinted pinned background
+                        : (idx%2===0 ? colors.rowBg : colors.stripe);
+
+                      const togglePin = (e) => {
+                        e.stopPropagation();
+                        setPinnedRows(prev => {
+                          const next = new Set(prev);
+                          next.has(idx) ? next.delete(idx) : next.add(idx);
+                          return next;
+                        });
+                      };
+
+                      return (
+                        <div
+                          key={idx}
+                          className="dtex-row"
+                          onClick={togglePin}
+                          style={{
+                            display:'flex', height:ROW_HEIGHT,
+                            alignItems:'center', borderBottom:`1px solid ${colors.border}`,
+                            background: stripe,
+                            cursor: 'pointer',
+                            outline: isPinned ? `2px solid #f59e0b` : 'none',
+                            outlineOffset: '-2px',
+                            position: 'relative',
+                          }}
+                        >
+                          {/* Row number — sticky left, with pin indicator */}
+                          <div
+                            className="dtex-rownum"
+                            style={{
+                              position:'sticky', left:0, zIndex:1,
+                              width:ROW_NUM_W, flexShrink:0, height:'100%',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              gap: 2,
+                              color: isPinned ? '#f59e0b' : colors.subText,
+                              fontWeight: isPinned ? 700 : 400,
+                              borderRight:`1px solid ${colors.border}`,
+                              background: stripe, boxSizing: 'border-box',
+                              fontSize: 11,
+                            }}
+                            title={isPinned ? 'Click to unpin row' : 'Click to pin row'}
+                          >
+                            {isPinned && <span style={{ fontSize:9, lineHeight:1 }}>📌</span>}
+                            {idx+1}
                           </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
+                          {cols.map(meta => {
+                            const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
+                            const cellVal = row[meta.name];
+                            return (
+                              <div key={meta.name} style={{
+                                width:COL_WIDTH, flexShrink:0, padding:'0 10px',
+                                overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+                                borderRight:`1px solid ${colors.border}`, color:colors.text,
+                                fontVariantNumeric:'tabular-nums', height:'100%',
+                                display:'flex', alignItems:'center', boxSizing: 'border-box',
+                                justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
+                                fontFamily: isNumericCol ? "'Fira Code', 'Consolas', monospace" : 'inherit',
+                                fontSize: isNumericCol ? 12 : 13,
+                              }} title={cellVal!=null?String(cellVal):'NA'}>
+                                {cellVal != null
+                                  ? String(cellVal)
+                                  : <span style={{color:isDarkMode ? '#475569' : '#cbd5e1',fontStyle:'italic'}}>{na_string}</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
+
+          {/* ── Floating filter panel ── */}
+          {popup && popupMeta && (
+            <FilterPanel
+              meta={popupMeta}
+              uniqueVals={uniqueVals[popup.col]}
+              applied={filters[popup.col]}
+              position={popup.position}
+              onApply={handleApply}
+              onClear={handleClear}
+              onClose={()=>setPopup(null)}
+              onSort={handleSort}
+              colors={colors}
+              isDarkMode={isDarkMode}
+            />
+          )}
+
+          {/* ── Reproducible Code modal ── */}
+          {showRCodeModal && (
+            <RCodeModal
+              codeObj={{
+                dplyr: generateRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
+                baseR: generateBaseRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
+                sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
+              }}
+              onClose={() => setShowRCodeModal(false)}
+              colors={colors}
+              isDarkMode={isDarkMode}
+            />
+          )}
         </div>
       </div>
 
-      {/* ── Floating filter panel ── */}
-      {popup && popupMeta && (
-        <FilterPanel
-          meta={popupMeta}
-          uniqueVals={uniqueVals[popup.col]}
-          applied={filters[popup.col]}
-          position={popup.position}
-          onApply={handleApply}
-          onClear={handleClear}
-          onClose={()=>setPopup(null)}
-          onSort={handleSort}
-          colors={colors}
-          isDarkMode={isDarkMode}
-        />
-      )}
-
-      {/* ── Reproducible Code modal ── */}
-      {showRCodeModal && (
-        <RCodeModal
-          codeObj={{
-            dplyr: generateRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-            baseR: generateBaseRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-            sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
-          }}
-          onClose={() => setShowRCodeModal(false)}
+      {/* ── Collapsible Side Panel Drawer ── */}
+      {showInsights && activeInsightCol && colSummaries[activeInsightCol] && (
+        <DataInsightsDrawer
+          summary={colSummaries[activeInsightCol]}
+          onClose={() => setShowInsights(false)}
           colors={colors}
           isDarkMode={isDarkMode}
         />

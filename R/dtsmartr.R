@@ -93,7 +93,18 @@ dtsmartr <- function(
 
   # ── Performance Check & Threshold Routing ──────────────────────────────────
   if (nrow(data) > 50000) {
-    if (interactive()) {
+    # If we are already inside a running Shiny server (e.g. called from
+    # renderDtsmartr inside dtsmartr_launch), do NOT call runApp() again —
+    # that would trigger the "Can't call runApp() from within runApp()" error.
+    # In that context the browser is already open, so just warn and continue.
+    if (isTRUE(shiny::isRunning())) {
+      warning(
+        "Dataset exceeds 50,000 rows. ",
+        "Rendering inside the active Shiny session. ",
+        "Consider reducing the dataset for best performance.",
+        call. = FALSE
+      )
+    } else if (interactive()) {
       message("Dataset exceeds 50,000 rows. Automatically re-routing to dtsmartr_launch() for external browser rendering to prevent IDE freezing...")
       # Dynamically call dtsmartr_launch via search path to avoid circular load
       return(dtsmartr_launch(data = data, options = options))

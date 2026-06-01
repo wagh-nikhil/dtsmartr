@@ -4,6 +4,8 @@ import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 const ROW_HEIGHT         = 36;
 const HEADER_HEIGHT_BASE = 125;   // without labels
 const HEADER_HEIGHT_LBL  = 145;   // with labels row
+const HEADER_HEIGHT_COMPACT_BASE = 48;   // without labels compact
+const HEADER_HEIGHT_COMPACT_LBL  = 68;   // with labels compact
 const COL_WIDTH          = 160;
 const ROW_NUM_W          = 52;
 const OVERSCAN           = 8;
@@ -1625,9 +1627,20 @@ const InteractiveHistogram = ({ histogramData, minVal, maxVal, colors, isDarkMod
 
   const fmt = (n) => {
     if (n == null) return '—';
-    if (Math.abs(n) >= 1e4) return n.toExponential(1);
-    if (!Number.isInteger(n)) return n.toFixed(1);
-    return n.toLocaleString();
+    if (typeof n === 'string') {
+      if (n.includes('T') && n.includes('Z')) {
+        const d = new Date(n);
+        if (!isNaN(d.getTime())) {
+          return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+      }
+      return n;
+    }
+    const num = Number(n);
+    if (isNaN(num)) return String(n);
+    if (Math.abs(num) >= 1e4) return num.toExponential(1);
+    if (!Number.isInteger(num)) return num.toFixed(1);
+    return num.toLocaleString();
   };
 
   const binWidth = chartWidth / histogramData.length;
@@ -1971,8 +1984,8 @@ const DataInsightsDrawer = ({ summary, onClose, colors, isDarkMode }) => {
             }}>
               <InteractiveHistogram 
                 histogramData={summary.histogramData} 
-                minVal={summary.min} 
-                maxVal={summary.max} 
+                minVal={summary.type === 'datetime' ? summary.minDisplay : summary.min} 
+                maxVal={summary.type === 'datetime' ? summary.maxDisplay : summary.max} 
                 colors={colors}
                 isDarkMode={isDarkMode}
               />
@@ -2143,12 +2156,14 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
 };
 
 // ── Column Header Cell ────────────────────────────────────────────────────────
-const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, colors, isDarkMode }) => {
+const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, colors, isDarkMode, summary_header = true, insights = true }) => {
   const active  = sortCol === meta.name;
   const t       = tm(meta.type);
   const btnRef  = useRef(null);
   const [hoveringName, setHoveringName] = useState(false);
-  const HEADER_HEIGHT = showLabels ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE;
+  const HEADER_HEIGHT = summary_header
+    ? (showLabels ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE)
+    : (showLabels ? HEADER_HEIGHT_COMPACT_LBL : HEADER_HEIGHT_COMPACT_BASE);
   const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
 
   const openPanel = e => {
@@ -2281,7 +2296,7 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
         
         {/* Hoverable Name with i Icon */}
         <div
-          onMouseEnter={e => { e.stopPropagation(); setHoveringName(true); }}
+          onMouseEnter={e => { e.stopPropagation(); if (summary_header) setHoveringName(true); }}
           onMouseLeave={() => setHoveringName(false)}
           style={{
             display: 'flex',
@@ -2290,7 +2305,7 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
             flex: 1,
             overflow: 'hidden',
             justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
-            cursor: 'help',
+            cursor: summary_header ? 'help' : 'pointer',
           }}
         >
           <span
@@ -2301,40 +2316,44 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              borderBottom: hoveringName ? `1px dashed ${colors.subText}` : '1px solid transparent',
+              borderBottom: (summary_header && hoveringName) ? `1px dashed ${colors.subText}` : '1px solid transparent',
             }}
           >
             {meta.name}
           </span>
-          <span style={{ fontSize: 10, color: hoveringName ? '#3b82f6' : colors.subText, flexShrink: 0 }}>
-            ⓘ
-          </span>
+          {summary_header && (
+            <span style={{ fontSize: 10, color: hoveringName ? '#3b82f6' : colors.subText, flexShrink: 0 }}>
+              ⓘ
+            </span>
+          )}
         </div>
         
         {/* Insights button */}
-        <button
-          onClick={e => {
-            e.stopPropagation(); // prevent sort
-            onOpenInsights(meta.name);
-          }}
-          style={{
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            fontSize: 11,
-            padding: '2px',
-            borderRadius: 4,
-            color: colors.subText,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          title="Open Data Insights Drawer"
-          onMouseEnter={e => e.currentTarget.style.color = '#3b82f6'}
-          onMouseLeave={e => e.currentTarget.style.color = colors.subText}
-        >
-          📊
-        </button>
+        {insights && (
+          <button
+            onClick={e => {
+              e.stopPropagation(); // prevent sort
+              onOpenInsights(meta.name);
+            }}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              fontSize: 11,
+              padding: '2px',
+              borderRadius: 4,
+              color: colors.subText,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Open Data Insights Drawer"
+            onMouseEnter={e => e.currentTarget.style.color = '#3b82f6'}
+            onMouseLeave={e => e.currentTarget.style.color = colors.subText}
+          >
+            📊
+          </button>
+        )}
 
         <span style={{ fontSize:10, color: active?'#3b82f6':colors.subText, flexShrink:0 }}>
           {active ? (sortDir==='asc'?'▲':'▼') : '⇅'}
@@ -2355,14 +2374,14 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
       )}
 
       {/* Summary Micro-Dashboard Zone */}
-      {renderSummaryZone()}
+      {summary_header && renderSummaryZone()}
 
       {/* Floating Panel Open Trigger button */}
       <button ref={btnRef} onClick={openPanel} title="Filter / Sort Menu"
         style={{
           position: 'absolute',
           right: 4,
-          bottom: 8,
+          bottom: summary_header ? 8 : 4,
           width: 18,
           height: 18,
           border: 'none',
@@ -2380,25 +2399,27 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
       </button>
 
       {/* Thin data-quality bar at the bottom with explicit tooltip */}
-      <div 
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          height: 4,
-          background: isDarkMode ? '#475569' : '#cbd5e1', // Muted Red/Gray background for NA values
-          overflow: 'hidden',
-          display: 'flex'
-        }} 
-        title={missingTooltip}
-      >
-        <div style={{
-          width: `${summary ? summary.validPct : 100}%`,
-          height: '100%',
-          background: '#22c55e' // Green segment representing completeness
-        }} />
-      </div>
+      {summary_header && (
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            height: 4,
+            background: isDarkMode ? '#475569' : '#cbd5e1', // Muted Red/Gray background for NA values
+            overflow: 'hidden',
+            display: 'flex'
+          }} 
+          title={missingTooltip}
+        >
+          <div style={{
+            width: `${summary ? summary.validPct : 100}%`,
+            height: '100%',
+            background: '#22c55e' // Green segment representing completeness
+          }} />
+        </div>
+      )}
 
       {/* Metadata tooltip on column name hover */}
       {hoveringName && summary && (

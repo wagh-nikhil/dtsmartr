@@ -1607,12 +1607,229 @@ const ColVisPanel = ({ metadata, visible, onChange, onClose, colors, isDarkMode 
 
 // ── Column Metadata Tooltip ────────────────────────────────────────────────────
 // ── Collapsible Side Panel Drawer ──
+// ── Interactive Histogram (Numeric) ──
+const InteractiveHistogram = ({ histogramData, minVal, maxVal, colors, isDarkMode }) => {
+  const [hoveredBin, setHoveredBin] = useState(null);
+
+  if (!histogramData || histogramData.length === 0) return null;
+
+  const width = 320;
+  const height = 160;
+  const paddingLeft = 35;
+  const paddingRight = 10;
+  const paddingTop = 15;
+  const paddingBottom = 25;
+
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const fmt = (n) => {
+    if (n == null) return '—';
+    if (Math.abs(n) >= 1e4) return n.toExponential(1);
+    if (!Number.isInteger(n)) return n.toFixed(1);
+    return n.toLocaleString();
+  };
+
+  const binWidth = chartWidth / histogramData.length;
+  const maxCount = Math.max(...histogramData.map(d => d.count), 1);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', userSelect: 'none' }}>
+        {/* Background Gridlines */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+          const y = paddingTop + chartHeight * (1 - ratio);
+          const gridVal = maxCount * ratio;
+          return (
+            <g key={i}>
+              <line 
+                x1={paddingLeft} 
+                y1={y} 
+                x2={width - paddingRight} 
+                y2={y} 
+                stroke={isDarkMode ? '#334155' : '#e2e8f0'} 
+                strokeDasharray="3,3" 
+              />
+              <text 
+                x={paddingLeft - 6} 
+                y={y + 3} 
+                fill={colors.subText} 
+                fontSize={9} 
+                textAnchor="end"
+              >
+                {fmt(gridVal)}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* X Axis Line */}
+        <line 
+          x1={paddingLeft} 
+          y1={height - paddingBottom} 
+          x2={width - paddingRight} 
+          y2={height - paddingBottom} 
+          stroke={colors.border} 
+          strokeWidth={1.5}
+        />
+
+        {/* Bars */}
+        {histogramData.map((d, i) => {
+          const barHeight = (d.count / maxCount) * chartHeight;
+          const x = paddingLeft + i * binWidth + 1;
+          const y = height - paddingBottom - barHeight;
+          const w = binWidth - 2;
+          const h = Math.max(barHeight, d.count > 0 ? 1.5 : 0);
+
+          const isHovered = hoveredBin === i;
+          const fill = isHovered 
+            ? (isDarkMode ? '#38bdf8' : '#0284c7') 
+            : (isDarkMode ? '#0284c7' : '#3b82f6');
+
+          return (
+            <rect
+              key={i}
+              x={x}
+              y={y}
+              width={w}
+              height={h}
+              fill={fill}
+              rx={1.5}
+              style={{ transition: 'fill 0.2s ease, opacity 0.2s ease', cursor: 'pointer' }}
+              onMouseEnter={() => setHoveredBin(i)}
+              onMouseLeave={() => setHoveredBin(null)}
+            />
+          );
+        })}
+
+        {/* X Axis Labels */}
+        <text 
+          x={paddingLeft} 
+          y={height - 8} 
+          fill={colors.subText} 
+          fontSize={10} 
+          textAnchor="start"
+        >
+          {fmt(minVal)}
+        </text>
+        <text 
+          x={width - paddingRight} 
+          y={height - 8} 
+          fill={colors.subText} 
+          fontSize={10} 
+          textAnchor="end"
+        >
+          {fmt(maxVal)}
+        </text>
+      </svg>
+
+      {/* Tooltip text box */}
+      <div style={{
+        minHeight: 38,
+        background: isDarkMode ? '#0f172a' : '#f8fafc',
+        border: `1.5px solid ${colors.border}`,
+        borderRadius: 8,
+        padding: '6px 10px',
+        fontSize: 11,
+        color: colors.text,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        fontWeight: 500,
+        boxSizing: 'border-box'
+      }}>
+        {hoveredBin !== null && histogramData[hoveredBin] ? (
+          <div>
+            Range: <b style={{ fontFamily: 'monospace' }}>[{fmt(histogramData[hoveredBin].rangeMin)} - {fmt(histogramData[hoveredBin].rangeMax)})</b>
+            <span style={{ margin: '0 6px', color: colors.subText }}>•</span>
+            Count: <b>{histogramData[hoveredBin].count.toLocaleString()} values</b> ({histogramData[hoveredBin].pct.toFixed(1)}%)
+          </div>
+        ) : (
+          <span style={{ color: colors.subText, fontStyle: 'italic' }}>Hover over the histogram bars to inspect details</span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ── Interactive Categorical Pareto Chart (Categorical) ──
+const InteractiveCategoricalBarChart = ({ topCats, colors, isDarkMode }) => {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+
+  if (!topCats || topCats.length === 0) return null;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
+      {topCats.map((cat, idx) => {
+        const isHovered = hoveredIdx === idx;
+        const barBg = isHovered 
+          ? (isDarkMode ? '#3b82f6' : '#1e3a8a') 
+          : '#3b82f6';
+        
+        return (
+          <div 
+            key={idx} 
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 3, 
+              padding: '6px 8px',
+              borderRadius: 6,
+              background: isHovered ? (isDarkMode ? '#334155' : '#f1f5f9') : 'transparent',
+              transition: 'background 0.2s ease',
+              cursor: 'pointer'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+              <span style={{ 
+                color: colors.text, 
+                fontWeight: isHovered ? 700 : 600, 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis', 
+                whiteSpace: 'nowrap', 
+                maxWidth: 180 
+              }} title={cat.val}>
+                {cat.val}
+              </span>
+              <span style={{ color: colors.subText, fontSize: 10 }}>
+                {cat.count.toLocaleString()} values ({cat.pct.toFixed(1)}%)
+              </span>
+            </div>
+            {/* Visual Bar */}
+            <div style={{ 
+              height: 8, 
+              borderRadius: 4, 
+              background: isDarkMode ? '#1e293b' : '#e2e8f0', 
+              overflow: 'hidden',
+              border: `1px solid ${colors.border}`,
+              boxSizing: 'border-box'
+            }}>
+              <div 
+                style={{ 
+                  width: `${cat.pct}%`, 
+                  height: '100%', 
+                  background: barBg, 
+                  borderRadius: 4,
+                  transition: 'width 0.3s ease, background-color 0.2s ease'
+                }} 
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ── Collapsible Side Panel Drawer ──
 const DataInsightsDrawer = ({ summary, onClose, colors, isDarkMode }) => {
   if (!summary) return null;
 
   const isNumeric = summary.type === 'numeric' || summary.type === 'integer';
 
-  // Format utility
   const fmt = (n) => {
     if (n == null) return '—';
     if (Math.abs(n) >= 1e6) return n.toExponential(2);
@@ -1725,7 +1942,7 @@ const DataInsightsDrawer = ({ summary, onClose, colors, isDarkMode }) => {
                 { label: 'Minimum', value: fmt(summary.min) },
                 { label: 'Maximum', value: fmt(summary.max) },
                 { label: 'Mean', value: fmt(summary.mean) },
-                { label: 'Median', value: fmt(summary.mean) }
+                { label: 'Median', value: fmt(summary.median) }
               ].map(({ label, value }) => (
                 <div key={label} style={{ padding: '4px 0' }}>
                   <div style={{ fontSize: 10, color: colors.subText }}>{label}</div>
@@ -1752,25 +1969,15 @@ const DataInsightsDrawer = ({ summary, onClose, colors, isDarkMode }) => {
               flexDirection: 'column',
               gap: 10
             }}>
-              {/* Detailed Spark Chart */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 100, width: '100%' }}>
-                {summary.histogramBins.map((pct, idx) => (
-                  <div key={idx} style={{
-                    flex: 1,
-                    height: `${pct}%`,
-                    background: isDarkMode ? '#38bdf8' : '#0284c7',
-                    borderRadius: '2px 2px 0 0',
-                    minHeight: pct > 0 ? 2 : 0
-                  }} title={`${pct.toFixed(0)}% frequency`} />
-                ))}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: colors.subText }}>
-                <span>{summary.minDisplay}</span>
-                <span>{summary.maxDisplay}</span>
-              </div>
+              <InteractiveHistogram 
+                histogramData={summary.histogramData} 
+                minVal={summary.min} 
+                maxVal={summary.max} 
+                colors={colors}
+                isDarkMode={isDarkMode}
+              />
             </div>
           ) : (
-            /* Categorical detailed top list with bar charts */
             <div style={{
               background: isDarkMode ? '#0f172a' : '#f8fafc',
               padding: 12,
@@ -1780,18 +1987,11 @@ const DataInsightsDrawer = ({ summary, onClose, colors, isDarkMode }) => {
               flexDirection: 'column',
               gap: 8
             }}>
-              {summary.topCats.map((cat, idx) => (
-                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-                    <span style={{ color: colors.text, fontWeight: 600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth: 180 }}>{cat.val}</span>
-                    <span style={{ color: colors.subText }}>{cat.count.toLocaleString()} ({cat.pct}%)</span>
-                  </div>
-                  {/* Progress bar */}
-                  <div style={{ height: 6, borderRadius: 3, background: isDarkMode ? '#334155' : '#e2e8f0', overflow: 'hidden' }}>
-                    <div style={{ width: `${cat.pct}%`, height: '100%', background: '#3b82f6', borderRadius: 3 }} />
-                  </div>
-                </div>
-              ))}
+              <InteractiveCategoricalBarChart 
+                topCats={summary.topCats} 
+                colors={colors} 
+                isDarkMode={isDarkMode} 
+              />
             </div>
           )}
         </div>
@@ -1806,60 +2006,21 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
 
   const summary = useMemo(() => {
     if (customSummary) return customSummary;
-
-    // Fallback if customSummary is not passed
-    let valid = 0, na = 0;
-    const freq = {};
-    let min = Infinity, max = -Infinity, sum = 0, numCount = 0;
-
-    for (const row of rawRows) {
-      const v = row[meta.name];
-      if (v == null) {
-        na++;
-      } else {
-        valid++;
-        if (isNumeric) {
-          const n = Number(v);
-          if (!isNaN(n)) {
-            if (n < min) min = n;
-            if (n > max) max = n;
-            sum += n;
-            numCount++;
-          }
-        } else {
-          const s = String(v);
-          freq[s] = (freq[s] || 0) + 1;
-        }
-      }
-    }
-
-    const top = isNumeric ? [] : Object.entries(freq)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([val, cnt]) => ({ val, cnt }));
-
-    const totalRows = rawRows.length;
-    const missPct = totalRows > 0 ? ((na / totalRows) * 100).toFixed(1) : '0.0';
-    const validPct = 100 - parseFloat(missPct);
-
     return {
-      totalRows,
-      uniqueCount: meta.unique_values,
-      naCount: na,
-      validCount: valid,
-      validPct,
-      naPct: parseFloat(missPct),
-      min: numCount > 0 ? min : null,
-      max: numCount > 0 ? max : null,
-      mean: numCount > 0 ? (sum / numCount) : null,
-      topCats: top.map(({ val, cnt }) => ({
-        val,
-        count: cnt,
-        pct: totalRows > 0 ? ((cnt / totalRows) * 100).toFixed(0) : '0'
-      })),
+      totalRows: 0,
+      uniqueCount: 0,
+      naCount: 0,
+      validCount: 0,
+      validPct: 100,
+      naPct: 0,
+      min: null,
+      max: null,
+      mean: null,
+      median: null,
+      topCats: [],
       histogramBins: [],
     };
-  }, [rawRows, meta.name, isNumeric, customSummary]);
+  }, [meta.name, isNumeric, customSummary]);
 
   const totalRows = summary.totalRows;
   const naCount = summary.naCount;
@@ -1870,7 +2031,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
   const fmt = (n) => {
     if (n == null) return '—';
     if (Math.abs(n) >= 1e6) return n.toExponential(2);
-    if (!Number.isInteger(n) && Math.abs(n) < 1e4) return n.toFixed(3);
+    if (!Number.isInteger(n) && Math.abs(n) < 1e4) return n.toFixed(2);
     return n.toLocaleString();
   };
 
@@ -1878,47 +2039,45 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
     <div style={{
       position: 'absolute',
       top: '100%',
-      left: 0,
+      left: isNumeric ? 'auto' : 0,
+      right: isNumeric ? 0 : 'auto',
       zIndex: 15000,
       marginTop: 4,
-      width: 210,
+      width: 240,
       background: isDarkMode ? '#1e293b' : '#ffffff',
       border: `1px solid ${colors.border}`,
       borderRadius: 10,
       boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
-      padding: '10px 12px',
+      padding: '12px 14px',
       pointerEvents: 'none',
       fontFamily: "'Inter','Segoe UI',sans-serif",
     }}>
       {/* Column title */}
-      <div style={{ fontWeight: 700, fontSize: 12, color: colors.text, marginBottom: 6,
+      <div style={{ fontWeight: 700, fontSize: 13, color: colors.text, marginBottom: 8,
         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {meta.name}
       </div>
 
-      {/* Stats row */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-        {[
-          { label: 'Rows', value: totalRows.toLocaleString() },
-          { label: 'Unique', value: (summary.uniqueCount ?? '—').toLocaleString() },
-          { label: 'Missing', value: `${missPct}%` },
-        ].map(({ label, value }) => (
-          <div key={label} style={{
-            flex: '1 1 auto',
-            background: isDarkMode ? '#0f172a' : '#f8fafc',
-            borderRadius: 6, padding: '4px 6px', textAlign: 'center',
-            border: `1px solid ${colors.border}`,
-          }}>
-            <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: colors.text }}>{value}</div>
-          </div>
-        ))}
+      {/* Summary Metrics */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+          <span style={{ color: colors.subText }}>Total Rows:</span>
+          <span style={{ fontWeight: 600, color: colors.text }}>{totalRows.toLocaleString()}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+          <span style={{ color: colors.subText }}>Unique Values:</span>
+          <span style={{ fontWeight: 600, color: colors.text }}>{(summary.uniqueCount ?? '—').toLocaleString()} uniq</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+          <span style={{ color: colors.subText }}>Missing (NA):</span>
+          <span style={{ fontWeight: 600, color: naCount > 0 ? '#ef4444' : colors.text }}>
+            {naCount.toLocaleString()} missing ({missPct}%)
+          </span>
+        </div>
       </div>
 
       {/* Data quality bar */}
-      <div style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 3,
-          textTransform: 'uppercase', letterSpacing: '0.05em' }}>Data quality</div>
+      <div style={{ marginBottom: 12 }}>
         <div style={{ height: 6, borderRadius: 3, background: isDarkMode ? '#334155' : '#e2e8f0',
           overflow: 'hidden', position: 'relative' }}>
           <div style={{
@@ -1926,46 +2085,57 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
             width: `${validPct}%`,
             background: parseFloat(validPct) >= 90 ? '#22c55e' : parseFloat(validPct) >= 70 ? '#f59e0b' : '#ef4444',
             borderRadius: 3,
-            transition: 'width 0.3s ease',
           }} />
-        </div>
-        <div style={{ fontSize: 9, color: colors.subText, marginTop: 2 }}>
-          {validCount.toLocaleString()} valid · {naCount.toLocaleString()} NA
         </div>
       </div>
 
       {/* Numeric stats OR top values */}
       {isNumeric ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
-          {[['Min', fmt(summary.min)], ['Mean', fmt(summary.mean)], ['Max', fmt(summary.max)]].map(([lbl, val]) => (
-            <div key={lbl} style={{
-              background: isDarkMode ? '#0f172a' : '#f8fafc',
-              borderRadius: 6, padding: '3px 5px', textAlign: 'center',
-              border: `1px solid ${colors.border}`,
-            }}>
-              <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600 }}>{lbl}</div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: colors.text }}>{val}</div>
-            </div>
-          ))}
+        <div>
+          <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 6,
+            textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descriptive Stats</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            {[
+              ['Min', fmt(summary.min)],
+              ['Mean', fmt(summary.mean)],
+              ['Median', fmt(summary.median)],
+              ['Max', fmt(summary.max)]
+            ].map(([lbl, val]) => (
+              <div key={lbl} style={{
+                background: isDarkMode ? '#0f172a' : '#f8fafc',
+                borderRadius: 6, padding: '5px 6px',
+                border: `1px solid ${colors.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 10
+              }}>
+                <span style={{ color: colors.subText, fontWeight: 500 }}>{lbl}</span>
+                <span style={{ fontWeight: 700, color: colors.text }}>{val}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ) : summary.topCats.length > 0 ? (
         <div>
-          <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 4,
-            textTransform: 'uppercase', letterSpacing: '0.05em' }}>Top values</div>
-          {summary.topCats.map(({ val, count, pct }) => {
-            return (
-              <div key={val} style={{ marginBottom: 3 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10,
-                  color: colors.text, marginBottom: 1 }}>
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 130 }}>{val}</span>
-                  <span style={{ color: colors.subText, flexShrink: 0, marginLeft: 4 }}>{count.toLocaleString()}</span>
-                </div>
-                <div style={{ height: 3, borderRadius: 2, background: isDarkMode ? '#334155' : '#e2e8f0', overflow: 'hidden' }}>
-                  <div style={{ width: `${pct}%`, height: '100%', background: '#3b82f6', borderRadius: 2 }} />
-                </div>
-              </div>
-            );
-          })}
+          <div style={{ fontSize: 9, color: colors.subText, fontWeight: 600, marginBottom: 6,
+            textTransform: 'uppercase', letterSpacing: '0.05em' }}>Top 5 Values</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10, color: colors.text }}>
+            <tbody>
+              {summary.topCats.slice(0, 5).map(({ val, count, pct }) => (
+                <tr key={val} style={{ borderBottom: `1px solid ${isDarkMode ? '#334155' : '#f1f5f9'}` }}>
+                  <td style={{ padding: '4px 0', maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={val}>
+                    {val}
+                  </td>
+                  <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 600, color: colors.subText }}>
+                    {count.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '4px 0', textAlign: 'right', fontWeight: 700, width: 40 }}>
+                    {pct.toFixed(0)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : null}
     </div>
@@ -2027,24 +2197,73 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
       );
     }
 
-    // Categorical mode
+    // Categorical mode (mini horizontal stacked bar representing top 3 categories)
+    const top3 = summary.topCats.slice(0, 3);
+    const hasCats = top3.length > 0;
+    const colorsList = isDarkMode
+      ? ['#3b82f6', '#10b981', '#f59e0b', '#64748b']
+      : ['#60a5fa', '#34d399', '#fbbf24', '#cbd5e1'];
+
+    const stackedTooltip = top3.map(cat => `${cat.val}: ${cat.pct.toFixed(0)}%`).join(' • ');
+
     return (
-      <div style={{ display:'flex', flexDirection:'column', justifyContent:'center', height:60, gap:4, padding: '2px 0', boxSizing:'border-box' }}>
-        {summary.topCats.map((cat, idx) => (
-          <div key={idx} style={{ display:'flex', justifyContent:'space-between', fontSize:10, color: colors.text, lineHeight: 1.2 }}>
-            <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth: 100 }} title={cat.val}>
-              {cat.val}
-            </span>
-            <span style={{ fontWeight: 600, color: colors.subText, marginLeft: 4, flexShrink: 0 }}>
-              {cat.pct}%
-            </span>
-          </div>
-        ))}
+      <div style={{ display:'flex', flexDirection:'column', justifyContent:'center', height:60, gap:5, padding: '2px 0', boxSizing:'border-box' }}>
+        {hasCats ? (
+          <>
+            <div 
+              style={{ 
+                display: 'flex', 
+                height: 14, 
+                borderRadius: 4, 
+                overflow: 'hidden', 
+                width: '100%', 
+                background: isDarkMode ? '#1e293b' : '#f1f5f9',
+                border: `1px solid ${colors.border}`,
+                boxSizing: 'border-box'
+              }}
+              title={stackedTooltip}
+            >
+              {top3.map((cat, idx) => {
+                const bg = colorsList[idx] || colorsList[colorsList.length - 1];
+                return (
+                  <div 
+                    key={idx} 
+                    style={{ 
+                      width: `${cat.pct}%`, 
+                      height: '100%', 
+                      background: bg 
+                    }} 
+                  />
+                );
+              })}
+            </div>
+            {/* Legend showing top 2 levels with matching color dots */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
+              {top3.slice(0, 2).map((cat, idx) => {
+                const dotColor = colorsList[idx] || '#64748b';
+                return (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 9, color: colors.subText, lineHeight: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 3, overflow: 'hidden' }}>
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 95 }} title={cat.val}>
+                        {cat.val}
+                      </span>
+                    </div>
+                    <span style={{ fontWeight: 600, marginLeft: 4 }}>{cat.pct.toFixed(0)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: 10, color: colors.subText, fontStyle: 'italic', textAlign: 'center' }}>No categories</div>
+        )}
       </div>
     );
   };
 
   const qualityColor = summary ? (summary.validPct >= 90 ? '#22c55e' : summary.validPct >= 70 ? '#f59e0b' : '#ef4444') : '#22c55e';
+  const missingTooltip = summary ? `${summary.totalRows.toLocaleString()} values • ${summary.naCount.toLocaleString()} missing (${summary.naPct.toFixed(0)}%)` : '';
 
   return (
     <div onClick={() => onSort(meta.name)} className="dtex-header-cell" style={{
@@ -2055,25 +2274,42 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
       background: active ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
       position: 'relative',
     }}>
-      {/* Row 1: type icon + column name + insights icon + sort arrow */}
-      <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+      {/* Row 1: type icon + column name + info icon + insights icon + sort arrow */}
+      <div style={{ display:'flex', alignItems:'center', gap:4, flexDirection: isNumericCol ? 'row-reverse' : 'row' }}>
         <span style={{ fontSize:10, color:t.text, fontWeight:700,
           background:t.bg, borderRadius:3, padding:'0 4px', flexShrink:0 }}>{t.icon}</span>
         
-        {/* Hoverable name */}
-        <span
+        {/* Hoverable Name with i Icon */}
+        <div
           onMouseEnter={e => { e.stopPropagation(); setHoveringName(true); }}
           onMouseLeave={() => setHoveringName(false)}
           style={{
-            fontWeight:600, fontSize:13, color:colors.text,
-            overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1,
-            textAlign: isNumericCol ? 'right' : 'left',
-            borderBottom: hoveringName ? `1px dashed ${colors.subText}` : '1px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 3,
+            flex: 1,
+            overflow: 'hidden',
+            justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
             cursor: 'help',
           }}
         >
-          {meta.name}
-        </span>
+          <span
+            style={{
+              fontWeight: 600,
+              fontSize: 13,
+              color: colors.text,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              borderBottom: hoveringName ? `1px dashed ${colors.subText}` : '1px solid transparent',
+            }}
+          >
+            {meta.name}
+          </span>
+          <span style={{ fontSize: 10, color: hoveringName ? '#3b82f6' : colors.subText, flexShrink: 0 }}>
+            ⓘ
+          </span>
+        </div>
         
         {/* Insights button */}
         <button
@@ -2143,26 +2379,24 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
         ≡
       </button>
 
-      {/* Thin data-quality bar at the bottom */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        width: '100%',
-        height: 4,
-        background: isDarkMode ? '#334155' : '#e2e8f0',
-        overflow: 'hidden',
-        display: 'flex'
-      }} title={summary ? `${summary.totalRows.toLocaleString()} values · ${summary.naCount.toLocaleString()} missing (${(summary.naPct).toFixed(1)}%)` : ''}>
+      {/* Thin data-quality bar at the bottom with explicit tooltip */}
+      <div 
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: 4,
+          background: isDarkMode ? '#475569' : '#cbd5e1', // Muted Red/Gray background for NA values
+          overflow: 'hidden',
+          display: 'flex'
+        }} 
+        title={missingTooltip}
+      >
         <div style={{
           width: `${summary ? summary.validPct : 100}%`,
           height: '100%',
-          background: '#22c55e'
-        }} />
-        <div style={{
-          width: `${summary ? summary.naPct : 0}%`,
-          height: '100%',
-          background: isDarkMode ? '#b91c1c' : '#f87171'
+          background: '#22c55e' // Green segment representing completeness
         }} />
       </div>
 
@@ -2253,6 +2487,16 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
       const validPct = totalRows > 0 ? ((validCount / totalRows) * 100) : 100;
       const naPct = totalRows > 0 ? ((naCount / totalRows) * 100) : 0;
 
+      // Calculate Median for numeric
+      let median = null;
+      if (isNum && validCount > 0) {
+        const sortedNums = values.map(Number).filter(v => !isNaN(v)).sort((a, b) => a - b);
+        if (sortedNums.length > 0) {
+          const mid = Math.floor(sortedNums.length / 2);
+          median = sortedNums.length % 2 !== 0 ? sortedNums[mid] : (sortedNums[mid - 1] + sortedNums[mid]) / 2;
+        }
+      }
+
       // Check if it's in identifier mode
       const isIdentifier = uniqueCount === totalRows || (uniqueCount > 0.8 * totalRows && !isNum);
 
@@ -2265,35 +2509,18 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
         mode = 'datetime';
       }
 
-      // Calculate top values for categorical mode
+      // Calculate detailed top categories list (up to 10)
       let topCats = [];
-      if (mode === 'categorical') {
-        const sortedFreq = Object.entries(freq).sort((a, b) => b[1] - a[1]);
-        if (sortedFreq.length <= 3) {
-          topCats = sortedFreq.map(([val, count]) => ({
-            val,
-            count,
-            pct: totalRows > 0 ? ((count / totalRows) * 100).toFixed(0) : '0'
-          }));
-        } else {
-          // Render top 2, and group rest as Other
-          topCats = sortedFreq.slice(0, 2).map(([val, count]) => ({
-            val,
-            count,
-            pct: totalRows > 0 ? ((count / totalRows) * 100).toFixed(0) : '0'
-          }));
-          const otherCount = sortedFreq.slice(2).reduce((s, item) => s + item[1], 0);
-          const otherPct = totalRows > 0 ? ((otherCount / totalRows) * 100).toFixed(0) : '0';
-          topCats.push({
-            val: `Other (${sortedFreq.length - 2} levels)`,
-            count: otherCount,
-            pct: otherPct
-          });
-        }
-      }
+      const sortedFreq = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+      topCats = sortedFreq.slice(0, 10).map(([val, count]) => ({
+        val,
+        count,
+        pct: totalRows > 0 ? ((count / totalRows) * 100) : 0
+      }));
 
       // Calculate histogram for numeric and datetime
       let histogramBins = [];
+      let histogramData = [];
       let minDisplay = '';
       let maxDisplay = '';
 
@@ -2315,6 +2542,19 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
         const maxBin = Math.max(...bins, 1);
         histogramBins = bins.map(cnt => (cnt / maxBin) * 100);
         
+        // Calculate detailed histogram data for interactive SVG chart
+        histogramData = bins.map((cnt, idx) => {
+          const rMin = min + idx * binSize;
+          const rMax = min + (idx + 1) * binSize;
+          return {
+            idx,
+            count: cnt,
+            pct: (cnt / validCount) * 100,
+            rangeMin: rMin,
+            rangeMax: rMax,
+          };
+        });
+
         // Format min/max display
         const fmt = (val) => {
           if (Number.isInteger(val)) return val.toLocaleString();
@@ -2342,6 +2582,18 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
           const maxBin = Math.max(...bins, 1);
           histogramBins = bins.map(cnt => (cnt / maxBin) * 100);
 
+          histogramData = bins.map((cnt, idx) => {
+            const rMin = tMin + idx * binSize;
+            const rMax = tMin + (idx + 1) * binSize;
+            return {
+              idx,
+              count: cnt,
+              pct: (cnt / validCount) * 100,
+              rangeMin: new Date(rMin).toISOString(),
+              rangeMax: new Date(rMax).toISOString(),
+            };
+          });
+
           const fmtDate = (ts) => {
             const d = new Date(ts);
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -2364,8 +2616,10 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
         min: validCount > 0 && isNum ? min : null,
         max: validCount > 0 && isNum ? max : null,
         mean: validCount > 0 && isNum ? (sum / validCount) : null,
+        median: validCount > 0 && isNum ? median : null,
         topCats,
         histogramBins,
+        histogramData,
         minDisplay,
         maxDisplay,
       };

@@ -3257,7 +3257,31 @@ window.HTMLWidgets.widget({
     let root = null;
     return {
       renderValue: function(x) {
-        el.style.height = el.style.height || (height + 'px');
+        // Handle full-screen sizing for standalone HTML exports
+        const container = document.getElementById('htmlwidget_container');
+        if (container) {
+          document.documentElement.style.margin = '0';
+          document.documentElement.style.padding = '0';
+          document.documentElement.style.width = '100%';
+          document.documentElement.style.height = '100%';
+          document.documentElement.style.overflow = 'hidden';
+
+          document.body.style.margin = '0';
+          document.body.style.padding = '0';
+          document.body.style.width = '100%';
+          document.body.style.height = '100%';
+          document.body.style.overflow = 'hidden';
+
+          container.style.width = '100%';
+          container.style.height = '100%';
+          container.style.margin = '0';
+          container.style.padding = '0';
+
+          el.style.height = '100vh';
+          el.style.width = '100%';
+        } else {
+          el.style.height = el.style.height || (height + 'px');
+        }
         const elem = React.createElement(DTSmartRComponent, {
           data: x.data,
           metadata: x.metadata,
@@ -3271,7 +3295,14 @@ window.HTMLWidgets.widget({
           window.ReactDOM.render(elem, el);
         }
       },
-      resize: function(w, h) { el.style.height = h + 'px'; }
+      resize: function(w, h) {
+        const container = document.getElementById('htmlwidget_container');
+        if (container) {
+          el.style.height = '100vh';
+        } else {
+          el.style.height = h + 'px';
+        }
+      }
     };
   }
 });

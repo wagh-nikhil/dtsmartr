@@ -171,8 +171,35 @@ dtsmartr <- function(
 #' Called by HTMLWidgets to produce the widget's root element.
 #' @noRd
 widget_html.dtsmartr <- function(id, style, class, ...) {
+  # Add CSS rules to make body and html occupy 100% of height and prevent body margin/padding/overflow
+  # only when it is rendered as the primary standalone page (inside #htmlwidget_container).
+  full_screen_css <- htmltools::tags$style(htmltools::HTML(sprintf("
+    html:has(#htmlwidget_container), body:has(#htmlwidget_container) {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100%% !important;
+      height: 100%% !important;
+      overflow: hidden !important;
+    }
+    #htmlwidget_container {
+      width: 100%% !important;
+      height: 100%% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    #%s {
+      width: 100%% !important;
+      height: 100vh !important;
+    }
+  ", id)))
+
   htmltools::attachDependencies(
-    htmltools::tags$div(id = id, class = class, style = style),
+    htmltools::tags$div(
+      id = id, 
+      class = class, 
+      style = style,
+      full_screen_css
+    ),
     list(
       reactR::html_dependency_corejs(),
       reactR::html_dependency_react(),

@@ -28,12 +28,12 @@
 #' @examples
 #' if (interactive()) {
 #'   # 1. Launch wizard mode to upload local files
-#'   dtsmart_launch()
+#'   dtsmartr_launch()
 #'
 #'   # 2. Launch directly with a dataset
-#'   dtsmart_launch(mtcars)
+#'   dtsmartr_launch(mtcars)
 #' }
-dtsmart_launch <- function(
+dtsmartr_launch <- function(
     data    = NULL,
     port    = NULL,
     options = dtsmartr_options()

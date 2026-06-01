@@ -155,7 +155,7 @@ test_that("Shiny bindings return correct structures", {
   expect_s3_class(renderer, "shiny.render.function")
 })
 
-test_that("dtsmart_launch validates input parameters", {
-  expect_error(dtsmart_launch(data = 1:5), "`data` must be a data.frame or NULL")
-  expect_error(dtsmart_launch(data = "not_df"), "`data` must be a data.frame or NULL")
+test_that("dtsmartr_launch validates input parameters", {
+  expect_error(dtsmartr_launch(data = 1:5), "`data` must be a data.frame or NULL")
+  expect_error(dtsmartr_launch(data = "not_df"), "`data` must be a data.frame or NULL")
 })

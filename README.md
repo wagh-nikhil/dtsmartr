@@ -31,8 +31,8 @@ It is designed to work beautifully inside the RStudio/Positron Viewer pane, embe
    - **Variable Name Auto-Extraction**: Automatically deparses and substitutes the R variable name (e.g. `adsl`) for copy-pasteable accuracy.
 
 5. **Zero-Code Data Ingestion Wizard & Performance Routing**
-   - **Ingestion Wizard**: Launch `dtsmart_launch()` with `data = NULL` to start an interactive file upload wizard powered by `datamods`. Drag and drop CSV, Excel, SAS datasets, or RDS files, then explore them instantly in a responsive, full-screen grid interface.
-   - **Automatic Viewer Cap Protection**: If a dataset exceeds 50,000 rows, `dtsmartr()` automatically reroutes rendering in interactive sessions to `dtsmart_launch()` in an external browser, preventing viewer-pane freeze-ups.
+   - **Ingestion Wizard**: Launch `dtsmartr_launch()` with `data = NULL` to start an interactive file upload wizard powered by `datamods`. Drag and drop CSV, Excel, SAS datasets, or RDS files, then explore them instantly in a responsive, full-screen grid interface.
+   - **Automatic Viewer Cap Protection**: If a dataset exceeds 50,000 rows, `dtsmartr()` automatically reroutes rendering in interactive sessions to `dtsmartr_launch()` in an external browser, preventing viewer-pane freeze-ups.
 
 ---
 
@@ -83,10 +83,10 @@ To start the file ingestion wizard or explore large datasets in an external brow
 library(dtsmartr)
 
 # 1. Start the zero-code ingestion wizard to drag-and-drop local files (CSV, XLSX, SAS, RDS)
-dtsmart_launch()
+dtsmartr_launch()
 
 # 2. Explore a large dataset directly in your default browser
-dtsmart_launch(pharmaverseadam::adsl)
+dtsmartr_launch(pharmaverseadam::adsl)
 ```
 
 ---
@@ -111,7 +111,7 @@ Creates the interactive virtualized htmlwidget grid.
 - `datasetName`: Custom string representing the dataset in generated reproducible queries.
 - `options`: Custom options list built using `dtsmartr_options()`.
 
-### `dtsmart_launch(data = NULL, port = NULL, options = dtsmartr_options())`
+### `dtsmartr_launch(data = NULL, port = NULL, options = dtsmartr_options())`
 Spins up a temporary local background Shiny server to serve the grid or file upload uploader wizard in your default browser.
 - `data`: A `data.frame` to explore, or `NULL` (default) to start the file uploader wizard.
 - `port`: Optional numeric port.

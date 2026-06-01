@@ -94,11 +94,11 @@ dtsmartr <- function(
   # ── Performance Check & Threshold Routing ──────────────────────────────────
   if (nrow(data) > 50000) {
     if (interactive()) {
-      message("Dataset exceeds 50,000 rows. Automatically re-routing to dtsmart_launch() for external browser rendering to prevent IDE freezing...")
-      # Dynamically call dtsmart_launch via search path to avoid circular load
-      return(dtsmart_launch(data = data, options = options))
+      message("Dataset exceeds 50,000 rows. Automatically re-routing to dtsmartr_launch() for external browser rendering to prevent IDE freezing...")
+      # Dynamically call dtsmartr_launch via search path to avoid circular load
+      return(dtsmartr_launch(data = data, options = options))
     } else {
-      warning("Dataset exceeds 50,000 rows. Freezing or slow performance may occur inside the Viewer pane. Consider using dtsmart_launch().", call. = FALSE)
+      warning("Dataset exceeds 50,000 rows. Freezing or slow performance may occur inside the Viewer pane. Consider using dtsmartr_launch().", call. = FALSE)
     }
   }
 

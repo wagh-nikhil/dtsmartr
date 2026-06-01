@@ -8,7 +8,7 @@ Description: Provides an interactive, virtualized data explorer widget for R.
     Built on React (via 'reactR') and 'htmlwidgets', it offers column-type
     detection, multi-value checkbox filtering, sorting, column visibility
     toggling, virtual scrolling for large datasets, and a full-viewport modal.
-    Includes dtsmart_launch() with an interactive, zero-code file upload wizard
+    Includes dtsmartr_launch() with an interactive, zero-code file upload wizard
     using 'datamods'. Widgets can be embedded in R Markdown / Quarto documents,
     Shiny applications, or exported as standalone HTML files via save_dtsmartr().
 License: MIT + file LICENSE

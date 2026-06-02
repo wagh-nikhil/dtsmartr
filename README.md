@@ -28,6 +28,59 @@ Shows real-time, lag-free scrolling across 83,652 rows and 115 columns of labora
 
 ---
 
+## 🖼️ Feature Gallery
+
+### 🔎 Advanced Multi-Condition Query Builder
+Build complex, multi-rule filters using `Match ALL (AND)` or `Match ANY (OR)` logic. Conditions support `=`, `is in`, `contains`, `<`, `>` operators with type-specific controls — including a **searchable multi-select checklist dropdown** for categorical columns (e.g. selecting 5 specific lab tests from `LBTEST`). The **Advanced Filter badge** shows the active filter count at a glance. Real-time row count (`10026 / 83,652 rows`) updates instantly as filters are applied.
+![Advanced Filter](man/figures/ss_advanced_filter.png)
+
+---
+
+### 💬 Column Metadata Tooltip Card (`ⓘ`)
+Hovering over the **ⓘ info icon** next to any column name opens a floating metadata card with key statistics calculated directly from your dataset — no external dependencies required:
+- **Total Rows** and **Unique Values** count
+- **Missing (NA)** count with exact percentage
+- **Descriptive Stats** for numeric columns: Min, Mean, Median, Max — rendered inline in a clean 2×2 stat grid
+
+This example shows the `LBSEQ` (Sequence Number) column across **83,652 rows**, with **381 unique values** and only **40 missing** (0.0%), with Min = 1, Mean = 142.73, Median = 127, Max = 380.
+![Column Tooltip Card](man/figures/ss_column_tooltip.png)
+
+---
+
+### 📊 Reproducible Query Code Generator
+Click the **Query Code** button to instantly generate copy-pasteable, production-ready R code that perfectly replicates your current filter and column state:
+- **tidyverse (dplyr)**: Produces clean `%>% filter()` pipeline chains.
+- **Base R**: Generates standard bracket-subset expressions.
+- **SQL Query**: Generates portable ANSI SQL `WHERE` clauses.
+
+The generator auto-substitutes your R variable name (e.g. `data`) and correctly formats `%in%` vector membership checks for multi-value `is in` conditions. A **Copy** button sends the entire block to the clipboard in one click.
+![Query Code Modal](man/figures/ss_query_code_modal.png)
+
+---
+
+### 📈 Data Insights Drawer — Numeric Column (Interactive SVG Histogram)
+Click any column's mini spark-histogram or the Data Insights icon to slide open the **Data Insights side panel**. For **numeric columns**, it renders a full-width, interactive SVG distribution histogram featuring:
+- **Column Overview**: Data type badge and unique value count
+- **Completeness & Quality**: Color-coded valid data / missing (NA) progress bar with exact row counts and percentages
+- **Descriptive Statistics**: Min, Max, Mean, Median in a clean 2×2 grid
+- **Distribution Profile**: Full-width SVG histogram with hover-to-inspect functionality and Y-axis gridlines
+
+This example shows the `AGE` column across 83,652 rows: **100% complete**, ages ranging from 51 to 89 years, Mean = 74.876, Median = 77.
+![Data Insights: Numeric Column](man/figures/ss_insights_numeric.png)
+
+---
+
+### 📊 Data Insights Drawer — Categorical Column (Interactive Pareto Bar Chart)
+For **character/categorical columns**, the Data Insights drawer renders a **horizontal Pareto bar chart** showing the distribution of the top categories with their exact value counts and percentages:
+- **Column Overview**: Data type badge and unique value count
+- **Completeness & Quality**: precise completeness metric (e.g. 99.9% valid / 0.1% missing)
+- **Distribution Profile**: Proportional horizontal bars for each category, labeled with exact category name, value count, and percentage
+
+This example shows `LBCAT` (Lab Test Category) with **5 unique values** across 83,598 valid rows: CHEMISTRY (54.0%), HEMATOLOGY (36.6%), URINALYSIS (8.7%), and OTHER (0.7%).
+![Data Insights: Categorical Column](man/figures/ss_insights_categorical.png)
+
+---
+
 ## 🚀 Key Features
 
 ### 1. High-Fidelity Virtualized Layout & Clinical Readability

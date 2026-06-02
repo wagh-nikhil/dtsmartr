@@ -1,0 +1,4 @@
+Name: dtsmartr Data Explorer Wizard
+Description: Launches the zero-code data Ingestion Wizard in your default web browser to explore CSV, Excel, SAS, or RDS datasets.
+Binding: dtsmartr_launch
+Interactive: true

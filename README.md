@@ -30,6 +30,12 @@ Shows real-time, lag-free scrolling across 83,652 rows and 115 columns of labora
 
 ## 🖼️ Feature Gallery
 
+### 🔌 Zero-Code Data Ingestion Wizard
+Start the interactive ingestion wizard by running `dtsmartr_launch()` with no arguments (or using our one-click launchers). Designed specifically for non-programmers, it provides a beautiful drag-and-drop file uploader to ingest **CSV, Excel (.xlsx), SAS (.sas7bdat), or RDS** files. Once uploaded, users can inspect, verify, and custom-toggle column types/classes via the "View" and "Update" panels before feeding the clean dataset directly into the premium virtualized explorer grid!
+![Data Ingestion Wizard](man/figures/ss_ingestion_wizard.png)
+
+---
+
 ### 🔎 Advanced Multi-Condition Query Builder
 Build complex, multi-rule filters using `Match ALL (AND)` or `Match ANY (OR)` logic. Conditions support `=`, `is in`, `contains`, `<`, `>` operators with type-specific controls — including a **searchable multi-select checklist dropdown** for categorical columns (e.g. selecting 5 specific lab tests from `LBTEST`). The **Advanced Filter badge** shows the active filter count at a glance. Real-time row count (`10026 / 83,652 rows`) updates instantly as filters are applied.
 ![Advanced Filter](man/figures/ss_advanced_filter.png)
@@ -192,6 +198,41 @@ dtsmartr_launch()
 # 2. Explore a large dataset directly in your default browser
 dtsmartr_launch(pharmaverseadam::adsl)
 ```
+
+---
+
+## 🖱️ One-Click & One-Line Launchers (For Zero-R / Non-R Users)
+
+You don't need to know R to benefit from **dtsmartr**! The package includes three highly accessible, zero-code launching methods designed specifically for non-programmers, business analysts, or clinical researchers who prefer a simple click-and-run setup:
+
+### 1. 🎯 The RStudio Add-in (One-Click GUI Solution)
+Once the `dtsmartr` package is installed, a new launcher is registered directly in RStudio's top toolbar:
+- Click the **Addins** dropdown menu in RStudio.
+- Select **dtsmartr Data Explorer Wizard**.
+- It immediately boots the Data Ingestion Wizard in your default web browser. No console typing required!
+
+### 2. 💻 System Command-Line One-Liner (Terminal Solution)
+Launch the wizard directly from your system's Command Prompt (Windows) or Terminal (macOS/Linux) without launching R manually:
+```bash
+Rscript -e "dtsmartr::dtsmartr_launch()"
+```
+
+### ⚡ 3. Desktop Shortcut Launcher (Double-Click Solution)
+You can create a standalone Desktop shortcut to run **dtsmartr** like a native desktop app:
+- **Windows**: Create a text file named `dtsmartr_explorer.bat` on your Desktop with these two lines:
+  ```batch
+  @echo off
+  "C:\Program Files\R\R-4.4.3\bin\x64\Rscript.exe" -e "dtsmartr::dtsmartr_launch()"
+  ```
+  *(If your R version is different, simply replace the path above with your `Rscript.exe` location or standard `Rscript` if it is in your system PATH).*
+- **macOS / Linux**: Create a shell script named `dtsmartr_explorer.sh` on your Desktop:
+  ```bash
+  #!/bin/bash
+  Rscript -e "dtsmartr::dtsmartr_launch()"
+  ```
+  *(Make it executable with `chmod +x ~/Desktop/dtsmartr_explorer.sh`)*
+
+Now, any team member can just **double-click the desktop icon** to instantly launch the secure local data browser, upload a CSV or Excel spreadsheet, and analyze it with premium aesthetics and visualizations!
 
 ---
 

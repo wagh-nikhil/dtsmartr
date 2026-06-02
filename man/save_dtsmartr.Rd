@@ -28,7 +28,7 @@ extension is appended automatically if omitted.}
 \item{selfcontained}{Logical. When \code{TRUE} (default), all JavaScript, CSS, and
 data are embedded directly inside the HTML file, producing a single portable
 file. When \code{FALSE}, a companion \verb{<file>_files/} directory is created next
-to the HTML file containing the JS/CSS assets — both must be kept together
+to the HTML file containing the JS/CSS assets - both must be kept together
 when sharing. Use \code{FALSE} for large datasets where a single file would be
 impractically large.}
 

@@ -11,7 +11,7 @@
 #' @param selfcontained Logical. When `TRUE` (default), all JavaScript, CSS, and
 #'   data are embedded directly inside the HTML file, producing a single portable
 #'   file. When `FALSE`, a companion `<file>_files/` directory is created next
-#'   to the HTML file containing the JS/CSS assets — both must be kept together
+#'   to the HTML file containing the JS/CSS assets - both must be kept together
 #'   when sharing. Use `FALSE` for large datasets where a single file would be
 #'   impractically large.
 #' @param title Character string. Browser tab / window title for the saved HTML

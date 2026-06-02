@@ -94,7 +94,7 @@ Safari 14+). No internet connection is required.
 }
 \examples{
 \dontrun{
-# ── Basic usage ─────────────────────────────────────────────────────────────
+# == Basic usage =============================================================
 
 # Save mtcars as a self-contained HTML (single portable file)
 save_dtsmartr(mtcars, "mtcars_explorer.html")
@@ -102,7 +102,7 @@ save_dtsmartr(mtcars, "mtcars_explorer.html")
 # Open in the browser right after saving
 save_dtsmartr(mtcars, "mtcars_explorer.html", open = TRUE)
 
-# ── Custom options ──────────────────────────────────────────────────────────
+# == Custom options ==========================================================
 
 save_dtsmartr(
   mtcars, 

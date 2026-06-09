@@ -93,20 +93,23 @@ Safari 14+). No internet connection is required.
 }
 }
 \examples{
-\dontrun{
+\donttest{
 # == Basic usage =============================================================
 
 # Save mtcars as a self-contained HTML (single portable file)
-save_dtsmartr(mtcars, "mtcars_explorer.html")
+tmp_file <- tempfile(fileext = ".html")
+save_dtsmartr(mtcars, tmp_file)
 
 # Open in the browser right after saving
-save_dtsmartr(mtcars, "mtcars_explorer.html", open = TRUE)
+tmp_file_open <- tempfile(fileext = ".html")
+save_dtsmartr(mtcars, tmp_file_open, open = TRUE)
 
 # == Custom options ==========================================================
 
+tmp_file_opts <- tempfile(fileext = ".html")
 save_dtsmartr(
   mtcars, 
-  "mtcars_custom.html", 
+  tmp_file_opts, 
   options = dtsmartr_options(hidden_columns = "cyl", advanced_filter = FALSE)
 )
 }

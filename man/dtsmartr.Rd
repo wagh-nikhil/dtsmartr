@@ -31,6 +31,11 @@ dtsmartr(
 bypass the automatic re-routing to \code{\link[=dtsmartr_launch]{dtsmartr_launch()}} for large datasets.
 End users should not set this parameter. Defaults to \code{FALSE}.}
 }
+\value{
+An object of class \code{htmlwidget} (and sub-class \code{dtsmartr}) representing
+the interactive virtualized grid. In interactive R sessions, this will
+display the explorer in the RStudio/Positron Viewer pane or system browser.
+}
 \description{
 Renders a high-performance, virtualized data grid powered by React to explore
 datasets, filter dynamically, and generate reproducible queries.

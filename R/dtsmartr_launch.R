@@ -23,6 +23,9 @@
 #' @importFrom shiny fluidPage tags HTML runApp conditionalPanel div h2 p reactive req outputOptions
 #' @importFrom datamods import_ui import_server
 #'
+#' @return No return value, called for the side effect of starting a local
+#'   background Shiny application and opening it in the default web browser.
+#'
 #' @export
 #'
 #' @examples

@@ -73,6 +73,10 @@ dtsmartr_options <- function(
 #'   bypass the automatic re-routing to [dtsmartr_launch()] for large datasets.
 #'   End users should not set this parameter. Defaults to `FALSE`.
 #'
+#' @return An object of class `htmlwidget` (and sub-class `dtsmartr`) representing
+#'   the interactive virtualized grid. In interactive R sessions, this will
+#'   display the explorer in the RStudio/Positron Viewer pane or system browser.
+#'
 #' @import htmlwidgets
 #' @importFrom jsonlite toJSON
 #'
@@ -238,6 +242,11 @@ widget_html.dtsmartr <- function(id, style, class, ...) {
 #' @param env The environment in which to evaluate \code{expr}.
 #' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
 #'   is useful if you want to save an expression in a variable.
+#'
+#' @return `dtsmartrOutput` returns a Shiny output element of class `shiny.tag.list`
+#'   that can be placed in a Shiny user interface.
+#'   `renderDtsmartr` returns a Shiny render function of class `shiny.render.function`
+#'   that can be assigned to an output slot.
 #'
 #' @name dtsmartr-shiny
 #'

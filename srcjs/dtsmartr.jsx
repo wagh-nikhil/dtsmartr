@@ -1439,7 +1439,7 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
 };
 
 // ── Sort Dropdown (floating popup) ───────────────────────────────────────────
-const SortDropdown = ({ meta, position, onSort, onClose, colors }) => {
+const SortDropdown = ({ meta, position, onSort, onClose, colors, initialShift }) => {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -1464,7 +1464,7 @@ const SortDropdown = ({ meta, position, onSort, onClose, colors }) => {
         ['asc', '↑ Sort ascending'],
         ['desc', '↓ Sort descending']
       ].map(([d, lbl]) => (
-        <div key={d} onClick={(e) => { onSort(meta.name, e.shiftKey, d); onClose(); }}
+        <div key={d} onClick={(e) => { onSort(meta.name, e.shiftKey || initialShift, d); onClose(); }}
           style={{ padding:'10px 16px', cursor:'pointer', color:colors.text, display:'flex', alignItems:'center', gap:8 }}
           onMouseEnter={e=>e.currentTarget.style.background=colors.hoverBg}
           onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
@@ -2234,7 +2234,7 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
   const openSortDropdown = e => {
     e.stopPropagation();
     const r = e.currentTarget.getBoundingClientRect();
-    onOpenPanel(meta.name, { x: r.left, y: r.bottom }, 'sort');
+    onOpenPanel(meta.name, { x: r.left, y: r.bottom }, 'sort', e.shiftKey);
   };
 
   const renderSummaryZone = () => {
@@ -3449,6 +3449,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
               onSort={handleSort}
               onClose={() => setPopup(null)}
               colors={colors}
+              initialShift={popup.shift}
             />
           )}
           {popup && popupMeta && popup.type === 'filter' && (

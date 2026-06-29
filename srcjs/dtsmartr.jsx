@@ -1448,9 +1448,9 @@ const SortDropdown = ({ meta, position, onSort, onClose, colors, initialShift })
     return () => document.removeEventListener('mousedown', fn);
   }, [onClose]);
 
-  const panelW = 180;
+  const panelW = 220;
   const left   = Math.min(position.x, window.innerWidth - panelW - 8);
-  const top    = Math.min(position.y + 4, window.innerHeight - 120);
+  const top    = Math.min(position.y + 4, window.innerHeight - 200);
 
   return (
     <div ref={ref} onMouseDown={e => e.stopPropagation()} style={{
@@ -1461,10 +1461,17 @@ const SortDropdown = ({ meta, position, onSort, onClose, colors, initialShift })
       padding: '4px 0'
     }}>
       {[
-        ['asc', '↑ Sort ascending'],
-        ['desc', '↓ Sort descending']
-      ].map(([d, lbl]) => (
-        <div key={d} onClick={(e) => { onSort(meta.name, e.shiftKey || initialShift, d); onClose(); }}
+        ['asc', '↑ Sort ascending (Primary)', false],
+        ['desc', '↓ Sort descending (Primary)', false],
+        ['asc_add', '➕ Add to sort (Ascending)', true],
+        ['desc_add', '➕ Add to sort (Descending)', true],
+        ['clear', '❌ Remove from sort', false]
+      ].map(([d, lbl, isAdd]) => (
+        <div key={d} onClick={(e) => {
+          const dir = d.startsWith('asc') ? 'asc' : d.startsWith('desc') ? 'desc' : 'clear';
+          onSort(meta.name, isAdd, dir);
+          onClose();
+        }}
           style={{ padding:'10px 16px', cursor:'pointer', color:colors.text, display:'flex', alignItems:'center', gap:8 }}
           onMouseEnter={e=>e.currentTarget.style.background=colors.hoverBg}
           onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
@@ -1477,7 +1484,7 @@ const SortDropdown = ({ meta, position, onSort, onClose, colors, initialShift })
 
 // ── Filter Panel (floating popup) ────────────────────────────────────────────
 const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, onClose, colors, isDarkMode }) => {
-  const isCat = CATEGORICAL.has(meta.type);
+  const isCat = CATEGORICAL.has(meta.type) || (uniqueVals && uniqueVals.length <= 20);
   const initSel = new Set(applied && Array.isArray(applied) ? applied : []);
   const initTxt = (!isCat && applied && typeof applied === 'string') ? applied : '';
   const [search,   setSearch]   = useState('');
@@ -1523,6 +1530,7 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
             placeholder={isCat ? 'Search values…' : 'Filter value…'}
             value={isCat ? search : text}
             onChange={e => isCat ? setSearch(e.target.value) : setText(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') apply(); }}
             style={{ width:'100%', boxSizing:'border-box', padding:'7px 32px 7px 10px',
               border:`1px solid ${colors.border}`, borderRadius:6, fontSize:12, outline:'none',
               color:colors.text, background:colors.bg }} />
@@ -3054,6 +3062,16 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
   const handleSort = useCallback((col, shiftKey, explicitDir) => {
     setSortState(prev => {
       const idx = prev.findIndex(item => item.id === col);
+
+      if (explicitDir === 'clear') {
+        if (idx > -1) {
+          const next = [...prev];
+          next.splice(idx, 1);
+          return next;
+        }
+        return prev;
+      }
+
       const desc = explicitDir ? (explicitDir === 'desc') : false;
 
       if (shiftKey) {

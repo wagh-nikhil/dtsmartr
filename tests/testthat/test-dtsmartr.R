@@ -11,6 +11,7 @@ test_that("dtsmartr_options default and custom properties work", {
   expect_equal(opts_default$theme, "auto")
   expect_equal(opts_default$na_string, "NA")
   expect_equal(opts_default$hidden_columns, list())
+  expect_equal(opts_default$header_summary, TRUE)
 
   # Custom options
   opts_custom <- dtsmartr_options(
@@ -20,7 +21,8 @@ test_that("dtsmartr_options default and custom properties work", {
     allow_export    = FALSE,
     theme           = "dark",
     na_string       = "Missing",
-    hidden_columns  = c("mpg", "cyl")
+    hidden_columns  = c("mpg", "cyl"),
+    header_summary  = FALSE
   )
   expect_equal(opts_custom$advanced_filter, FALSE)
   expect_equal(opts_custom$show_labels, FALSE)
@@ -29,7 +31,8 @@ test_that("dtsmartr_options default and custom properties work", {
   expect_equal(opts_custom$theme, "dark")
   expect_equal(opts_custom$na_string, "Missing")
   expect_equal(opts_custom$hidden_columns, list("mpg", "cyl"))
-})
+  expect_equal(opts_custom$header_summary, FALSE)
+ })
 
 test_that("dtsmartr_options validates input parameters", {
   expect_error(dtsmartr_options(advanced_filter = "TRUE"), "`advanced_filter` must be a single logical value")
@@ -39,6 +42,7 @@ test_that("dtsmartr_options validates input parameters", {
   expect_error(dtsmartr_options(theme = "invalid_theme"), "should be one of")
   expect_error(dtsmartr_options(na_string = 12), "`na_string` must be a single character string")
   expect_error(dtsmartr_options(hidden_columns = 123), "`hidden_columns` must be a character vector or NULL")
+  expect_error(dtsmartr_options(header_summary = "TRUE"), "`header_summary` must be a single logical value")
 })
 
 test_that("dtsmartr creates a valid htmlwidget and processes metadata", {

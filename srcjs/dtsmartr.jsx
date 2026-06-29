@@ -249,7 +249,11 @@ const RCodeModal = ({ codeObj, onClose, colors, isDarkMode }) => {
     ? codeObj.dplyr
     : activeTab === 'baseR'
       ? codeObj.baseR
-      : codeObj.sql;
+      : activeTab === 'sql'
+        ? codeObj.sql
+        : activeTab === 'arrow'
+          ? codeObj.arrow
+          : codeObj.duckdb;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeText);
@@ -317,9 +321,9 @@ const RCodeModal = ({ codeObj, onClose, colors, isDarkMode }) => {
           {[
             { id: 'dplyr',  label: 'tidyverse (dplyr)' },
             { id: 'baseR',  label: 'Base R' },
-            { id: 'sql',    label: 'SQL Query' }
-            // { id: 'arrow',  label: 'Arrow' },
-            // { id: 'duckdb', label: 'DuckDB / dbplyr' }
+            { id: 'sql',    label: 'SQL Query' },
+            { id: 'arrow',  label: 'Arrow' },
+            { id: 'duckdb', label: 'DuckDB / dbplyr' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -416,7 +420,7 @@ const RCodeModal = ({ codeObj, onClose, colors, isDarkMode }) => {
   );
 };
 
-const generateRCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+const generateRCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount, sortState = []) => {
   const conditions = [];
 
   Object.entries(filters).forEach(([col, val]) => {
@@ -549,18 +553,24 @@ const generateRCode = (datasetName, filters, queryRules, queryLogical, metadata,
     selectExpr = ` %>%\n  select(${visibleCols.join(', ')})`;
   }
 
+  let sortExpr = '';
+  if (sortState && sortState.length > 0) {
+    const sortCols = sortState.map(item => item.desc ? `desc(${item.id})` : item.id).join(', ');
+    sortExpr = ` %>%\n  arrange(${sortCols})`;
+  }
+
   if (conditions.length === 0) {
-    if (visibleCols && visibleCols.length < totalColsCount) {
-      return `# No active filters\nlibrary(dplyr)\nfiltered_df <- ${datasetName}${selectExpr}`;
+    if ((visibleCols && visibleCols.length < totalColsCount) || sortExpr) {
+      return `# No active filters\nlibrary(dplyr)\nfiltered_df <- ${datasetName}${sortExpr}${selectExpr}`;
     }
     return `# No active filters\nlibrary(dplyr)\nfiltered_df <- ${datasetName}`;
   }
 
   const filterExpression = conditions.join(' &\n  ');
-  return `library(dplyr)\n\nfiltered_df <- ${datasetName} %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${selectExpr}`;
+  return `library(dplyr)\n\nfiltered_df <- ${datasetName} %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${sortExpr}${selectExpr}`;
 };
 
-const generateBaseRCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+const generateBaseRCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount, sortState = []) => {
   const conditions = [];
 
   Object.entries(filters).forEach(([col, val]) => {
@@ -694,18 +704,24 @@ const generateBaseRCode = (datasetName, filters, queryRules, queryLogical, metad
     selectArg = `,\n  select = c(${colListStr})`;
   }
 
+  let sortExpr = '';
+  if (sortState && sortState.length > 0) {
+    const sortArgs = sortState.map(item => item.desc ? `-xtfrm(${item.id})` : item.id).join(', ');
+    sortExpr = `\n\n# Sort\nfiltered_df <- filtered_df[with(filtered_df, order(${sortArgs})), ]`;
+  }
+
   if (conditions.length === 0) {
     if (visibleCols && visibleCols.length < totalColsCount) {
-      return `# No active filters\nfiltered_df <- subset(\n  ${datasetName}${selectArg}\n)`;
+      return `# No active filters\nfiltered_df <- subset(\n  ${datasetName}${selectArg}\n)${sortExpr}`;
     }
-    return `# No active filters\nfiltered_df <- subset(${datasetName})`;
+    return `# No active filters\nfiltered_df <- subset(${datasetName})${sortExpr}`;
   }
 
   const filterExpression = conditions.join(' &\n  ');
-  return `filtered_df <- subset(\n  ${datasetName},\n  subset = ${filterExpression.replace(/\n/g, '\n  ')}${selectArg}\n)`;
+  return `filtered_df <- subset(\n  ${datasetName},\n  subset = ${filterExpression.replace(/\n/g, '\n  ')}${selectArg}\n)${sortExpr}`;
 };
 
-const generateSQLCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+const generateSQLCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount, sortState = []) => {
   const conditions = [];
 
   Object.entries(filters).forEach(([col, val]) => {
@@ -835,15 +851,21 @@ const generateSQLCode = (datasetName, filters, queryRules, queryLogical, metadat
     selectCols = visibleCols.join(', ');
   }
 
+  let orderClause = '';
+  if (sortState && sortState.length > 0) {
+    const sortCols = sortState.map(item => `${item.id} ${item.desc ? 'DESC' : 'ASC'}`).join(', ');
+    orderClause = `\nORDER BY ${sortCols}`;
+  }
+
   if (conditions.length === 0) {
-    return `SELECT ${selectCols}\nFROM ${datasetName};`;
+    return `SELECT ${selectCols}\nFROM ${datasetName}${orderClause};`;
   }
 
   const whereClause = conditions.join('\n  AND ');
-  return `SELECT ${selectCols}\nFROM ${datasetName}\nWHERE\n  ${whereClause.replace(/\n/g, '\n  ')};`;
+  return `SELECT ${selectCols}\nFROM ${datasetName}\nWHERE\n  ${whereClause.replace(/\n/g, '\n  ')}${orderClause};`;
 };
 
-const generateArrowCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+const generateArrowCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount, sortState = []) => {
   const conditions = [];
 
   Object.entries(filters).forEach(([col, val]) => {
@@ -976,15 +998,21 @@ const generateArrowCode = (datasetName, filters, queryRules, queryLogical, metad
     selectExpr = ` %>%\n  select(${visibleCols.join(', ')})`;
   }
 
+  let sortExpr = '';
+  if (sortState && sortState.length > 0) {
+    const sortCols = sortState.map(item => item.desc ? `desc(${item.id})` : item.id).join(', ');
+    sortExpr = ` %>%\n  arrange(${sortCols})`;
+  }
+
   if (conditions.length === 0) {
-    return `library(arrow)\nlibrary(dplyr)\n\n# Assuming ${datasetName} is an Arrow Table or Dataset pointer\nfiltered_arrow <- ${datasetName}${selectExpr} %>%\n  collect()`;
+    return `library(arrow)\nlibrary(dplyr)\n\n# Assuming ${datasetName} is an Arrow Table or Dataset pointer\nfiltered_arrow <- ${datasetName}${sortExpr}${selectExpr} %>%\n  collect()`;
   }
 
   const filterExpression = conditions.join(' &\n  ');
-  return `library(arrow)\nlibrary(dplyr)\n\n# Assuming ${datasetName} is an Arrow Table or Dataset pointer\nfiltered_arrow <- ${datasetName} %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${selectExpr} %>%\n  collect()`;
+  return `library(arrow)\nlibrary(dplyr)\n\n# Assuming ${datasetName} is an Arrow Table or Dataset pointer\nfiltered_arrow <- ${datasetName} %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${sortExpr}${selectExpr} %>%\n  collect()`;
 };
 
-const generateDuckDBCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount) => {
+const generateDuckDBCode = (datasetName, filters, queryRules, queryLogical, metadata, visibleCols, totalColsCount, sortState = []) => {
   const conditions = [];
 
   Object.entries(filters).forEach(([col, val]) => {
@@ -1117,12 +1145,18 @@ const generateDuckDBCode = (datasetName, filters, queryRules, queryLogical, meta
     selectExpr = ` %>%\n  select(${visibleCols.join(', ')})`;
   }
 
+  let sortExpr = '';
+  if (sortState && sortState.length > 0) {
+    const sortCols = sortState.map(item => item.desc ? `desc(${item.id})` : item.id).join(', ');
+    sortExpr = ` %>%\n  arrange(${sortCols})`;
+  }
+
   if (conditions.length === 0) {
-    return `library(duckdb)\nlibrary(dplyr)\nlibrary(dbplyr)\n\n# Assuming tbl_duckdb is a dbplyr table pointer connected to DuckDB\nfiltered_duck <- tbl_duckdb${selectExpr} %>%\n  collect()`;
+    return `library(duckdb)\nlibrary(dplyr)\nlibrary(dbplyr)\n\n# Assuming tbl_duckdb is a dbplyr table pointer connected to DuckDB\nfiltered_duck <- tbl_duckdb${sortExpr}${selectExpr} %>%\n  collect()`;
   }
 
   const filterExpression = conditions.join(' &\n  ');
-  return `library(duckdb)\nlibrary(dplyr)\nlibrary(dbplyr)\n\n# Assuming tbl_duckdb is a dbplyr table pointer connected to DuckDB\nfiltered_duck <- tbl_duckdb %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${selectExpr} %>%\n  collect()`;
+  return `library(duckdb)\nlibrary(dplyr)\nlibrary(dbplyr)\n\n# Assuming tbl_duckdb is a dbplyr table pointer connected to DuckDB\nfiltered_duck <- tbl_duckdb %>%\n  filter(\n    ${filterExpression.replace(/\n/g, '\n    ')}\n  )${sortExpr}${selectExpr} %>%\n  collect()`;
 };
 
 const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpdateRule, onUpdateLogical, onClearRules, uniqueVals, colors, isDarkMode }) => {
@@ -2156,9 +2190,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
 };
 
 // ── Column Header Cell ────────────────────────────────────────────────────────
-const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, colors, isDarkMode, summary_header = true, insights = true }) => {
-  const active  = sortCol === meta.name;
-  const t       = tm(meta.type);
+const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, onResizeStart, colWidth, colors, isDarkMode, summary_header = true, insights = true }) => {
   const btnRef  = useRef(null);
   const [hoveringName, setHoveringName] = useState(false);
   const HEADER_HEIGHT = summary_header
@@ -2281,12 +2313,12 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
   const missingTooltip = summary ? `${summary.totalRows.toLocaleString()} values • ${summary.naCount.toLocaleString()} missing (${summary.naPct.toFixed(0)}%)` : '';
 
   return (
-    <div onClick={() => onSort(meta.name)} className="dtex-header-cell" style={{
-      width: COL_WIDTH, flexShrink:0, height:HEADER_HEIGHT,
+    <div onClick={(e) => onSort(meta.name, e.shiftKey)} className="dtex-header-cell" style={{
+      width: colWidth, flexShrink:0, height:HEADER_HEIGHT,
       padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
       justifyContent:'space-between', cursor:'pointer', userSelect:'none',
       borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
-      background: active ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
+      background: isSorted ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
       position: 'relative',
     }}>
       {/* Row 1: type icon + column name + info icon + insights icon + sort arrow */}
@@ -2329,7 +2361,7 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
         </div>
         
         {/* Insights button */}
-        {insights && (
+        {insights && summary_header && (
           <button
             onClick={e => {
               e.stopPropagation(); // prevent sort
@@ -2355,8 +2387,25 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
           </button>
         )}
 
-        <span style={{ fontSize:10, color: active?'#3b82f6':colors.subText, flexShrink:0 }}>
-          {active ? (sortDir==='asc'?'▲':'▼') : '⇅'}
+        <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 10, color: isSorted ? '#3b82f6' : colors.subText, flexShrink: 0 }}>
+          {isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+          {sortPriority && (
+            <span style={{
+              fontSize: 9,
+              fontWeight: 700,
+              background: '#3b82f6',
+              color: '#fff',
+              borderRadius: '50%',
+              width: 12,
+              height: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              lineHeight: 1
+            }}>
+              {sortPriority}
+            </span>
+          )}
         </span>
       </div>
 
@@ -2380,7 +2429,7 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
       <button ref={btnRef} onClick={openPanel} title="Filter / Sort Menu"
         style={{
           position: 'absolute',
-          right: 4,
+          right: 8,
           bottom: summary_header ? 8 : 4,
           width: 18,
           height: 18,
@@ -2407,7 +2456,7 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
             left: 0,
             width: '100%',
             height: 4,
-            background: isDarkMode ? '#475569' : '#cbd5e1', // Muted Red/Gray background for NA values
+            background: isDarkMode ? '#475569' : '#cbd5e1', // NA values color
             overflow: 'hidden',
             display: 'flex'
           }} 
@@ -2416,15 +2465,35 @@ const ColHeader = React.memo(({ meta, summary, sortCol, sortDir, isFiltered, sho
           <div style={{
             width: `${summary ? summary.validPct : 100}%`,
             height: '100%',
-            background: '#22c55e' // Green segment representing completeness
+            background: '#22c55e' // Complete values color
           }} />
         </div>
       )}
 
       {/* Metadata tooltip on column name hover */}
-      {hoveringName && summary && (
+      {hoveringName && summary_header && summary && (
         <ColMetaTooltip meta={meta} rawRows={[]} colors={colors} isDarkMode={isDarkMode} customSummary={summary} />
       )}
+
+      {/* Drag-to-resize handle */}
+      <div
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          onResizeStart(meta.name, e);
+        }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: 5,
+          height: '100%',
+          cursor: 'col-resize',
+          zIndex: 15,
+          background: 'transparent'
+        }}
+        className="dtex-resize-handle"
+      />
     </div>
   );
 });
@@ -2438,12 +2507,13 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     allow_export    = true,
     theme           = 'auto',
     na_string       = 'NA',
-    hidden_columns  = []
+    hidden_columns  = [],
+    header_summary  = true
   } = options;
 
   const [showRCodeModal,   setShowRCodeModal]   = useState(false);
-  const [sortCol,          setSortCol]          = useState(null);
-  const [sortDir,          setSortDir]          = useState('asc');
+  const [sortState,        setSortState]        = useState([]); // [{ id, desc }]
+  const [colWidths,        setColWidths]        = useState({}); // { colName: width }
   const [filters,          setFilters]          = useState({});
   const [popup,            setPopup]            = useState(null);
   const [showColVis,       setShowColVis]       = useState(false);
@@ -2456,6 +2526,31 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
   const [queryLogical,     setQueryLogical]     = useState('AND');   // logic connector
   const [pinnedRows,       setPinnedRows]       = useState(new Set()); // row-pinning by original index
   const wrapRef = useRef(null);
+
+  const getColWidth = useCallback((colName) => colWidths[colName] || COL_WIDTH, [colWidths]);
+
+  const resizingRef = useRef(null);
+
+  const handleResizeStart = useCallback((colName, e) => {
+    resizingRef.current = {
+      colName,
+      startX: e.clientX,
+      startWidth: colWidths[colName] || COL_WIDTH
+    };
+    const handleMouseMove = (ev) => {
+      if (!resizingRef.current) return;
+      const { colName: name, startX, startWidth } = resizingRef.current;
+      const newWidth = Math.max(50, startWidth + (ev.clientX - startX));
+      setColWidths(prev => ({ ...prev, [name]: newWidth }));
+    };
+    const handleMouseUp = () => {
+      resizingRef.current = null;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [colWidths]);
 
   const [showInsights,     setShowInsights]     = useState(false);
   const [activeInsightCol, setActiveInsightCol] = useState(null);
@@ -2883,22 +2978,57 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
 
   // Sort
   const rows = useMemo(() => {
-    if (!sortCol) return filteredRows;
-    return [...filteredRows].sort((a,b) => {
-      const av=a[sortCol], bv=b[sortCol];
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1;
-      if (bv == null) return -1;
-      const cmp = typeof av==='number'&&typeof bv==='number' ? av-bv : String(av).localeCompare(String(bv));
-      return sortDir==='asc'?cmp:-cmp;
+    if (!sortState || sortState.length === 0) return filteredRows;
+    return [...filteredRows].sort((a, b) => {
+      for (const item of sortState) {
+        const col = item.id;
+        const desc = item.desc;
+        const av = a[col], bv = b[col];
+        if (av == null && bv == null) continue;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        
+        let cmp = 0;
+        if (typeof av === 'number' && typeof bv === 'number') {
+          cmp = av - bv;
+        } else {
+          cmp = String(av).localeCompare(String(bv));
+        }
+        
+        if (cmp !== 0) {
+          return desc ? -cmp : cmp;
+        }
+      }
+      return 0;
     });
-  }, [filteredRows, sortCol, sortDir]);
+  }, [filteredRows, sortState]);
 
-  const handleSort = useCallback((col, dir) => {
-    if (dir) { setSortCol(col); setSortDir(dir); }
-    else setSortCol(prev => {
-      if (prev===col) { setSortDir(d=>d==='asc'?'desc':'asc'); return col; }
-      setSortDir('asc'); return col;
+  const handleSort = useCallback((col, shiftKey) => {
+    setSortState(prev => {
+      const idx = prev.findIndex(item => item.id === col);
+      if (shiftKey) {
+        if (idx > -1) {
+          const next = [...prev];
+          if (next[idx].desc === false) {
+            next[idx] = { id: col, desc: true };
+          } else {
+            next.splice(idx, 1);
+          }
+          return next;
+        } else {
+          return [...prev, { id: col, desc: false }];
+        }
+      } else {
+        if (prev.length === 1 && prev[0].id === col) {
+          if (prev[0].desc === false) {
+            return [{ id: col, desc: true }];
+          } else {
+            return [];
+          }
+        } else {
+          return [{ id: col, desc: false }];
+        }
+      }
     });
   }, []);
 
@@ -2912,13 +3042,15 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
   const activeFilterCount = Object.values(filters).filter(v =>
     v != null && (Array.isArray(v) ? v.length>0 : v!=='')).length;
 
-  // Virtualisation — header height depends on label visibility
-  const HEADER_HEIGHT = (showLabels && hasAnyLabel) ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE;
+  // Virtualisation — header height depends on label visibility and header_summary
+  const HEADER_HEIGHT = header_summary
+    ? ((showLabels && hasAnyLabel) ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE)
+    : ((showLabels && hasAnyLabel) ? HEADER_HEIGHT_COMPACT_LBL : HEADER_HEIGHT_COMPACT_BASE);
   const bodyH       = wrapH - HEADER_HEIGHT;
   const startIdx    = Math.max(0, Math.floor(scrollTop/ROW_HEIGHT) - OVERSCAN);
   const endIdx      = Math.min(rows.length, Math.ceil((scrollTop+bodyH)/ROW_HEIGHT) + OVERSCAN);
   const visibleRows = rows.slice(startIdx, endIdx);
-  const tableW      = ROW_NUM_W + cols.length * COL_WIDTH;
+  const tableW      = ROW_NUM_W + cols.reduce((sum, col) => sum + getColWidth(col.name), 0);
 
   const popupMeta = popup ? (metadata||[]).find(c=>c.name===popup.col) : null;
 
@@ -2948,6 +3080,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
             .dtex-row:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
             .dtex-row:hover .dtex-rownum { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
             .dtex-header-cell:hover { background-color: ${isDarkMode ? '#334155' : '#f1f5f9'} !important; }
+            .dtex-resize-handle:hover { background-color: #3b82f6 !important; }
           `}</style>
 
           {/* ── Toolbar ── */}
@@ -2960,11 +3093,19 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
               <b style={{color:colors.text}}>{cols.length}</b>
               {cols.length!==(metadata||[]).length && <> / {(metadata||[]).length}</>} columns
             </span>
-            {sortCol && (
-              <span style={{ fontSize:11, color:colors.text, background:isDarkMode ? '#334155' : '#e2e8f0',
-                padding:'2px 8px', borderRadius:10 }}>
-                ↕ {sortCol} {sortDir}
-              </span>
+            {sortState.length > 0 && (
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                {sortState.map((item, idx) => (
+                  <span key={item.id} style={{ fontSize:11, color:colors.text, background:isDarkMode ? '#334155' : '#e2e8f0',
+                    padding:'2px 8px', borderRadius:10, display: 'flex', alignItems: 'center', gap: 3 }}>
+                    ↕ {item.id} {item.desc ? 'desc' : 'asc'}
+                    <span style={{ fontSize: 9, opacity: 0.7 }}>({idx + 1})</span>
+                  </span>
+                ))}
+                <button onClick={() => setSortState([])} style={{ fontSize:11, padding:'2px 6px', border:'none', background:'transparent', color:'#ef4444', cursor: 'pointer', textDecoration: 'underline' }}>
+                  Clear sort
+                </button>
+              </div>
             )}
             {activeFilterCount>0 && (
               <span style={{ fontSize:11, color:'#3b82f6', background:isDarkMode ? '#1e3a8a' : '#dbeafe',
@@ -3121,20 +3262,32 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
                   background:colors.headerBg, borderRight:`1px solid ${colors.border}`, boxSizing: 'border-box',
                   display:'flex', alignItems:'center', justifyContent:'center',
                   color:colors.subText, fontSize:10 }}>#</div>
-                {cols.map(meta => (
-                  <ColHeader key={meta.name} meta={meta}
-                    summary={colSummaries[meta.name]}
-                    sortCol={sortCol} sortDir={sortDir}
-                    showLabels={showLabels && hasAnyLabel}
-                    isFiltered={!!(filters[meta.name] &&
-                      (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
-                    onSort={handleSort}
-                    onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
-                    onOpenInsights={handleOpenInsights}
-                    colors={colors}
-                    isDarkMode={isDarkMode}
-                  />
-                ))}
+                {cols.map(meta => {
+                  const sortIdx = sortState.findIndex(item => item.id === meta.name);
+                  const isSorted = sortIdx > -1;
+                  const sortDirVal = isSorted ? (sortState[sortIdx].desc ? 'desc' : 'asc') : null;
+                  const sortPriority = isSorted ? sortIdx + 1 : null;
+                  
+                  return (
+                    <ColHeader key={meta.name} meta={meta}
+                      summary={colSummaries[meta.name]}
+                      isSorted={isSorted}
+                      sortDir={sortDirVal}
+                      sortPriority={sortPriority}
+                      showLabels={showLabels && hasAnyLabel}
+                      isFiltered={!!(filters[meta.name] &&
+                        (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
+                      onSort={handleSort}
+                      onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
+                      onOpenInsights={handleOpenInsights}
+                      onResizeStart={handleResizeStart}
+                      colWidth={getColWidth(meta.name)}
+                      colors={colors}
+                      isDarkMode={isDarkMode}
+                      summary_header={header_summary}
+                    />
+                  );
+                })}
               </div>
 
               {/* ── Virtual body ── */}
@@ -3171,8 +3324,8 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
                           className="dtex-row"
                           onClick={togglePin}
                           style={{
-                            display:'flex', height:ROW_HEIGHT,
-                            alignItems:'center', borderBottom:`1px solid ${colors.border}`,
+                            display:'flex', minHeight:ROW_HEIGHT, height:'auto',
+                            alignItems:'stretch', borderBottom:`1px solid ${colors.border}`,
                             background: stripe,
                             cursor: 'pointer',
                             outline: isPinned ? `2px solid #f59e0b` : 'none',
@@ -3204,14 +3357,16 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
                             const cellVal = row[meta.name];
                             return (
                               <div key={meta.name} style={{
-                                width:COL_WIDTH, flexShrink:0, padding:'0 10px',
-                                overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+                                width: getColWidth(meta.name), flexShrink:0, padding:'6px 10px',
                                 borderRight:`1px solid ${colors.border}`, color:colors.text,
                                 fontVariantNumeric:'tabular-nums', height:'100%',
                                 display:'flex', alignItems:'center', boxSizing: 'border-box',
                                 justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
                                 fontFamily: isNumericCol ? "'Fira Code', 'Consolas', monospace" : 'inherit',
                                 fontSize: isNumericCol ? 12 : 13,
+                                whiteSpace: 'normal',
+                                wordBreak: 'break-word',
+                                lineHeight: '1.4'
                               }} title={cellVal!=null?String(cellVal):'NA'}>
                                 {cellVal != null
                                   ? String(cellVal)
@@ -3248,9 +3403,11 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
           {showRCodeModal && (
             <RCodeModal
               codeObj={{
-                dplyr: generateRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-                baseR: generateBaseRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length),
-                sql:   generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length)
+                dplyr:  generateRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length, sortState),
+                baseR:  generateBaseRCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length, sortState),
+                sql:    generateSQLCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length, sortState),
+                arrow:  generateArrowCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length, sortState),
+                duckdb: generateDuckDBCode(datasetName, filters, queryRules, queryLogical, metadata, cols.map(c => c.name), metadata.length, sortState)
               }}
               onClose={() => setShowRCodeModal(false)}
               colors={colors}

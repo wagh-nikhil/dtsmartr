@@ -11,7 +11,8 @@ dtsmartr_options(
   allow_export = TRUE,
   theme = "auto",
   na_string = "NA",
-  hidden_columns = NULL
+  hidden_columns = NULL,
+  header_summary = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ dtsmartr_options(
 \item{na_string}{Character. Custom string placeholder displayed in cells with missing values (\code{NA} or \code{null}). Defaults to \code{"NA"}.}
 
 \item{hidden_columns}{Character vector. Vector of column names to hide by default on initial widget rendering.}
+
+\item{header_summary}{Logical. If \code{TRUE} (default), renders the Kaggle-style summary zone (histograms, bar charts, completeness bar) in column headers.}
 }
 \value{
 A named list of validated configuration settings.
@@ -38,4 +41,5 @@ and rendering options for the dtsmartr interactive grid widget.
 }
 \examples{
 dtsmartr_options(advanced_filter = FALSE, hidden_columns = c("STUDYID", "USUBJID"))
+dtsmartr_options(header_summary = FALSE)
 }

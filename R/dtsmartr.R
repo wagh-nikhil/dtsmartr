@@ -10,12 +10,14 @@
 #' @param theme Character. Specifies the UI color theme: `"auto"` (default, inherits from browser settings), `"light"`, or `"dark"`.
 #' @param na_string Character. Custom string placeholder displayed in cells with missing values (`NA` or `null`). Defaults to `"NA"`.
 #' @param hidden_columns Character vector. Vector of column names to hide by default on initial widget rendering.
+#' @param header_summary Logical. If `TRUE` (default), renders the Kaggle-style summary zone (histograms, bar charts, completeness bar) in column headers.
 #'
 #' @return A named list of validated configuration settings.
 #' @export
 #'
 #' @examples
 #' dtsmartr_options(advanced_filter = FALSE, hidden_columns = c("STUDYID", "USUBJID"))
+#' dtsmartr_options(header_summary = FALSE)
 dtsmartr_options <- function(
     advanced_filter = TRUE,
     show_labels     = TRUE,
@@ -23,7 +25,8 @@ dtsmartr_options <- function(
     allow_export    = TRUE,
     theme           = "auto",
     na_string       = "NA",
-    hidden_columns  = NULL
+    hidden_columns  = NULL,
+    header_summary  = TRUE
 ) {
   # ── Validations ─────────────────────────────────────────────────────────────
   if (!is.logical(advanced_filter) || length(advanced_filter) != 1L) {
@@ -46,6 +49,9 @@ dtsmartr_options <- function(
   if (!is.null(hidden_columns) && !is.character(hidden_columns)) {
     stop("`hidden_columns` must be a character vector or NULL.", call. = FALSE)
   }
+  if (!is.logical(header_summary) || length(header_summary) != 1L) {
+    stop("`header_summary` must be a single logical value (TRUE/FALSE).", call. = FALSE)
+  }
 
   list(
     advanced_filter = advanced_filter,
@@ -54,7 +60,8 @@ dtsmartr_options <- function(
     allow_export    = allow_export,
     theme           = theme,
     na_string       = na_string,
-    hidden_columns  = if (is.null(hidden_columns)) list() else as.list(hidden_columns)
+    hidden_columns  = if (is.null(hidden_columns)) list() else as.list(hidden_columns),
+    header_summary  = header_summary
   )
 }
 

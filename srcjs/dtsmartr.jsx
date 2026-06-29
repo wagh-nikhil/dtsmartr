@@ -2191,6 +2191,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
 
 // ── Column Header Cell ────────────────────────────────────────────────────────
 const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, onResizeStart, colWidth, colors, isDarkMode, summary_header = true, insights = true }) => {
+  const t       = tm(meta.type);
   const btnRef  = useRef(null);
   const [hoveringName, setHoveringName] = useState(false);
   const HEADER_HEIGHT = summary_header

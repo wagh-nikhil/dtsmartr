@@ -1,6 +1,6 @@
 Package: dtsmartr
 Title: Interactive Virtualized Data Explorer Grid Widget
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Nikhil", "Wagh", , "nmw1986@gmail.com", role = c("aut", "cre"))
 Description: Provides an interactive, virtualized data explorer widget for 'R'.

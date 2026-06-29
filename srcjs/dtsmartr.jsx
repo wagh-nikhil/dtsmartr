@@ -1438,8 +1438,45 @@ const QueryBuilder = ({ metadata, rules, logical, onAddRule, onRemoveRule, onUpd
   );
 };
 
+// ── Sort Dropdown (floating popup) ───────────────────────────────────────────
+const SortDropdown = ({ meta, position, onSort, onClose, colors }) => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const fn = e => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, [onClose]);
+
+  const panelW = 180;
+  const left   = Math.min(position.x, window.innerWidth - panelW - 8);
+  const top    = Math.min(position.y + 4, window.innerHeight - 120);
+
+  return (
+    <div ref={ref} onMouseDown={e => e.stopPropagation()} style={{
+      position:'fixed', zIndex:9999, left, top, width:panelW,
+      background:colors.cardBg, border:`1px solid ${colors.border}`, borderRadius:8,
+      boxShadow:'0 10px 30px rgba(0,0,0,0.15)',
+      fontFamily:"'Inter','Segoe UI',sans-serif", fontSize:13, overflow:'hidden',
+      padding: '4px 0'
+    }}>
+      {[
+        ['asc', '↑ Sort ascending'],
+        ['desc', '↓ Sort descending']
+      ].map(([d, lbl]) => (
+        <div key={d} onClick={(e) => { onSort(meta.name, e.shiftKey, d); onClose(); }}
+          style={{ padding:'10px 16px', cursor:'pointer', color:colors.text, display:'flex', alignItems:'center', gap:8 }}
+          onMouseEnter={e=>e.currentTarget.style.background=colors.hoverBg}
+          onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+          {lbl}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ── Filter Panel (floating popup) ────────────────────────────────────────────
-const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, onClose, onSort, colors, isDarkMode }) => {
+const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, onClose, colors, isDarkMode }) => {
   const isCat = CATEGORICAL.has(meta.type);
   const initSel = new Set(applied && Array.isArray(applied) ? applied : []);
   const initTxt = (!isCat && applied && typeof applied === 'string') ? applied : '';
@@ -1478,17 +1515,6 @@ const FilterPanel = ({ meta, uniqueVals, applied, position, onApply, onClear, on
       boxShadow:'0 16px 48px rgba(0,0,0,0.18)',
       fontFamily:"'Inter','Segoe UI',sans-serif", fontSize:13, overflow:'hidden',
     }}>
-      {/* Sort */}
-      <div style={{ borderBottom:`1px solid ${colors.border}` }}>
-        {[['asc','↑  Sort ascending'],['desc','↓  Sort descending']].map(([d,lbl]) => (
-          <div key={d} onClick={() => { onSort(meta.name,d); onClose(); }}
-            style={{ padding:'10px 16px', cursor:'pointer', color:colors.text, display:'flex', alignItems:'center', gap:8 }}
-            onMouseEnter={e=>e.currentTarget.style.background=colors.hoverBg}
-            onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-            {lbl}
-          </div>
-        ))}
-      </div>
 
       {/* Search */}
       <div style={{ padding:'10px 12px', borderBottom:`1px solid ${colors.border}` }}>
@@ -2199,10 +2225,16 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
     : (showLabels ? HEADER_HEIGHT_COMPACT_LBL : HEADER_HEIGHT_COMPACT_BASE);
   const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
 
-  const openPanel = e => {
+  const openFilterPanel = e => {
     e.stopPropagation();
     const r = btnRef.current.getBoundingClientRect();
-    onOpenPanel(meta.name, { x: r.left, y: r.bottom });
+    onOpenPanel(meta.name, { x: r.left, y: r.bottom }, 'filter');
+  };
+
+  const openSortDropdown = e => {
+    e.stopPropagation();
+    const r = e.currentTarget.getBoundingClientRect();
+    onOpenPanel(meta.name, { x: r.left, y: r.bottom }, 'sort');
   };
 
   const renderSummaryZone = () => {
@@ -2314,10 +2346,10 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
   const missingTooltip = summary ? `${summary.totalRows.toLocaleString()} values • ${summary.naCount.toLocaleString()} missing (${summary.naPct.toFixed(0)}%)` : '';
 
   return (
-    <div onClick={(e) => onSort(meta.name, e.shiftKey)} className="dtex-header-cell" style={{
+    <div className="dtex-header-cell" style={{
       width: colWidth, flexShrink:0, height:HEADER_HEIGHT,
       padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
-      justifyContent:'space-between', cursor:'pointer', userSelect:'none',
+      justifyContent:'space-between', cursor:'default', userSelect:'none',
       borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
       background: isSorted ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
       position: 'relative',
@@ -2388,7 +2420,22 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
           </button>
         )}
 
-        <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 10, color: isSorted ? '#3b82f6' : colors.subText, flexShrink: 0 }}>
+        <span
+          onClick={openSortDropdown}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            fontSize: 10,
+            color: isSorted ? '#3b82f6' : colors.subText,
+            flexShrink: 0,
+            cursor: 'pointer',
+            padding: '2px 4px',
+            borderRadius: 4,
+            background: isSorted ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : 'transparent'
+          }}
+          title="Click to sort..."
+        >
           {isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
           {sortPriority && (
             <span style={{
@@ -2427,7 +2474,7 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
       {summary_header && renderSummaryZone()}
 
       {/* Floating Panel Open Trigger button */}
-      <button ref={btnRef} onClick={openPanel} title="Filter / Sort Menu"
+      <button ref={btnRef} onClick={openFilterPanel} title="Filter Menu"
         style={{
           position: 'absolute',
           right: 8,
@@ -3004,30 +3051,40 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     });
   }, [filteredRows, sortState]);
 
-  const handleSort = useCallback((col, shiftKey) => {
+  const handleSort = useCallback((col, shiftKey, explicitDir) => {
     setSortState(prev => {
       const idx = prev.findIndex(item => item.id === col);
+      const desc = explicitDir ? (explicitDir === 'desc') : false;
+
       if (shiftKey) {
         if (idx > -1) {
           const next = [...prev];
-          if (next[idx].desc === false) {
-            next[idx] = { id: col, desc: true };
+          if (explicitDir) {
+            next[idx] = { id: col, desc };
           } else {
-            next.splice(idx, 1);
+            if (next[idx].desc === false) {
+              next[idx] = { id: col, desc: true };
+            } else {
+              next.splice(idx, 1);
+            }
           }
           return next;
         } else {
-          return [...prev, { id: col, desc: false }];
+          return [...prev, { id: col, desc }];
         }
       } else {
-        if (prev.length === 1 && prev[0].id === col) {
-          if (prev[0].desc === false) {
-            return [{ id: col, desc: true }];
-          } else {
-            return [];
-          }
+        if (explicitDir) {
+          return [{ id: col, desc }];
         } else {
-          return [{ id: col, desc: false }];
+          if (prev.length === 1 && prev[0].id === col) {
+            if (prev[0].desc === false) {
+              return [{ id: col, desc: true }];
+            } else {
+              return [];
+            }
+          } else {
+            return [{ id: col, desc: false }];
+          }
         }
       }
     });
@@ -3279,7 +3336,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
                       isFiltered={!!(filters[meta.name] &&
                         (Array.isArray(filters[meta.name]) ? filters[meta.name].length>0 : filters[meta.name]!==''))}
                       onSort={handleSort}
-                      onOpenPanel={(col,pos) => setPopup(p=>p&&p.col===col?null:{col,position:pos})}
+                      onOpenPanel={(col,pos,type) => setPopup(p=>p&&p.col===col&&p.type===type?null:{col,position:pos,type})}
                       onOpenInsights={handleOpenInsights}
                       onResizeStart={handleResizeStart}
                       colWidth={getColWidth(meta.name)}
@@ -3384,8 +3441,17 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
             </div>
           </div>
 
-          {/* ── Floating filter panel ── */}
-          {popup && popupMeta && (
+          {/* ── Floating filter panel & Sort dropdown ── */}
+          {popup && popupMeta && popup.type === 'sort' && (
+            <SortDropdown
+              meta={popupMeta}
+              position={popup.position}
+              onSort={handleSort}
+              onClose={() => setPopup(null)}
+              colors={colors}
+            />
+          )}
+          {popup && popupMeta && popup.type === 'filter' && (
             <FilterPanel
               meta={popupMeta}
               uniqueVals={uniqueVals[popup.col]}
@@ -3394,7 +3460,6 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
               onApply={handleApply}
               onClear={handleClear}
               onClose={()=>setPopup(null)}
-              onSort={handleSort}
               colors={colors}
               isDarkMode={isDarkMode}
             />

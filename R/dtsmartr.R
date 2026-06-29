@@ -268,3 +268,34 @@ renderDtsmartr <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, dtsmartrOutput, env, quoted = TRUE)
 }
+
+#' Lightweight Interactive Data Viewer
+#'
+#' Forces a compact, clean grid view of a dataset by disabling heavy analytics
+#' features like advanced filtering, code exports, and header summary statistics.
+#'
+#' @param data A `data.frame` to explore.
+#' @param title Custom string title/name representing the dataset.
+#' @param ... Additional arguments passed to [dtsmartr()].
+#'
+#' @return An object of class `htmlwidget` (and sub-class `dtsmartr`) representing
+#'   the interactive compact grid.
+#' @export
+#'
+#' @examples
+#' if (interactive()) {
+#'   dtsmart_lite(mtcars, title = "Mtcars Compact")
+#' }
+dtsmart_lite <- function(data, title = NULL, ...) {
+  # Forces a compact, clean grid view by disabling heavy analytics features
+  dtsmartr(
+    data = data, 
+    datasetName = title, 
+    options = dtsmartr_options(
+      advanced_filter = FALSE,   # Hides Advanced Filter panel
+      allow_export    = FALSE,   # Hides the 'Query Code' button entirely
+      header_summary  = FALSE    # Collapses headers to hide micro-stats/bars
+    ), 
+    ...
+  )
+}

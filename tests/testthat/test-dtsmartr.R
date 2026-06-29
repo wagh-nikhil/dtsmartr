@@ -163,3 +163,13 @@ test_that("dtsmartr_launch validates input parameters", {
   expect_error(dtsmartr_launch(data = 1:5), "`data` must be a data.frame or NULL")
   expect_error(dtsmartr_launch(data = "not_df"), "`data` must be a data.frame or NULL")
 })
+
+test_that("dtsmart_lite creates a compact, clean widget", {
+  widget <- dtsmart_lite(mtcars, title = "Mtcars Compact")
+  expect_s3_class(widget, "htmlwidget")
+  expect_s3_class(widget, "dtsmartr")
+  expect_equal(widget$x$dataset_name, "Mtcars Compact")
+  expect_equal(widget$x$options$advanced_filter, FALSE)
+  expect_equal(widget$x$options$allow_export, FALSE)
+  expect_equal(widget$x$options$header_summary, FALSE)
+})

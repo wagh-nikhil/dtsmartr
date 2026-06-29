@@ -145,8 +145,8 @@ dtsmartr_launch <- function(
   # Launch default external browser on the background Shiny server
   shiny::runApp(
     appDir         = list(ui = ui, server = server),
-    launch.browser = TRUE,
+    launch.browser = getOption("shiny.launch.browser", TRUE),
     port           = port,
-    quiet          = TRUE
+    quiet          = FALSE
   )
 }

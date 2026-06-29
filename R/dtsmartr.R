@@ -281,6 +281,7 @@ renderDtsmartr <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' @return An object of class `htmlwidget` (and sub-class `dtsmartr`) representing
 #'   the interactive compact grid.
 #' @export
+#' @aliases dtsmartr_lite
 #'
 #' @examples
 #' if (interactive()) {
@@ -299,3 +300,7 @@ dtsmart_lite <- function(data, title = NULL, ...) {
     ...
   )
 }
+
+#' @rdname dtsmart_lite
+#' @export
+dtsmartr_lite <- dtsmart_lite

@@ -2,9 +2,12 @@
 % Please edit documentation in R/dtsmartr.R
 \name{dtsmart_lite}
 \alias{dtsmart_lite}
+\alias{dtsmartr_lite}
 \title{Lightweight Interactive Data Viewer}
 \usage{
 dtsmart_lite(data, title = NULL, ...)
+
+dtsmartr_lite(data, title = NULL, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} to explore.}

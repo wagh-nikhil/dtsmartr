@@ -66,6 +66,32 @@
 <p><strong>dtsmartr</strong> is an interactive, Kaggle-style data explorer widget for R. Built with modern React and <code>htmlwidgets</code>, it provides a high-fidelity, ultra-responsive virtualized grid to browse, sort, filter, and extract insights from large datasets seamlessly.</p>
 <p>It is designed to work beautifully inside the RStudio/Positron Viewer pane, embedded within Shiny applications, rendered in R Markdown/Quarto documents, or exported as standalone, portable HTML files for offline sharing.</p>
 <hr>
+<div class="section level3">
+<h3 id="globe_with_meridians-documentation--website">🌐 Documentation &amp; Website<a class="anchor" aria-label="anchor" href="#globe_with_meridians-documentation--website"></a>
+</h3>
+<p>For full step-by-step guides, feature articles, and reference documentation, visit our official package website: 👉 <strong><a href="https://wagh-nikhil.github.io/dtsmartr/">https://wagh-nikhil.github.io/dtsmartr/</a></strong></p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="package-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#package-installation"></a>
+</h2>
+<div class="section level3">
+<h3 id="stable-cran-version">Stable CRAN Version<a class="anchor" aria-label="anchor" href="#stable-cran-version"></a>
+</h3>
+<p>You can install the stable release version of <code>dtsmartr</code> from CRAN:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dtsmartr"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="development-version-github">Development Version (GitHub)<a class="anchor" aria-label="anchor" href="#development-version-github"></a>
+</h3>
+<p>To install the latest development version containing all the modern features (such as Excel-style column resizing, text wrapping, and multi-column sorting) directly from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"wagh-nikhil/dtsmartr"</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+</div>
 <div class="section level2">
 <h2 id="art-visual-showcase-real-app-screenshots">🎨 Visual Showcase (Real App Screenshots)<a class="anchor" aria-label="anchor" href="#art-visual-showcase-real-app-screenshots"></a>
 </h2>
@@ -229,10 +255,10 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="package-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#package-installation"></a>
+<h2 id="package-installation-1">📦 Installation<a class="anchor" aria-label="anchor" href="#package-installation-1"></a>
 </h2>
 <p>You can install the development version of <strong>dtsmartr</strong> directly from GitHub:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install remotes if not already installed</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
@@ -249,7 +275,7 @@
 <h3 id="id_1-basic-interactive-data-browsing">1. Basic Interactive Data Browsing<a class="anchor" aria-label="anchor" href="#id_1-basic-interactive-data-browsing"></a>
 </h3>
 <p>Open any data frame in your default RStudio or Positron Viewer panel:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Explore the classic motor trend car road tests dataset</span></span>
@@ -269,7 +295,7 @@
 <h3 id="id_2-clinical-dataset-exploration-with-labels-and-formatting">2. Clinical Dataset Exploration with Labels and Formatting<a class="anchor" aria-label="anchor" href="#id_2-clinical-dataset-exploration-with-labels-and-formatting"></a>
 </h3>
 <p><code>dtsmartr</code> extracts R variable label attributes (commonly used in clinical data like ADaM datasets) and renders them inline inside the headers.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/" class="external-link">pharmaverseadam</a></span><span class="op">)</span></span>
 <span></span>
@@ -287,7 +313,7 @@
 <h3 id="id_3-launch-ingestion-wizard-bypassing-cors--freezes">3. Launch Ingestion Wizard (Bypassing CORS &amp; Freezes)<a class="anchor" aria-label="anchor" href="#id_3-launch-ingestion-wizard-bypassing-cors--freezes"></a>
 </h3>
 <p>To start the file ingestion wizard or explore massive datasets in an external browser session:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Start the zero-code ingestion wizard to drag-and-drop local files (CSV, XLSX, SAS, RDS)</span></span>
@@ -311,7 +337,7 @@
 <h3 id="id_2-computer-system-command-line-one-liner-terminal-solution">2. 💻 System Command-Line One-Liner (Terminal Solution)<a class="anchor" aria-label="anchor" href="#id_2-computer-system-command-line-one-liner-terminal-solution"></a>
 </h3>
 <p>Launch the wizard directly from your system’s Command Prompt (Windows) or Terminal (macOS/Linux) without launching R manually:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">"dtsmartr::dtsmartr_launch()"</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">"dtsmartr::dtsmartr_launch()"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="zap-3-desktop-shortcut-launcher-double-click-solution">⚡ 3. Desktop Shortcut Launcher (Double-Click Solution)<a class="anchor" aria-label="anchor" href="#zap-3-desktop-shortcut-launcher-double-click-solution"></a>
@@ -325,7 +351,7 @@
 <h2 id="floppy_disk-saving-html-reports--avoiding-self-contained-bloat">💾 Saving HTML Reports &amp; Avoiding Self-Contained Bloat<a class="anchor" aria-label="anchor" href="#floppy_disk-saving-html-reports--avoiding-self-contained-bloat"></a>
 </h2>
 <p><code><a href="reference/save_dtsmartr.html">save_dtsmartr()</a></code> exports any dataset as an interactive HTML grid report. The saved file runs completely offline in any browser without needing R or an active internet connection.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Save mtcars as a fully self-contained portable HTML report</span></span>
@@ -340,7 +366,7 @@
 </h3>
 <p>By default, <code><a href="reference/save_dtsmartr.html">save_dtsmartr()</a></code> embeds all JavaScript libraries, CSS assets, and data directly inside the HTML file (<code>selfcontained = TRUE</code>), which requires Pandoc.</p>
 <p>For large datasets (e.g., thousands of rows) or environments without Pandoc, <strong>setting <code>selfcontained = FALSE</code> is highly recommended</strong>. This saves memory and outputs a lightweight HTML file alongside a companion directory containing the shared JS/CSS dependencies.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/" class="external-link">pharmaverseadam</a></span><span class="op">)</span></span>
 <span></span>
@@ -415,16 +441,16 @@
 <h2 id="computer-developer-setup-rebuilding-react-assets">💻 Developer Setup (Rebuilding React Assets)<a class="anchor" aria-label="anchor" href="#computer-developer-setup-rebuilding-react-assets"></a>
 </h2>
 <p>The frontend is implemented in React inside <code>srcjs/dtsmartr.jsx</code> and compiled with Webpack. To compile frontend changes:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Navigate into the package directory</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="bu">cd</span> dtsmartr</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># Install NodeJS dependencies</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="ex">npm</span> install</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Compile React resources into inst/htmlwidgets/dtsmartr.js</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Navigate into the package directory</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="bu">cd</span> dtsmartr</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># Install NodeJS dependencies</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># Compile React resources into inst/htmlwidgets/dtsmartr.js</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
 <p>Inside R, re-generate documentation, namespaces, and re-install:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generate Rd manuals and NAMESPACE</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">document</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>

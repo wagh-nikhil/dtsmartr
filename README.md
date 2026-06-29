@@ -6,6 +6,29 @@ It is designed to work beautifully inside the RStudio/Positron Viewer pane, embe
 
 ---
 
+### 🌐 Documentation & Website
+For full step-by-step guides, feature articles, and reference documentation, visit our official package website:
+👉 **[https://wagh-nikhil.github.io/dtsmartr/](https://wagh-nikhil.github.io/dtsmartr/)**
+
+---
+
+## 📦 Installation
+
+### Stable CRAN Version
+You can install the stable release version of `dtsmartr` from CRAN:
+```r
+install.packages("dtsmartr")
+```
+
+### Development Version (GitHub)
+To install the latest development version containing all the modern features (such as Excel-style column resizing, text wrapping, and multi-column sorting) directly from GitHub:
+```r
+# install.packages("devtools")
+devtools::install_github("wagh-nikhil/dtsmartr")
+```
+
+---
+
 ## 🎨 Visual Showcase (Real App Screenshots)
 
 Below are actual, unretouched screenshots of **dtsmartr** in action, showing real dataset rendering and interactive visual metadata elements:

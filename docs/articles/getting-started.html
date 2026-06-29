@@ -96,14 +96,18 @@ Simply pass any <code>data.frame</code> to launch the explorer:</p>
 <h2 id="lightweight-mode">Lightweight Mode<a class="anchor" aria-label="anchor" href="#lightweight-mode"></a>
 </h2>
 <p>If you need a clean, lightweight, metadata-free grid viewer for high
-performance, you can use the newly added <code><a href="../reference/dtsmart_lite.html">dtsmart_lite()</a></code>
-function:</p>
+performance, you can use the newly added <code><a href="../reference/dtsmart_lite.html">dtsmart_lite()</a></code> or
+its alias <code><a href="../reference/dtsmart_lite.html">dtsmartr_lite()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Launch with analytics, query code exports, and summary statistics disabled</span></span>
-<span><span class="fu"><a href="../reference/dtsmart_lite.html">dtsmart_lite</a></span><span class="op">(</span><span class="va">mtcars</span>, title <span class="op">=</span> <span class="st">"Mtcars Lite"</span><span class="op">)</span></span></code></pre></div>
-<p><code><a href="../reference/dtsmart_lite.html">dtsmart_lite()</a></code> automatically configures the grid with: *
-<code>advanced_filter = FALSE</code> * <code>allow_export = FALSE</code>
-* <code>header_summary = FALSE</code></p>
+<code class="sourceCode R"><span><span class="co"># Both functions are identical and supported:</span></span>
+<span><span class="fu"><a href="../reference/dtsmart_lite.html">dtsmart_lite</a></span><span class="op">(</span><span class="va">mtcars</span>, title <span class="op">=</span> <span class="st">"Mtcars Lite"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/dtsmart_lite.html">dtsmartr_lite</a></span><span class="op">(</span><span class="va">mtcars</span>, title <span class="op">=</span> <span class="st">"Mtcars Lite"</span><span class="op">)</span></span></code></pre></div>
+<p>The lightweight mode automatically configures the grid with: *
+<code>advanced_filter = FALSE</code> (Hides Advanced logical condition
+rules panel) * <code>allow_export = FALSE</code> (Hides the ‘Query Code’
+button entirely) * <code>header_summary = FALSE</code> (Collapses
+headers to compact mode, hiding micro-histograms and completeness
+bars)</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

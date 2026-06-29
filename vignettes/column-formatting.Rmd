@@ -1,0 +1,54 @@
+---
+title: "Column Resizing & Wrapping"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Column Resizing & Wrapping}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` supports flexible column presentation settings for clear and dynamic data display.
+
+## 1. Column Resizing
+Columns can be resized dynamically inside the browser:
+- Hover over the right edge of any column header to reveal a blue drag handle.
+- Drag left or right to change column widths to fit your data.
+
+## 2. Auto Text-Wrapping
+When columns contain long strings (e.g. sentences, address logs, or uppercase category labels), the grid wraps text automatically onto multiple lines:
+- The virtualized grid adjusts row heights dynamically.
+- Alignment remains perfect, and viewport performance stays smooth.
+
+## 3. Custom Default Hidden Columns
+You can set columns to be hidden by default on load using the `hidden_columns` parameter in `dtsmartr_options()`:
+
+```r
+library(dtsmartr)
+
+dtsmartr(
+  mtcars,
+  options = dtsmartr_options(
+    hidden_columns = c("mpg", "cyl")
+  )
+)
+```
+
+## 4. Toggle Header Summaries
+By default, column headers show a Kaggle-style summary micro-dashboard (histograms for numbers, stacked completeness bar charts for categories, evolutionary data ranges). You can turn this off to render a compact layout:
+
+```r
+# Collapses headers to standard compact labels
+dtsmartr(
+  mtcars,
+  options = dtsmartr_options(
+    header_summary = FALSE
+  )
+)
+```

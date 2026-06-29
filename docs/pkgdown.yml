@@ -1,0 +1,13 @@
+pandoc: 3.6.3
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  code-generation: code-generation.html
+  column-formatting: column-formatting.html
+  filtering-queries: filtering-queries.html
+  getting-started: getting-started.html
+  multi-column-sorting: multi-column-sorting.html
+last_built: 2026-06-29T05:58Z
+urls:
+  reference: https://wagh-nikhil.github.io/dtsmartr/reference
+  article: https://wagh-nikhil.github.io/dtsmartr/articles

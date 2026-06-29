@@ -1,0 +1,51 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` is a high-performance, interactive virtualized grid viewer designed to make exploring data in R easy, fast, and reproducible.
+
+## Installation
+
+You can install the development version of `dtsmartr` from GitHub:
+
+```r
+# install.packages("devtools")
+devtools::install_github("wagh-nikhil/dtsmartr")
+```
+
+## Basic Usage
+
+The primary function of the package is `dtsmartr()`. Simply pass any `data.frame` to launch the explorer:
+
+```r
+library(dtsmartr)
+
+# Explore the classic mtcars dataset
+dtsmartr(mtcars)
+```
+
+## Lightweight Mode
+
+If you need a clean, lightweight, metadata-free grid viewer for high performance, you can use the newly added `dtsmart_lite()` function:
+
+```r
+# Launch with analytics, query code exports, and summary statistics disabled
+dtsmart_lite(mtcars, title = "Mtcars Lite")
+```
+
+`dtsmart_lite()` automatically configures the grid with:
+* `advanced_filter = FALSE`
+* `allow_export = FALSE`
+* `header_summary = FALSE`

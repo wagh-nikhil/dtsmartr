@@ -3162,6 +3162,11 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
           {/* ── Toolbar ── */}
           <div style={{ flexShrink:0, padding:'8px 14px', borderBottom:`1px solid ${colors.border}`,
             background:colors.toolbarBg, display:'flex', alignItems:'center', gap:12 }}>
+            {datasetName && (
+              <span style={{ fontSize: 12, fontWeight: 700, color: colors.text, display: 'flex', alignItems: 'center', gap: 6, borderRight: `1px solid ${colors.border}`, paddingRight: 12 }}>
+                📁 {datasetName}
+              </span>
+            )}
             {/* Stats */}
             <span style={{ color:colors.subText, fontSize:12 }}>
               <b style={{color:colors.text}}>{rows.length}</b>

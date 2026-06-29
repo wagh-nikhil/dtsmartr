@@ -1,0 +1,28 @@
+---
+title: "Filtering & Checklist Queries"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Filtering & Checklist Queries}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` provides powerful column filtering tools, from quick checkboxes to complex logical query rules.
+
+## 1. Column Quick Filters
+Click the hamburger icon (≡) on any column to open the dedicated filter panel:
+- **Categorical & Low Cardinality Columns**: Columns with 20 or fewer unique values show a checklist. Search values dynamically, check the categories you want, and click **Apply** (or press **Enter**) to filter.
+- **Continuous / Numeric Columns**: Shows a text search input box. Type your filter query and press **Enter** to instantly filter matching values.
+
+## 2. Advanced Query Builder
+Click the **Advanced Filter** toggle on the top toolbar to reveal the rule-based Query Builder:
+- Create nested logical conditions using **AND** or **OR** connector groups.
+- Set complex column rules (operators like `equals`, `contains`, `in`, `greater than`, `is null`, etc.).
+- Combine quick filters and advanced rule conditions together (they evaluate concurrently).

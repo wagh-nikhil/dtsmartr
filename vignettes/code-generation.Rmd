@@ -1,0 +1,33 @@
+---
+title: "Reproducible Code Export"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reproducible Code Export}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+One of the key strengths of `dtsmartr` is code reproducibility. Every filter, sort, and column selection you configure in the UI is tracked and converted to equivalent programming instructions in real-time.
+
+## 1. Accessing Reproducible Code
+Once you have filtered or sorted your data:
+- Click the **📊 Query Code** button in the top-right toolbar.
+- A modal opens showing the exact code required to recreate your current grid state.
+
+## 2. Supported Dialects
+The modal generates code in 5 different formats:
+- **`dplyr`**: Clean Tidyverse syntax (`filter()`, `arrange()`, `select()`).
+- **Base R**: Zero-dependency base R indexing code (`df[rows, cols, drop=FALSE]`).
+- **SQL**: Standard SQL code (`SELECT ... WHERE ... ORDER BY`).
+- **Arrow**: High-performance multi-threaded Arrow query instructions.
+- **DuckDB**: Fast in-memory analytical SQL dialect.
+
+## 3. Copying Code
+Click the **Copy** button next to any code block to copy it to your clipboard. Paste it directly into your R scripts to reproduce the exact dataset subset.

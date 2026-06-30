@@ -7,4 +7,5 @@
 ^yarn\.lock$
 ^outputs$
 ^docs$
-
+^_pkgdown\.yml$
+^pkgdown$

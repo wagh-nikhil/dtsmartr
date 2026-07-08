@@ -2225,7 +2225,13 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
 };
 
 // ── Column Header Cell ────────────────────────────────────────────────────────
-const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, isFiltered, showLabels, onSort, onOpenPanel, onOpenInsights, onResizeStart, colWidth, colors, isDarkMode, summary_header = true, insights = true }) => {
+const ColHeader = React.memo(({
+  meta, summary, isSorted, sortDir, sortPriority, isFiltered, showLabels,
+  onSort, onOpenPanel, onOpenInsights, onResizeStart, colWidth, colors,
+  isDarkMode, summary_header = true, insights = true,
+  frozenLeftOffset, isAnchored, onAnchor,
+  onDragStart, onDragOver, onDragEnd, onDrop, isDragOver
+}) => {
   const t       = tm(meta.type);
   const btnRef  = useRef(null);
   const [hoveringName, setHoveringName] = useState(false);
@@ -2233,6 +2239,12 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
     ? (showLabels ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE)
     : (showLabels ? HEADER_HEIGHT_COMPACT_LBL : HEADER_HEIGHT_COMPACT_BASE);
   const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
+
+  const stickyStyle = frozenLeftOffset != null ? {
+    position: 'sticky',
+    left: frozenLeftOffset,
+    zIndex: 12
+  } : {};
 
   const openFilterPanel = e => {
     e.stopPropagation();
@@ -2355,14 +2367,37 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
   const missingTooltip = summary ? `${summary.totalRows.toLocaleString()} values • ${summary.naCount.toLocaleString()} missing (${summary.naPct.toFixed(0)}%)` : '';
 
   return (
-    <div className="dtex-header-cell" style={{
-      width: colWidth, flexShrink:0, height:HEADER_HEIGHT,
-      padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
-      justifyContent:'space-between', cursor:'default', userSelect:'none',
-      borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
-      background: isSorted ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
-      position: 'relative',
-    }}>
+    <div
+      className="dtex-header-cell"
+      draggable={true}
+      onDragStart={(e) => {
+        if (e.target.closest('.dtex-resize-handle') || e.target.closest('button') || e.target.closest('span[onClick]')) {
+          e.preventDefault();
+          return;
+        }
+        e.dataTransfer.setData("text/plain", meta.name);
+        onDragStart(meta.name);
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        onDragOver(meta.name, e);
+      }}
+      onDragEnd={onDragEnd}
+      onDrop={(e) => {
+        e.preventDefault();
+        onDrop(meta.name);
+      }}
+      style={{
+        width: colWidth, flexShrink:0, height:HEADER_HEIGHT,
+        padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
+        justifyContent:'space-between', cursor:'grab', userSelect:'none',
+        borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
+        background: isSorted ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
+        position: 'relative',
+        boxShadow: isDragOver ? 'inset 4px 0 0 #3b82f6' : undefined,
+        ...stickyStyle,
+      }}
+    >
       {/* Row 1: type icon + column name + info icon + insights icon + sort arrow */}
       <div style={{ display:'flex', alignItems:'center', gap:4, flexDirection: isNumericCol ? 'row-reverse' : 'row' }}>
         <span style={{ fontSize:10, color:t.text, fontWeight:700,
@@ -2429,6 +2464,31 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
           </button>
         )}
 
+        {/* Anchor/Freeze button */}
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            onAnchor(meta.name);
+          }}
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            fontSize: 12,
+            padding: '2px',
+            borderRadius: 4,
+            color: isAnchored ? '#3b82f6' : colors.subText,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          title={isAnchored ? "Unanchor column" : "Anchor column (freeze left)"}
+          onMouseEnter={e => { if (!isAnchored) e.currentTarget.style.color = '#3b82f6'; }}
+          onMouseLeave={e => { if (!isAnchored) e.currentTarget.style.color = colors.subText; }}
+        >
+          ⚓
+        </button>
+        
         <span
           onClick={openSortDropdown}
           style={{
@@ -2513,7 +2573,7 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
             left: 0,
             width: '100%',
             height: 4,
-            background: isDarkMode ? '#475569' : '#cbd5e1', // NA values color
+            background: isDarkMode ? '#475569' : '#cbd5e1',
             overflow: 'hidden',
             display: 'flex'
           }} 
@@ -2522,7 +2582,7 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
           <div style={{
             width: `${summary ? summary.validPct : 100}%`,
             height: '100%',
-            background: '#22c55e' // Complete values color
+            background: '#22c55e'
           }} />
         </div>
       )}
@@ -2593,6 +2653,10 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
   const [queryRules,       setQueryRules]       = useState([]);     // rules list
   const [queryLogical,     setQueryLogical]     = useState('AND');   // logic connector
   const [pinnedRows,       setPinnedRows]       = useState(new Set()); // row-pinning by original index
+  const [columnOrder,      setColumnOrder]      = useState([]);
+  const [frozenColId,      setFrozenColId]      = useState(null);
+  const [draggedColId,     setDraggedColId]     = useState(null);
+  const [dragOverColId,    setDragOverColId]    = useState(null);
   const wrapRef = useRef(null);
 
   const getColWidth = useCallback((colName) => colWidths[colName] || COL_WIDTH, [colWidths]);
@@ -2950,9 +3014,88 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
     }
   }, [metadata, hidden_columns]);
 
-  const cols = useMemo(() =>
-    (metadata || []).filter(m => visible ? visible.has(m.name) : true),
-    [metadata, visible]);
+  // Synchronize columnOrder when metadata loads
+  useEffect(() => {
+    if (metadata) {
+      setColumnOrder(metadata.map(m => m.name));
+    }
+  }, [metadata]);
+
+  // Reorder and filter columns
+  const cols = useMemo(() => {
+    const metaMap = {};
+    for (const m of (metadata || [])) {
+      metaMap[m.name] = m;
+    }
+    const order = columnOrder.length > 0 ? columnOrder : (metadata || []).map(m => m.name);
+    const result = [];
+    for (const name of order) {
+      const meta = metaMap[name];
+      if (meta && (visible ? visible.has(name) : true)) {
+        result.push(meta);
+      }
+    }
+    // Append any columns in metadata not in order (sanity fallback)
+    for (const m of (metadata || [])) {
+      if (!order.includes(m.name) && (visible ? visible.has(m.name) : true)) {
+        result.push(m);
+      }
+    }
+    return result;
+  }, [metadata, visible, columnOrder]);
+
+  // Cumulative offset mapping for frozen/sticky columns
+  const frozenColIndices = useMemo(() => {
+    if (!frozenColId) return {};
+    const idx = cols.findIndex(c => c.name === frozenColId);
+    if (idx === -1) return {};
+
+    const offsets = {};
+    let currentLeft = ROW_NUM_W;
+    for (let i = 0; i <= idx; i++) {
+      offsets[cols[i].name] = currentLeft;
+      currentLeft += getColWidth(cols[i].name);
+    }
+    return offsets;
+  }, [cols, frozenColId, colWidths]);
+
+  // Drag and Drop reordering handlers
+  const handleDragStart = useCallback((colId) => {
+    setDraggedColId(colId);
+  }, []);
+
+  const handleDragOver = useCallback((colId, e) => {
+    e.preventDefault();
+    setDragOverColId(colId);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedColId(null);
+    setDragOverColId(null);
+  }, []);
+
+  const handleDrop = useCallback((targetColId) => {
+    if (!draggedColId || draggedColId === targetColId) return;
+
+    setColumnOrder(prev => {
+      const list = prev.length > 0 ? [...prev] : (metadata || []).map(m => m.name);
+      const draggedIdx = list.indexOf(draggedColId);
+      const targetIdx = list.indexOf(targetColId);
+      if (draggedIdx === -1 || targetIdx === -1) return prev;
+
+      const next = [...list];
+      next.splice(draggedIdx, 1);
+      next.splice(targetIdx, 0, draggedColId);
+      return next;
+    });
+
+    setDraggedColId(null);
+    setDragOverColId(null);
+  }, [draggedColId, metadata]);
+
+  const handleAnchorToggle = useCallback((colId) => {
+    setFrozenColId(prev => prev === colId ? null : colId);
+  }, []);
 
 
 
@@ -3374,7 +3517,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                 width: tableW, minWidth: '100%', boxSizing: 'border-box',
                 borderBottom:`2px solid ${colors.border}`, background:colors.headerBg }}>
                 {/* Row-number corner — sticky left AND top */}
-                <div style={{ position:'sticky', left:0, zIndex:11,
+                <div style={{ position:'sticky', left:0, zIndex:13,
                   width:ROW_NUM_W, flexShrink:0, height:HEADER_HEIGHT,
                   background:colors.headerBg, borderRight:`1px solid ${colors.border}`, boxSizing: 'border-box',
                   display:'flex', alignItems:'center', justifyContent:'center',
@@ -3402,6 +3545,14 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                       colors={colors}
                       isDarkMode={isDarkMode}
                       summary_header={header_summary}
+                      frozenLeftOffset={frozenColIndices[meta.name]}
+                      isAnchored={frozenColId === meta.name}
+                      onAnchor={handleAnchorToggle}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDragEnd={handleDragEnd}
+                      onDrop={handleDrop}
+                      isDragOver={dragOverColId === meta.name}
                     />
                   );
                 })}
@@ -3454,7 +3605,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                           <div
                             className="dtex-rownum"
                             style={{
-                              position:'sticky', left:0, zIndex:1,
+                              position:'sticky', left:0, zIndex:3,
                               width:ROW_NUM_W, flexShrink:0, height:'100%',
                               display:'flex', alignItems:'center', justifyContent:'center',
                               gap: 2,
@@ -3472,6 +3623,14 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                           {cols.map(meta => {
                             const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
                             const cellVal = row[meta.name];
+                            const isFrozen = frozenColIndices[meta.name] != null;
+                            const frozenStyle = isFrozen ? {
+                              position: 'sticky',
+                              left: frozenColIndices[meta.name],
+                              zIndex: 2,
+                              background: stripe,
+                            } : {};
+                            
                             return (
                               <div key={meta.name} style={{
                                 width: getColWidth(meta.name), flexShrink:0, padding:'6px 10px',
@@ -3483,7 +3642,8 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                                 fontSize: isNumericCol ? 12 : 13,
                                 whiteSpace: 'normal',
                                 wordBreak: 'break-word',
-                                lineHeight: '1.4'
+                                lineHeight: '1.4',
+                                ...frozenStyle,
                               }} title={cellVal!=null?String(cellVal):'NA'}>
                                 {cellVal != null
                                   ? String(cellVal)

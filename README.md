@@ -20,18 +20,7 @@ For step-by-step installation guides, API reference sheets, and feature articles
 
 Depending on the scale of your dataset and analytical needs, `dtsmartr` offers two tailored frontend engines:
 
-```mermaid
-graph TD
-    A[Dataset] --> B{Choose Profile}
-    B -->|Full Analytics| C[dtsmartr]
-    B -->|Compact Viewer| D[dtsmart_lite]
-    C --> C1[Micro-Dashboard Headers]
-    C --> C2[Advanced Query Builder]
-    C --> C3[Reproducible Code Export]
-    D --> D1[Flat Column Headers]
-    D --> D2[Maximum Scroll Velocity]
-    D --> D3[Minimalist Footprint]
-```
+![Dual Engine Profile Selection](man/figures/profile_selection.png)
 
 ### 1. `dtsmartr()` — Full Analytics Mode (Default)
 Enables the complete suite of analytical features, designed for deep exploration:

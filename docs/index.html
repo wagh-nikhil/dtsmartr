@@ -88,16 +88,9 @@
 <h2 id="racing_car-dual-engine-profiles-choose-your-mode">🏎️ Dual-Engine Profiles: Choose Your Mode<a class="anchor" aria-label="anchor" href="#racing_car-dual-engine-profiles-choose-your-mode"></a>
 </h2>
 <p>Depending on the scale of your dataset and analytical needs, <code>dtsmartr</code> offers two tailored frontend engines:</p>
-<pre class="mermaid"><code>graph TD
-    A[Dataset] --&gt; B{Choose Profile}
-    B --&gt;|Full Analytics| C[dtsmartr]
-    B --&gt;|Compact Viewer| D[dtsmart_lite]
-    C --&gt; C1[Micro-Dashboard Headers]
-    C --&gt; C2[Advanced Query Builder]
-    C --&gt; C3[Reproducible Code Export]
-    D --&gt; D1[Flat Column Headers]
-    D --&gt; D2[Maximum Scroll Velocity]
-    D --&gt; D3[Minimalist Footprint]</code></pre>
+<div class="float">
+<img src="reference/figures/profile_selection.png" alt="Dual Engine Profile Selection"><div class="figcaption">Dual Engine Profile Selection</div>
+</div>
 <div class="section level3">
 <h3 id="id_1-dtsmartr--full-analytics-mode-default">1. <code>dtsmartr()</code> — Full Analytics Mode (Default)<a class="anchor" aria-label="anchor" href="#id_1-dtsmartr--full-analytics-mode-default"></a>
 </h3>
@@ -211,7 +204,7 @@
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
 <p>Install the package directly from GitHub using <code>remotes</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install remotes if needed</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
@@ -224,7 +217,7 @@
 <h3 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h3>
 <p>Fire up the grid on standard datasets in one line:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 1. Full Analytics Mode (Default)</span></span>

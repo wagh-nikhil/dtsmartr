@@ -63,225 +63,168 @@
 <img src="logo.png" class="logo" alt=""><h1 id="dtsmartr-">dtsmartr <a class="anchor" aria-label="anchor" href="#dtsmartr-"></a>
 </h1>
 </div>
-<p><strong>dtsmartr</strong> is an interactive, Kaggle-style data explorer widget for R. Built with modern React and <code>htmlwidgets</code>, it provides a high-fidelity, ultra-responsive virtualized grid to browse, sort, filter, and extract insights from large datasets seamlessly.</p>
-<p>It is designed to work beautifully inside the RStudio/Positron Viewer pane, embedded within Shiny applications, rendered in R Markdown/Quarto documents, or exported as standalone, portable HTML files for offline sharing.</p>
+<blockquote>
+<p>An interactive, ultra-responsive, and high-fidelity data explorer widget for clinical programming (CDISC SDTM/ADaM) and general R data frames, built on a virtualized React grid backend.</p>
+</blockquote>
+<p><a href="https://github.com/wagh-nikhil/dtsmartr/actions" class="external-link"><img src="https://github.com/wagh-nikhil/dtsmartr/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a> <a href="https://cran.r-project.org/package=dtsmartr" class="external-link"><img src="https://www.r-pkg.org/badges/version/dtsmartr" alt="CRAN Status Badge"></a> <a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></p>
+<p><strong>dtsmartr</strong> is a premium, Kaggle-style data browser package for R. Leveraging a virtualized React rendering engine and a custom Base64 Apache Arrow IPC serialization pipeline, it delivers instantaneous rendering and fluid scrolling on tables containing millions of cells—directly inside the RStudio/Positron Viewer pane, embedded in Shiny, or exported as offline-capable HTML reports.</p>
 <hr>
 <div class="section level3">
-<h3 id="globe_with_meridians-documentation--website">🌐 Documentation &amp; Website<a class="anchor" aria-label="anchor" href="#globe_with_meridians-documentation--website"></a>
+<h3 id="globe_with_meridians-documentation--live-website">🌐 Documentation &amp; Live Website<a class="anchor" aria-label="anchor" href="#globe_with_meridians-documentation--live-website"></a>
 </h3>
-<p>For full step-by-step guides, feature articles, and reference documentation, visit our official package website: 👉 <strong><a href="https://wagh-nikhil.github.io/dtsmartr/">https://wagh-nikhil.github.io/dtsmartr/</a></strong></p>
+<p>For step-by-step installation guides, API reference sheets, and feature articles, visit our official documentation site: 👉 <strong><a href="https://wagh-nikhil.github.io/dtsmartr/">https://wagh-nikhil.github.io/dtsmartr/</a></strong></p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="package-installation">📦 Installation<a class="anchor" aria-label="anchor" href="#package-installation"></a>
+<h2 id="racing_car-dual-engine-profiles-choose-your-mode">🏎️ Dual-Engine Profiles: Choose Your Mode<a class="anchor" aria-label="anchor" href="#racing_car-dual-engine-profiles-choose-your-mode"></a>
 </h2>
+<p>Depending on the scale of your dataset and analytical needs, <code>dtsmartr</code> offers two tailored frontend engines:</p>
+<pre class="mermaid"><code>graph TD
+    A[Dataset] --&gt; B{Choose Profile}
+    B --&gt;|Full Analytics| C["dtsmartr()"]
+    B --&gt;|Compact Viewer| D["dtsmart_lite()"]
+    C --&gt; C1["Micro-Dashboard Headers"]
+    C --&gt; C2["Advanced Query Builder"]
+    C --&gt; C3["Reproducible Code Export"]
+    D --&gt; D1["Flat Column Headers"]
+    D --&gt; D2["Maximum Scroll Velocity"]
+    D --&gt; D3["Minimalist Footprint"]</code></pre>
 <div class="section level3">
-<h3 id="stable-cran-version">Stable CRAN Version<a class="anchor" aria-label="anchor" href="#stable-cran-version"></a>
+<h3 id="id_1-dtsmartr--full-analytics-mode-default">1. <code>dtsmartr()</code> — Full Analytics Mode (Default)<a class="anchor" aria-label="anchor" href="#id_1-dtsmartr--full-analytics-mode-default"></a>
 </h3>
-<p>You can install the stable release version of <code>dtsmartr</code> from CRAN:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dtsmartr"</span><span class="op">)</span></span></code></pre></div>
+<p>Enables the complete suite of analytical features, designed for deep exploration: * <strong>Micro-Dashboard Headers</strong>: Live histograms, stacked categorical bars, and data completeness progress bars. * <strong>Insights Drawer</strong>: Interactive SVG distribution histograms and Pareto charts. * <strong>Query Builder</strong>: Multi-rule, nested Boolean logic filters (AND/OR). * <strong>Code Export</strong>: Code generation for Base R, <code>dplyr</code>, SQL, and Apache Arrow.</p>
 </div>
 <div class="section level3">
-<h3 id="development-version-github">Development Version (GitHub)<a class="anchor" aria-label="anchor" href="#development-version-github"></a>
+<h3 id="id_2-dtsmart_lite--minimalist-viewer-mode">2. <code>dtsmart_lite()</code> — Minimalist Viewer Mode<a class="anchor" aria-label="anchor" href="#id_2-dtsmart_lite--minimalist-viewer-mode"></a>
 </h3>
-<p>To install the latest development version containing all the modern features (such as Excel-style column resizing, text wrapping, and multi-column sorting) directly from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"wagh-nikhil/dtsmartr"</span><span class="op">)</span></span></code></pre></div>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="art-visual-showcase-real-app-screenshots">🎨 Visual Showcase (Real App Screenshots)<a class="anchor" aria-label="anchor" href="#art-visual-showcase-real-app-screenshots"></a>
-</h2>
-<p>Below are actual, unretouched screenshots of <strong>dtsmartr</strong> in action, showing real dataset rendering and interactive visual metadata elements:</p>
-<div class="section level3">
-<h3 id="bulb-showcase-1-premium-light-theme-with-interactive-kaggle-style-headers">💡 Showcase 1: Premium Light Theme with Interactive Kaggle-Style Headers<a class="anchor" aria-label="anchor" href="#bulb-showcase-1-premium-light-theme-with-interactive-kaggle-style-headers"></a>
-</h3>
-<p>Features mini distribution spark-histograms, type-safe data-type badges (like <code>#</code> for numeric), and column visibility pickers. <img src="reference/figures/ss_light_theme.png" alt="Light Theme Grid"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="bulb-showcase-2-sleek-dark-theme-with-clinical-metadata--variable-labels">💡 Showcase 2: Sleek Dark Theme with Clinical Metadata &amp; Variable Labels<a class="anchor" aria-label="anchor" href="#bulb-showcase-2-sleek-dark-theme-with-clinical-metadata--variable-labels"></a>
-</h3>
-<p>Demonstrates full column labels inline, missingness progress bars (green/gray under the headers), active categories, and a professional dark palette perfect for low-light clinical analysis. <img src="reference/figures/ss_dark_theme.png" alt="Dark Theme Grid"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="bulb-showcase-3-virtualized-rendering-of-massive-datasets-83000-rows">💡 Showcase 3: Virtualized Rendering of Massive Datasets (83,000+ Rows)<a class="anchor" aria-label="anchor" href="#bulb-showcase-3-virtualized-rendering-of-massive-datasets-83000-rows"></a>
-</h3>
-<p>Shows real-time, lag-free scrolling across 83,652 rows and 115 columns of laboratory clinical data (<code><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adlb.html" class="external-link">pharmaverseadam::adlb</a></code>). Top column headers and left row indexes remain perfectly sticky. <img src="reference/figures/ss_large_dataset.png" alt="Large Dataset Grid"></p>
+<p>Forces a compact, ultra-clean grid layout optimized for raw scrolling performance and minimal memory footprint: * <strong>Flat Headers</strong>: Hides distributions, progress bars, and stats from column headers to maximize visible grid space. * <strong>Analytics Disabled</strong>: Hides the Advanced Query Builder, Insights Drawer, and Code Export controls. * <strong>High Refresh Rate</strong>: Streamlines the DOM footprint to ensure maximum scrolling velocity on huge data structures.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="framed_picture-feature-gallery">🖼️ Feature Gallery<a class="anchor" aria-label="anchor" href="#framed_picture-feature-gallery"></a>
+<h2 id="art-comprehensive-feature-matrix">🎨 Comprehensive Feature Matrix<a class="anchor" aria-label="anchor" href="#art-comprehensive-feature-matrix"></a>
 </h2>
 <div class="section level3">
-<h3 id="electric_plug-zero-code-data-ingestion-wizard">🔌 Zero-Code Data Ingestion Wizard<a class="anchor" aria-label="anchor" href="#electric_plug-zero-code-data-ingestion-wizard"></a>
-</h3>
-<p>Start the interactive ingestion wizard by running <code><a href="reference/dtsmartr_launch.html">dtsmartr_launch()</a></code> with no arguments (or using our one-click launchers). Designed specifically for non-programmers, it provides a beautiful drag-and-drop file uploader to ingest <strong>CSV, Excel (.xlsx), SAS (.sas7bdat), or RDS</strong> files. Once uploaded, users can inspect, verify, and custom-toggle column types/classes via the “View” and “Update” panels before feeding the clean dataset directly into the premium virtualized explorer grid! <img src="reference/figures/ss_ingestion_wizard.png" alt="Data Ingestion Wizard"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="mag_right-advanced-multi-condition-query-builder">🔎 Advanced Multi-Condition Query Builder<a class="anchor" aria-label="anchor" href="#mag_right-advanced-multi-condition-query-builder"></a>
-</h3>
-<p>Build complex, multi-rule filters using <code>Match ALL (AND)</code> or <code>Match ANY (OR)</code> logic. Conditions support <code>=</code>, <code>is in</code>, <code>contains</code>, <code>&lt;</code>, <code>&gt;</code> operators with type-specific controls — including a <strong>searchable multi-select checklist dropdown</strong> for categorical columns (e.g. selecting 5 specific lab tests from <code>LBTEST</code>). The <strong>Advanced Filter badge</strong> shows the active filter count at a glance. Real-time row count (<code>10026 / 83,652 rows</code>) updates instantly as filters are applied. <img src="reference/figures/ss_advanced_filter.png" alt="Advanced Filter"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="speech_balloon-column-metadata-tooltip-card-">💬 Column Metadata Tooltip Card (<code>ⓘ</code>)<a class="anchor" aria-label="anchor" href="#speech_balloon-column-metadata-tooltip-card-"></a>
-</h3>
-<p>Hovering over the <strong>ⓘ info icon</strong> next to any column name opens a floating metadata card with key statistics calculated directly from your dataset — no external dependencies required: - <strong>Total Rows</strong> and <strong>Unique Values</strong> count - <strong>Missing (NA)</strong> count with exact percentage - <strong>Descriptive Stats</strong> for numeric columns: Min, Mean, Median, Max — rendered inline in a clean 2×2 stat grid</p>
-<p>This example shows the <code>LBSEQ</code> (Sequence Number) column across <strong>83,652 rows</strong>, with <strong>381 unique values</strong> and only <strong>40 missing</strong> (0.0%), with Min = 1, Mean = 142.73, Median = 127, Max = 380. <img src="reference/figures/ss_column_tooltip.png" alt="Column Tooltip Card"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="bar_chart-reproducible-query-code-generator">📊 Reproducible Query Code Generator<a class="anchor" aria-label="anchor" href="#bar_chart-reproducible-query-code-generator"></a>
-</h3>
-<p>Click the <strong>Query Code</strong> button to instantly generate copy-pasteable, production-ready R code that perfectly replicates your current filter and column state: - <strong>tidyverse (dplyr)</strong>: Produces clean <code>%&gt;% filter()</code> pipeline chains. - <strong>Base R</strong>: Generates standard bracket-subset expressions. - <strong>SQL Query</strong>: Generates portable ANSI SQL <code>WHERE</code> clauses.</p>
-<p>The generator auto-substitutes your R variable name (e.g. <code>data</code>) and correctly formats <code>%in%</code> vector membership checks for multi-value <code>is in</code> conditions. A <strong>Copy</strong> button sends the entire block to the clipboard in one click. <img src="reference/figures/ss_query_code_modal.png" alt="Query Code Modal"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="chart_with_upwards_trend-data-insights-drawer--numeric-column-interactive-svg-histogram">📈 Data Insights Drawer — Numeric Column (Interactive SVG Histogram)<a class="anchor" aria-label="anchor" href="#chart_with_upwards_trend-data-insights-drawer--numeric-column-interactive-svg-histogram"></a>
-</h3>
-<p>Click any column’s mini spark-histogram or the Data Insights icon to slide open the <strong>Data Insights side panel</strong>. For <strong>numeric columns</strong>, it renders a full-width, interactive SVG distribution histogram featuring: - <strong>Column Overview</strong>: Data type badge and unique value count - <strong>Completeness &amp; Quality</strong>: Color-coded valid data / missing (NA) progress bar with exact row counts and percentages - <strong>Descriptive Statistics</strong>: Min, Max, Mean, Median in a clean 2×2 grid - <strong>Distribution Profile</strong>: Full-width SVG histogram with hover-to-inspect functionality and Y-axis gridlines</p>
-<p>This example shows the <code>AGE</code> column across 83,652 rows: <strong>100% complete</strong>, ages ranging from 51 to 89 years, Mean = 74.876, Median = 77. <img src="reference/figures/ss_insights_numeric.png" alt="Data Insights: Numeric Column"></p>
-<hr>
-</div>
-<div class="section level3">
-<h3 id="bar_chart-data-insights-drawer--categorical-column-interactive-pareto-bar-chart">📊 Data Insights Drawer — Categorical Column (Interactive Pareto Bar Chart)<a class="anchor" aria-label="anchor" href="#bar_chart-data-insights-drawer--categorical-column-interactive-pareto-bar-chart"></a>
-</h3>
-<p>For <strong>character/categorical columns</strong>, the Data Insights drawer renders a <strong>horizontal Pareto bar chart</strong> showing the distribution of the top categories with their exact value counts and percentages: - <strong>Column Overview</strong>: Data type badge and unique value count - <strong>Completeness &amp; Quality</strong>: precise completeness metric (e.g. 99.9% valid / 0.1% missing) - <strong>Distribution Profile</strong>: Proportional horizontal bars for each category, labeled with exact category name, value count, and percentage</p>
-<p>This example shows <code>LBCAT</code> (Lab Test Category) with <strong>5 unique values</strong> across 83,598 valid rows: CHEMISTRY (54.0%), HEMATOLOGY (36.6%), URINALYSIS (8.7%), and OTHER (0.7%). <img src="reference/figures/ss_insights_categorical.png" alt="Data Insights: Categorical Column"></p>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="rocket-key-features">🚀 Key Features<a class="anchor" aria-label="anchor" href="#rocket-key-features"></a>
-</h2>
-<div class="section level3">
-<h3 id="id_1-high-fidelity-virtualized-layout--clinical-readability">1. High-Fidelity Virtualized Layout &amp; Clinical Readability<a class="anchor" aria-label="anchor" href="#id_1-high-fidelity-virtualized-layout--clinical-readability"></a>
+<h3 id="new-grid-layout-enhancements-v030">🆕 Grid Layout Enhancements (v0.3.0)<a class="anchor" aria-label="anchor" href="#new-grid-layout-enhancements-v030"></a>
 </h3>
 <ul>
 <li>
-<strong>Virtualized Grid Rendering</strong>: Renders massive datasets (e.g., thousands of rows and high-dimensional clinical tables) instantly by only painting visible cells in the viewport, ensuring zero lag.</li>
+<strong>Interactive Column Freezing &amp; Anchoring (⚓)</strong>: Click the anchor symbol in any column header to freeze that column and all columns to its left. Sticky cells remain fixed on the left while you scroll horizontally.</li>
 <li>
-<strong>Sticky Coordinates</strong>: Keeps top column headers and left row indices perfectly aligned and sticky during horizontal and vertical scrolling.</li>
+<strong>Visual Freeze Divider</strong>: Draws a prominent vertical blue line (<code>3px solid #3b82f6</code>) along the frozen boundary across the header and all body cells.</li>
 <li>
-<strong>Clinical Alignment &amp; Fonts</strong>: strictly right-aligns all numeric column headers and cell values (using clean, monospace fonts like <code>Consolas</code> and <code>Fira Code</code> for numerical scanning) and left-aligns character columns. It automatically reverses the layout flex-direction for numeric headers to keep icons and labels beautifully balanced.</li>
+<strong>HTML5 Drag-and-Drop Column Reordering</strong>: Grab any column header and drag it horizontally to reposition it dynamically. The virtualized body cells and headers rerender instantly.</li>
 <li>
-<strong>Sticky Row Pinning</strong>: Click any row to lock/pin it with a distinct soft-gold highlight and a persistent sticky pin <code>📌</code> badge in the row index column, keeping vital subjects or records in view while scrolling across dozens of variables.</li>
-<li>
-<strong>Missing Value Handling</strong>: Represents missing values (<code>NA</code> / <code>null</code>) in elegant, italicized, muted-gray cells, with customizable placeholder string support (<code>na_string</code>).</li>
+<strong>Clean Control Isolation</strong>: Separated sorting controls (<code>⇅</code>) from quick-filter popovers (<code>≡</code>) on header cards to prevent accidental clicks.</li>
 </ul>
+<hr>
 </div>
 <div class="section level3">
-<h3 id="id_2-kaggle-style-micro-dashboard-column-headers">2. Kaggle-Style “Micro-Dashboard” Column Headers<a class="anchor" aria-label="anchor" href="#id_2-kaggle-style-micro-dashboard-column-headers"></a>
+<h3 id="bar_chart-core-data-engine-features">📊 Core Data Engine Features<a class="anchor" aria-label="anchor" href="#bar_chart-core-data-engine-features"></a>
 </h3>
 <ul>
 <li>
-<strong>Missingness Progress Bar</strong>: Renders a thin, color-coded progress bar at the very bottom of each header cell representing data completeness (Green: &gt;95% complete, Amber: 50–95%, Muted Gray: &lt;50%). Hovering displays a precise tooltip: <code>“{totalRows} values • {naCount} missing ({naPct}%)”</code>.</li>
+<strong>Auto-Sniffing Data Badges</strong>: Headers automatically identify and display data types (e.g., <code>#</code> for numeric, <code>a</code> for character, <code>L</code> for logical, <code>📅</code> for date-time).</li>
 <li>
-<strong>Mini Spark-Histograms</strong>:
+<strong>Variable Metadata Label Overlays</strong>: Automatically extracts R variable <code>label</code> attributes (highly common in CDISC SDTM/ADaM datasets) and renders them as clear sub-headers.</li>
+<li>
+<strong>Advanced Boolean Query Builder (AND/OR)</strong>: Build complex, nested filter conditions using searchable checkbox checklists for categorical variables, calendar pickers for date-time fields, and numeric range inputs.</li>
+<li>
+<strong>Auto Text-Wrapping</strong>: Text wraps neatly within cell boundaries to ensure complete data visibility without manual column widening.</li>
+<li>
+<strong>Sticky Row Pinning (📌)</strong>: Click any row to lock it to the top of the grid with a soft-gold highlight, keeping key subjects or records visible.</li>
+</ul>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="computer-code-export--ingestion">💻 Code Export &amp; Ingestion<a class="anchor" aria-label="anchor" href="#computer-code-export--ingestion"></a>
+</h3>
 <ul>
 <li>
-<em>Numeric/Datetime</em>: Renders a mini bar histogram showing the distribution profile with min and max labels.</li>
+<strong>Universal Reproducible Code Generator</strong>: Converts your interactive grid filters into copy-pasteable, production-ready code with a single click:
+<ul>
 <li>
-<em>Character/Categorical</em>: Renders a color-coded mini horizontal stacked bar showing the top 3 most frequent categories, complete with a visual legend of the top 2 categories and their exact percentages.</li>
+<strong>Base R</strong>: <code>df[df$AGE &gt; 50 &amp; df$SEX == "F", ]</code>
+</li>
+<li>
+<strong>dplyr</strong>: <code>df %&gt;% filter(AGE &gt; 50, SEX == "F")</code>
+</li>
+<li>
+<strong>SQL</strong>: <code>SELECT * FROM df WHERE AGE &gt; 50 AND SEX = 'F'</code>
+</li>
+<li>
+<strong>Apache Arrow</strong>: <code>df |&gt; filter(AGE &gt; 50) |&gt; collect()</code>
+</li>
 </ul>
 </li>
 <li>
-<strong>Expanded Metadata Info Cards</strong>: Tap the subtle <code>ⓘ</code> info icon next to any column name to open a detailed summary tooltip card showing total rows, unique values, and missing counts, along with:
-<ul>
+<strong><code>dtsmart_launch()</code> Data Ingestion Wizard</strong>: Start a local uploader wizard to drag-and-drop local Excel, CSV, RDS, or SAS (<code>.sas7bdat</code>) files directly into the grid.</li>
 <li>
-<em>For Numeric</em>: Min, Mean, Median, and Max values (resolving the common median calculation bug).</li>
-<li>
-<em>For Character/Categorical</em>: A beautifully styled HTML table detailing the Top 5 most frequent string values with exact counts and percentage breakdowns.</li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="id_3-collapsible-data-insights-side-panel">3. Collapsible Data Insights Side-Panel<a class="anchor" aria-label="anchor" href="#id_3-collapsible-data-insights-side-panel"></a>
-</h3>
-<ul>
-<li>
-<strong>Interactive SVG Visualizations</strong>: Click the mini histogram inside any column header or detailed info card to slide open the collapsible <code>DataInsightsDrawer</code> side panel.</li>
-<li>
-<strong>Interactive Histogram (Numeric)</strong>: A full-sized distribution chart featuring dashed background gridlines, X/Y axes with numeric labels, and interactive hover bins. Hovering a bin highlights it and renders a tooltip showing its exact range, count, and percentage.</li>
-<li>
-<strong>Interactive Pareto Bar Chart (Categorical)</strong>: A beautiful wide-bar chart displaying the Top 5 to 10 categories, complete with hover highlights and detailed frequency tooltips.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="id_4-advanced-multi-condition-query-builder">4. Advanced Multi-Condition Query Builder<a class="anchor" aria-label="anchor" href="#id_4-advanced-multi-condition-query-builder"></a>
-</h3>
-<ul>
-<li>
-<strong>Dynamic Logical Rules</strong>: Combine multiple advanced query conditions using global <code>Match ALL (AND)</code> or <code>Match ANY (OR)</code> connectors.</li>
-<li>
-<strong>Searchable Checkbox Dropdowns</strong>: The <code>is in</code> and <code>is not in</code> operators render a searchable checklist panel with helper links (<code>Select All</code> and <code>Clear</code>) to perform multi-category selection effortlessly.</li>
-<li>
-<strong>Type-Specific Controls</strong>: Numeric fields offer number inputs, datetime fields present interactive calendar date-pickers, and character fields use text search.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="id_5-reproducible-query-code-generator">5. Reproducible Query Code Generator<a class="anchor" aria-label="anchor" href="#id_5-reproducible-query-code-generator"></a>
-</h3>
-<ul>
-<li>
-<strong>One-Click Code Modal</strong>: Tap the <strong>📊 Query Code</strong> button to reveal a tabbed modal generating the exact copy-pasteable code needed to replicate your active filter and column state.</li>
-<li>
-<strong>Supported Syntaxes</strong>: Outputs clean <strong>tidyverse (dplyr)</strong> pipelines, <strong>Base R</strong> subset operations, standard ANSI <strong>SQL Queries</strong>, <strong>Arrow</strong> collections, and <strong>DuckDB / dbplyr</strong> queries.</li>
-<li>
-<strong>Active Column Projections</strong>: If columns are hidden in the grid, the code generators dynamically append column selection projections (dplyr <code>select()</code>, Base R arguments, SQL lists, etc.) to project only visible column subsets.</li>
-<li>
-<strong>Variable Name Auto-Extraction</strong>: Automatically deparses and substitutes the R variable name (e.g. <code>adsl</code> or <code>adlb</code>) for copy-pasteable accuracy.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="id_6-zero-code-data-ingestion-wizard--performance-safeguards">6. Zero-Code Data Ingestion Wizard &amp; Performance Safeguards<a class="anchor" aria-label="anchor" href="#id_6-zero-code-data-ingestion-wizard--performance-safeguards"></a>
-</h3>
-<ul>
-<li>
-<strong>Ingestion Wizard</strong>: Launch <code><a href="reference/dtsmartr_launch.html">dtsmartr_launch()</a></code> with <code>data = NULL</code> to start an interactive file upload wizard powered by <code>datamods</code>. Drag and drop CSV, Excel, SAS datasets, or RDS files, verify column classes, and explore them instantly in a full-screen grid interface.</li>
-<li>
-<strong>Automatic Viewer Cap Protection</strong>: If a dataset exceeds 50,000 rows, <code><a href="reference/dtsmartr.html">dtsmartr()</a></code> automatically reroutes rendering in interactive sessions to <code><a href="reference/dtsmartr_launch.html">dtsmartr_launch()</a></code> in an external browser, preventing RStudio or Positron IDE viewer pane freeze-ups. It gracefully warns and renders in-place if called inside a running Shiny app session.</li>
+<strong>50,000+ Row Safety Guardrail</strong>: Prevents IDE viewer pane freezes. If a dataset exceeds 50,000 rows during an interactive session, it automatically redirects the explorer to an external web browser.</li>
 </ul>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="package-installation-1">📦 Installation<a class="anchor" aria-label="anchor" href="#package-installation-1"></a>
+<h2 id="gear-high-performance-architecture-roadmap">⚙️ High-Performance Architecture Roadmap<a class="anchor" aria-label="anchor" href="#gear-high-performance-architecture-roadmap"></a>
 </h2>
-<p>You can install the development version of <strong>dtsmartr</strong> directly from GitHub:</p>
+<p>Our serialization protocol is engineered for speed. In version <code>0.3.0</code>, <code>dtsmartr</code> transitioned to a high-speed <strong>Apache Arrow IPC Binary Stream Serialization</strong> pipeline:</p>
+<pre><code>[R Data Frame]
+    │
+    ▼  (Apache Arrow C++ Engine)
+[Arrow RecordBatch Stream]
+    │
+    ▼  (base64enc C-Library)
+[Base64 Arrow IPC Payload] ---&gt; Written directly into the HTMLWidget structure
+                                    │
+                                    ▼ (React App on Page Load)
+                                [Uint8Array Decode]
+                                    │
+                                    ▼ (apache-arrow JS Library)
+                                [Arrow Columnar Table]
+                                    │
+                                    ▼
+                                [Virtualized Grid View]</code></pre>
+<ul>
+<li>
+<strong>Instant Load Times</strong>: Replaces slow JSON formatting with a binary stream. Large datasets load up to 10x faster.</li>
+<li>
+<strong>Columnar Layout Alignment</strong>: Keeps columns stored sequentially in memory, enabling lightning-fast virtualized data projection and filtering.</li>
+<li>
+<strong>Minimal Memory Overhead</strong>: Eliminates the double-memory allocation typical of nested JSON arrays.</li>
+</ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="package-installation--quick-start">📦 Installation &amp; Quick Start<a class="anchor" aria-label="anchor" href="#package-installation--quick-start"></a>
+</h2>
+<div class="section level3">
+<h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h3>
+<p>Install the package directly from GitHub using <code>remotes</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Install remotes if not already installed</span></span>
+<code class="sourceCode R"><span><span class="co"># Install remotes if needed</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># Install dtsmartr</span></span>
+<span><span class="co"># Install the latest dev version</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"wagh-nikhil/dtsmartr"</span><span class="op">)</span></span></code></pre></div>
-<hr>
 </div>
-<div class="section level2">
-<h2 id="zap-quick-start">⚡ Quick Start<a class="anchor" aria-label="anchor" href="#zap-quick-start"></a>
-</h2>
 <div class="section level3">
-<h3 id="id_1-basic-interactive-data-browsing">1. Basic Interactive Data Browsing<a class="anchor" aria-label="anchor" href="#id_1-basic-interactive-data-browsing"></a>
+<h3 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h3>
-<p>Open any data frame in your default RStudio or Positron Viewer panel:</p>
+<p>Fire up the grid on standard datasets in one line:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Explore the classic motor trend car road tests dataset</span></span>
+<span><span class="co"># 1. Full Analytics Mode (Default)</span></span>
 <span><span class="fu"><a href="reference/dtsmartr.html">dtsmartr</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Browse with customized options, themes, and pre-hidden columns</span></span>
+<span><span class="co"># 2. Minimalist Viewer Mode (Clean, compact layout)</span></span>
+<span><span class="fu"><a href="reference/dtsmart_lite.html">dtsmart_lite</a></span><span class="op">(</span><span class="va">iris</span>, title <span class="op">=</span> <span class="st">"Iris Compact View"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 3. Custom configurations (Dark theme, pre-hidden variables)</span></span>
 <span><span class="fu"><a href="reference/dtsmartr.html">dtsmartr</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  options <span class="op">=</span> <span class="fu"><a href="reference/dtsmartr_options.html">dtsmartr_options</a></span><span class="op">(</span></span>
@@ -290,178 +233,13 @@
 <span>    na_string <span class="op">=</span> <span class="st">"Missing"</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_2-clinical-dataset-exploration-with-labels-and-formatting">2. Clinical Dataset Exploration with Labels and Formatting<a class="anchor" aria-label="anchor" href="#id_2-clinical-dataset-exploration-with-labels-and-formatting"></a>
-</h3>
-<p><code>dtsmartr</code> extracts R variable label attributes (commonly used in clinical data like ADaM datasets) and renders them inline inside the headers.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/" class="external-link">pharmaverseadam</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Explore Subject-Level Analysis Dataset (ADSL) with labels and active picker</span></span>
-<span><span class="fu"><a href="reference/dtsmartr.html">dtsmartr</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="va">adsl</span>,</span>
-<span>  options <span class="op">=</span> <span class="fu"><a href="reference/dtsmartr_options.html">dtsmartr_options</a></span><span class="op">(</span></span>
-<span>    theme <span class="op">=</span> <span class="st">"auto"</span>,       <span class="co"># Adapts to IDE or system light/dark settings</span></span>
-<span>    show_labels <span class="op">=</span> <span class="cn">TRUE</span>,   <span class="co"># Displays labels (e.g. "Age", "Race", "Study Identifier")</span></span>
-<span>    na_string <span class="op">=</span> <span class="st">"—"</span>       <span class="co"># Cleaner missing value indicator</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_3-launch-ingestion-wizard-bypassing-cors--freezes">3. Launch Ingestion Wizard (Bypassing CORS &amp; Freezes)<a class="anchor" aria-label="anchor" href="#id_3-launch-ingestion-wizard-bypassing-cors--freezes"></a>
-</h3>
-<p>To start the file ingestion wizard or explore massive datasets in an external browser session:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 1. Start the zero-code ingestion wizard to drag-and-drop local files (CSV, XLSX, SAS, RDS)</span></span>
-<span><span class="fu"><a href="reference/dtsmartr_launch.html">dtsmartr_launch</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 2. Explore a large dataset directly in your default browser</span></span>
-<span><span class="fu"><a href="reference/dtsmartr_launch.html">dtsmartr_launch</a></span><span class="op">(</span><span class="fu">pharmaverseadam</span><span class="fu">::</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/reference/adsl.html" class="external-link">adsl</a></span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
-</div>
-<div class="section level2">
-<h2 id="computer_mouse-one-click--one-line-launchers-for-zero-r--non-r-users">🖱️ One-Click &amp; One-Line Launchers (For Zero-R / Non-R Users)<a class="anchor" aria-label="anchor" href="#computer_mouse-one-click--one-line-launchers-for-zero-r--non-r-users"></a>
-</h2>
-<p>You don’t need to know R to benefit from <strong>dtsmartr</strong>! The package includes three highly accessible, zero-code launching methods designed specifically for non-programmers, business analysts, or clinical researchers who prefer a simple click-and-run setup:</p>
-<div class="section level3">
-<h3 id="id_1-dart-the-rstudio-add-in-one-click-gui-solution">1. 🎯 The RStudio Add-in (One-Click GUI Solution)<a class="anchor" aria-label="anchor" href="#id_1-dart-the-rstudio-add-in-one-click-gui-solution"></a>
-</h3>
-<p>Once the <code>dtsmartr</code> package is installed, a new launcher is registered directly in RStudio’s top toolbar: - Click the <strong>Addins</strong> dropdown menu in RStudio. - Select <strong>dtsmartr Data Explorer Wizard</strong>. - It immediately boots the Data Ingestion Wizard in your default web browser. No console typing required!</p>
-</div>
-<div class="section level3">
-<h3 id="id_2-computer-system-command-line-one-liner-terminal-solution">2. 💻 System Command-Line One-Liner (Terminal Solution)<a class="anchor" aria-label="anchor" href="#id_2-computer-system-command-line-one-liner-terminal-solution"></a>
-</h3>
-<p>Launch the wizard directly from your system’s Command Prompt (Windows) or Terminal (macOS/Linux) without launching R manually:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">"dtsmartr::dtsmartr_launch()"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="zap-3-desktop-shortcut-launcher-double-click-solution">⚡ 3. Desktop Shortcut Launcher (Double-Click Solution)<a class="anchor" aria-label="anchor" href="#zap-3-desktop-shortcut-launcher-double-click-solution"></a>
-</h3>
-<p>You can create a standalone Desktop shortcut to run <strong>dtsmartr</strong> like a native desktop app: - <strong>Windows</strong>: Create a text file named <code>dtsmartr_explorer.bat</code> on your Desktop with these two lines: <code>batch   @echo off   "C:\Program Files\R\R-4.4.3\bin\x64\Rscript.exe" -e "dtsmartr::dtsmartr_launch()"</code> <em>(If your R version is different, simply replace the path above with your <code>Rscript.exe</code> location or standard <code>Rscript</code> if it is in your system PATH).</em> - <strong>macOS / Linux</strong>: Create a shell script named <code>dtsmartr_explorer.sh</code> on your Desktop: <code>bash   #!/bin/bash   Rscript -e "dtsmartr::dtsmartr_launch()"</code> <em>(Make it executable with <code>chmod +x ~/Desktop/dtsmartr_explorer.sh</code>)</em></p>
-<p>Now, any team member can just <strong>double-click the desktop icon</strong> to instantly launch the secure local data browser, upload a CSV or Excel spreadsheet, and analyze it with premium aesthetics and visualizations!</p>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="floppy_disk-saving-html-reports--avoiding-self-contained-bloat">💾 Saving HTML Reports &amp; Avoiding Self-Contained Bloat<a class="anchor" aria-label="anchor" href="#floppy_disk-saving-html-reports--avoiding-self-contained-bloat"></a>
-</h2>
-<p><code><a href="reference/save_dtsmartr.html">save_dtsmartr()</a></code> exports any dataset as an interactive HTML grid report. The saved file runs completely offline in any browser without needing R or an active internet connection.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save mtcars as a fully self-contained portable HTML report</span></span>
-<span><span class="fu"><a href="reference/save_dtsmartr.html">save_dtsmartr</a></span><span class="op">(</span></span>
-<span>  data    <span class="op">=</span> <span class="va">mtcars</span>, </span>
-<span>  file    <span class="op">=</span> <span class="st">"outputs/mtcars_report.html"</span>, </span>
-<span>  options <span class="op">=</span> <span class="fu"><a href="reference/dtsmartr_options.html">dtsmartr_options</a></span><span class="op">(</span>hidden_columns <span class="op">=</span> <span class="st">"hp"</span><span class="op">)</span>,</span>
-<span>  open    <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="bulb-how-to-avoid-self-contained-data-bloat-selfcontained--false">💡 How to Avoid Self-Contained Data Bloat (<code>selfcontained = FALSE</code>)<a class="anchor" aria-label="anchor" href="#bulb-how-to-avoid-self-contained-data-bloat-selfcontained--false"></a>
-</h3>
-<p>By default, <code><a href="reference/save_dtsmartr.html">save_dtsmartr()</a></code> embeds all JavaScript libraries, CSS assets, and data directly inside the HTML file (<code>selfcontained = TRUE</code>), which requires Pandoc.</p>
-<p>For large datasets (e.g., thousands of rows) or environments without Pandoc, <strong>setting <code>selfcontained = FALSE</code> is highly recommended</strong>. This saves memory and outputs a lightweight HTML file alongside a companion directory containing the shared JS/CSS dependencies.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wagh-nikhil/dtsmartr" class="external-link">dtsmartr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pharmaverse.github.io/pharmaverseadam/" class="external-link">pharmaverseadam</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save large ADLB clinical labs dataset without self-contained bloat</span></span>
-<span><span class="fu"><a href="reference/save_dtsmartr.html">save_dtsmartr</a></span><span class="op">(</span></span>
-<span>  data          <span class="op">=</span> <span class="va">adlb</span>, </span>
-<span>  file          <span class="op">=</span> <span class="st">"outputs/adlb_report.html"</span>, </span>
-<span>  selfcontained <span class="op">=</span> <span class="cn">FALSE</span>,    <span class="co"># Writes JS/CSS to 'outputs/adlb_report_files/'</span></span>
-<span>  open          <span class="op">=</span> <span class="cn">TRUE</span>      <span class="co"># Opens resolved HTML in default browser</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr>
-<th>Parameter State</th>
-<th>Output Files</th>
-<th>Best Used For</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>
-<code>selfcontained = TRUE</code> (default)</td>
-<td>A single, portable <code>.html</code> file</td>
-<td>Email attachments and easy folder sharing.</td>
-</tr>
-<tr>
-<td><code>selfcontained = FALSE</code></td>
-<td>A lightweight <code>.html</code> file + <code>&lt;file&gt;_files/</code> companion directory</td>
-<td>Large datasets (&gt;20k rows), bulk exports, and systems without Pandoc installed.</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>[!NOTE] <code><a href="reference/save_dtsmartr.html">save_dtsmartr()</a></code> passes <code>skip_routing = TRUE</code> internally to the main widget engine. This guarantees that large datasets like <code>adlb</code> (83k+ rows) are successfully written to disk as widget export files, bypassing the automatic external browser re-routing safeguard.</p>
-</blockquote>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="hammer_and_wrench-function-reference">🛠️ Function Reference<a class="anchor" aria-label="anchor" href="#hammer_and_wrench-function-reference"></a>
-</h2>
-<div class="section level3">
-<h3 id="dtsmartr_optionsadvanced_filter--true-show_labels--true-column_picker--true-allow_export--true-theme--auto-na_string--na-hidden_columns--null">
-<code>dtsmartr_options(advanced_filter = TRUE, show_labels = TRUE, column_picker = TRUE, allow_export = TRUE, theme = "auto", na_string = "NA", hidden_columns = NULL)</code><a class="anchor" aria-label="anchor" href="#dtsmartr_optionsadvanced_filter--true-show_labels--true-column_picker--true-allow_export--true-theme--auto-na_string--na-hidden_columns--null"></a>
-</h3>
-<p>Helper function to customize UI display panels, themes, and default states. - <code>advanced_filter</code>: Logical. Toggles advanced logical multi-condition query builder. - <code>show_labels</code>: Logical. If <code>TRUE</code>, displays column attributes (like label description) inline in headers. - <code>column_picker</code>: Logical. Displays column dropdown selector toggle. - <code>allow_export</code>: Logical. Displays reproducible code query generation button. - <code>theme</code>: UI appearance theme. Options are <code>"auto"</code>, <code>"light"</code>, or <code>"dark"</code>. - <code>na_string</code>: Custom character string representing missing cells (defaults to <code>"NA"</code>). - <code>hidden_columns</code>: Character vector of column names to hide by default on initial render.</p>
-</div>
-<div class="section level3">
-<h3 id="dtsmartrdata-width--null-height--null-elementid--null-datasetname--null-options--dtsmartr_options-skip_routing--false">
-<code>dtsmartr(data, width = NULL, height = NULL, elementId = NULL, datasetName = NULL, options = dtsmartr_options(), skip_routing = FALSE)</code><a class="anchor" aria-label="anchor" href="#dtsmartrdata-width--null-height--null-elementid--null-datasetname--null-options--dtsmartr_options-skip_routing--false"></a>
-</h3>
-<p>Creates the interactive virtualized htmlwidget grid. - <code>data</code>: A <code>data.frame</code> to explore. - <code>width</code> / <code>height</code>: Explicit widget dimensions. Defaults to full page container (<code>100%</code>). - <code>elementId</code>: Optional static container ID. - <code>datasetName</code>: Custom string representing the dataset in generated reproducible queries. - <code>options</code>: Custom options list built using <code><a href="reference/dtsmartr_options.html">dtsmartr_options()</a></code>. - <code>skip_routing</code>: Logical. Internal bypass flag used by <code><a href="reference/save_dtsmartr.html">save_dtsmartr()</a></code> to prevent &gt;50k row routing.</p>
-</div>
-<div class="section level3">
-<h3 id="dtsmartr_launchdata--null-port--null-options--dtsmartr_options">
-<code>dtsmartr_launch(data = NULL, port = NULL, options = dtsmartr_options())</code><a class="anchor" aria-label="anchor" href="#dtsmartr_launchdata--null-port--null-options--dtsmartr_options"></a>
-</h3>
-<p>Spins up a temporary local background Shiny server to serve the grid or file upload uploader wizard in your default browser. - <code>data</code>: A <code>data.frame</code> to explore, or <code>NULL</code> (default) to start the file uploader wizard. - <code>port</code>: Optional numeric port. - <code>options</code>: UI options constructed via <code><a href="reference/dtsmartr_options.html">dtsmartr_options()</a></code>.</p>
-</div>
-<div class="section level3">
-<h3 id="save_dtsmartrdata-file-selfcontained--true-title--dtsmartr-open--false-background--white-libdir--null-width--null-height--null-elementid--null-options--dtsmartr_options-verbose--true">
-<code>save_dtsmartr(data, file, selfcontained = TRUE, title = "dtsmartr", open = FALSE, background = "white", libdir = NULL, width = NULL, height = NULL, elementId = NULL, options = dtsmartr_options(), verbose = TRUE)</code><a class="anchor" aria-label="anchor" href="#save_dtsmartrdata-file-selfcontained--true-title--dtsmartr-open--false-background--white-libdir--null-width--null-height--null-elementid--null-options--dtsmartr_options-verbose--true"></a>
-</h3>
-<p>Exports a <code>data.frame</code> as a fully interactive, standalone offline HTML file. - <code>data</code>: A <code>data.frame</code> to explore. - <code>file</code>: Path to the output HTML file. - <code>selfcontained</code>: Logical. When <code>TRUE</code> (default), bundles all resources. When <code>FALSE</code>, creates a companion directory next to the file. - <code>title</code>: Browser window / tab title. - <code>open</code>: Logical. Open in default browser immediately after saving in interactive sessions. - <code>options</code>: Custom options list built using <code><a href="reference/dtsmartr_options.html">dtsmartr_options()</a></code>.</p>
-<hr>
-</div>
-</div>
-<div class="section level2">
-<h2 id="computer-developer-setup-rebuilding-react-assets">💻 Developer Setup (Rebuilding React Assets)<a class="anchor" aria-label="anchor" href="#computer-developer-setup-rebuilding-react-assets"></a>
-</h2>
-<p>The frontend is implemented in React inside <code>srcjs/dtsmartr.jsx</code> and compiled with Webpack. To compile frontend changes:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Navigate into the package directory</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="bu">cd</span> dtsmartr</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># Install NodeJS dependencies</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="ex">npm</span> install</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co"># Compile React resources into inst/htmlwidgets/dtsmartr.js</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="ex">npm</span> run build</span></code></pre></div>
-<p>Inside R, re-generate documentation, namespaces, and re-install:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Generate Rd manuals and NAMESPACE</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">document</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Install the package locally</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<hr>
 </div>
 <div class="section level2">
 <h2 id="page_facing_up-license">📄 License<a class="anchor" aria-label="anchor" href="#page_facing_up-license"></a>
 </h2>
-<p>This package is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+<p>Licensed under the <a href="LICENSE">MIT License</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

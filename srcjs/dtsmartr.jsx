@@ -2229,7 +2229,7 @@ const ColHeader = React.memo(({
   meta, summary, isSorted, sortDir, sortPriority, isFiltered, showLabels,
   onSort, onOpenPanel, onOpenInsights, onResizeStart, colWidth, colors,
   isDarkMode, summary_header = true, insights = true,
-  frozenLeftOffset, isAnchored, onAnchor,
+  frozenLeftOffset, isFrozen, isAnchored, onAnchor,
   onDragStart, onDragOver, onDragEnd, onDrop, isDragOver
 }) => {
   const t       = tm(meta.type);
@@ -2391,7 +2391,7 @@ const ColHeader = React.memo(({
         width: colWidth, flexShrink:0, height:HEADER_HEIGHT,
         padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
         justifyContent:'space-between', cursor:'grab', userSelect:'none',
-        borderRight:`1px solid ${colors.border}`, boxSizing:'border-box',
+        borderRight: isAnchored ? '3px solid #3b82f6' : `1px solid ${colors.border}`, boxSizing:'border-box',
         background: isSorted ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
         position: 'relative',
         boxShadow: isDragOver ? 'inset 4px 0 0 #3b82f6' : undefined,
@@ -2477,14 +2477,14 @@ const ColHeader = React.memo(({
             fontSize: 12,
             padding: '2px',
             borderRadius: 4,
-            color: isAnchored ? '#3b82f6' : colors.subText,
+            color: isFrozen ? '#3b82f6' : colors.subText,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          title={isAnchored ? "Unanchor column" : "Anchor column (freeze left)"}
-          onMouseEnter={e => { if (!isAnchored) e.currentTarget.style.color = '#3b82f6'; }}
-          onMouseLeave={e => { if (!isAnchored) e.currentTarget.style.color = colors.subText; }}
+          title={isAnchored ? "Unanchor column" : isFrozen ? "Frozen (anchored to the right)" : "Anchor column (freeze left)"}
+          onMouseEnter={e => { if (!isFrozen) e.currentTarget.style.color = '#3b82f6'; }}
+          onMouseLeave={e => { if (!isFrozen) e.currentTarget.style.color = colors.subText; }}
         >
           ⚓
         </button>
@@ -3546,6 +3546,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                       isDarkMode={isDarkMode}
                       summary_header={header_summary}
                       frozenLeftOffset={frozenColIndices[meta.name]}
+                      isFrozen={frozenColIndices[meta.name] != null}
                       isAnchored={frozenColId === meta.name}
                       onAnchor={handleAnchorToggle}
                       onDragStart={handleDragStart}
@@ -3634,7 +3635,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                             return (
                               <div key={meta.name} style={{
                                 width: getColWidth(meta.name), flexShrink:0, padding:'6px 10px',
-                                borderRight:`1px solid ${colors.border}`, color:colors.text,
+                                borderRight: meta.name === frozenColId ? '3px solid #3b82f6' : `1px solid ${colors.border}`, color:colors.text,
                                 fontVariantNumeric:'tabular-nums', height:'100%',
                                 display:'flex', alignItems:'center', boxSizing: 'border-box',
                                 justifyContent: isNumericCol ? 'flex-end' : 'flex-start',

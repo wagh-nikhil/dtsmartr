@@ -3166,7 +3166,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
 
   const popupMeta = popup ? (metadata||[]).find(c=>c.name===popup.col) : null;
 
-  if (!metadata || !data) return <div style={{padding:20,color:'#94a3b8'}}>No data</div>;
+  if (!metadata || (!data && !arrow_payload)) return <div style={{padding:20,color:'#94a3b8'}}>No data</div>;
 
   const containerStyle = {
     height: '100%', display: 'flex', flexDirection: 'column',

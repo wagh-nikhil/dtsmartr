@@ -1,0 +1,74 @@
+﻿---
+title: "Data Ingestion & Launchers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data Ingestion & Launchers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` is accessible to non-programmers, clinical coordinators, and business analysts who want to browse datasets without writing R scripts. The package includes a zero-code **Data Ingestion Wizard** and multiple one-click system launchers.
+
+---
+
+## 1. Zero-Code Data Ingestion Wizard
+
+Boot the ingestion uploader by calling `dtsmartr_launch()` with no arguments:
+
+```r
+library(dtsmartr)
+dtsmartr_launch()
+```
+
+* **Drag-and-Drop File Uploader**: Powered by the `datamods` package. Upload local files of any supported format:
+  - **CSV**: Text spreadsheet datasets.
+  - **Excel (`.xlsx`)**: Multiple tabs support.
+  - **SAS (`.sas7bdat`)**: Clinical study datasets.
+  - **RDS**: Native compressed R data files.
+* **View Panel**: Inspect and verify raw rows before feeding data into the main React explorer grid.
+* **Update Panel**: Custom-convert column classes (e.g. converting a character variable to factor, or numeric to character) or rename columns dynamically before loading the grid.
+
+---
+
+## 2. One-Click Launchers (No R Console Required)
+
+### Method A: RStudio GUI Add-in
+Once `dtsmartr` is installed, a launcher registers in RStudio:
+1. Click the **Addins** menu in RStudio's top toolbar.
+2. Select **dtsmartr Data Explorer Wizard**.
+3. The wizard opens automatically in your default external web browser.
+
+### Method B: Terminal Command One-Liner
+Start the uploader server directly from your system Terminal (macOS/Linux) or Command Prompt (Windows):
+```bash
+Rscript -e "dtsmartr::dtsmartr_launch()"
+```
+
+### Method C: Desktop Shortcut Icons
+Create a double-clickable Desktop launcher to open the uploader wizard like a native desktop app:
+
+* **Windows (`dtsmartr_explorer.bat`)**:
+  Create a text file on your Desktop named `dtsmartr_explorer.bat` containing:
+  ```batch
+  @echo off
+  "C:\Program Files\R\R-4.4.3\bin\x64\Rscript.exe" -e "dtsmartr::dtsmartr_launch()"
+  ```
+  *(Modify the path to point to your local `Rscript.exe` executable).*
+
+* **macOS / Linux (`dtsmartr_explorer.sh`)**:
+  Create a shell file on your Desktop named `dtsmartr_explorer.sh`:
+  ```bash
+  #!/bin/bash
+  Rscript -e "dtsmartr::dtsmartr_launch()"
+  ```
+  Make it executable in the Terminal:
+  ```bash
+  chmod +x ~/Desktop/dtsmartr_explorer.sh
+  ```

@@ -11,14 +11,24 @@ navbar:
       href: articles/getting-started.html
     - text: "Core Features"
       menu:
+        - text: "Column Reordering & Anchoring"
+          href: articles/layout-customization.html
+        - text: "Customization & Themes"
+          href: articles/customization-options.html
         - text: "Column Resizing & Wrapping"
           href: articles/column-formatting.html
         - text: "Multi-Column Sorting"
           href: articles/multi-column-sorting.html
+    - text: "Advanced & Deployment"
+      menu:
         - text: "Filtering & Checklist Queries"
           href: articles/filtering-queries.html
         - text: "Reproducible Code Export"
           href: articles/code-generation.html
+        - text: "Data Ingestion & Launchers"
+          href: articles/data-ingestion-launchers.html
+        - text: "Saving HTML Reports & Documents"
+          href: articles/saving-reports.html
     - text: "Reference"
       href: reference/index.html
   right:

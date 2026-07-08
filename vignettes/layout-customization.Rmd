@@ -1,0 +1,61 @@
+﻿---
+title: "Column Reordering & Anchoring"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Column Reordering & Anchoring}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` v0.3.0 introduces horizontal layout enhancements designed to make scanning, referencing, and organizing variables within large tables effortless.
+
+## 1. Interactive Column Freezing & Anchoring (⚓)
+
+When exploring datasets with high dimensionality (such as laboratory clinical tables containing over 100 columns), you often need to keep key identifiers (like `USUBJID` or `VISIT`) persistently visible while scrolling.
+
+* **Anchor Trigger**: Click the **anchor icon (⚓)** in any column header.
+* **Sticky Locking**: The selected column and all columns to its left lock in place. As you scroll horizontally, these frozen columns remain statically visible.
+* **Boundary Line**: A thick, blue vertical boundary line (`3px solid #3b82f6`) is painted along the right edge of the anchor column (synced across both the headers and body rows).
+* **Color Highlights**: All anchor icons within the frozen zone turn **vibrant blue** to indicate they are in a locked state.
+* **Unfreezing**: Click the `⚓` button on the boundary column again to release the freeze lock.
+
+---
+
+## 2. HTML5 Drag-and-Drop Column Reordering
+
+Rearrange your table sequence directly in the UI without modifying your R code:
+
+* **Click & Drag**: Click and hold a column header, then drag it horizontally.
+* **Drop Location Highlight**: A blue vertical insertion border highlights the insertion location as you drag over other column cards.
+* **Instant Rerendering**: Release to drop the column. The grid body and column values reposition instantly.
+
+---
+
+## 3. Row Pinning (📌)
+
+Lock specific subjects, outliers, or records to the top of the table viewport for continuous reference:
+
+* **Pinning**: Click the row number box on the far left of any row.
+* **Visual States**: The pinned row floats to the top of the grid with a distinct **soft-gold border outline**, a gold-tinted row background, and a persistent `📌` pin icon in the index column.
+* **Unpinning**: Click the pinned row index box again to unlock it.
+
+---
+
+## 4. Live Layout Customization Example
+
+Test all three features in the live interactive grid below!
+1. **Try dragging** the `cyl` column card and dropping it before the `mpg` column card.
+2. **Click the `⚓` button** on the `disp` column header to freeze `mpg`, `cyl`, and `disp` to the left. Then scroll the table horizontally.
+3. **Click the row index `2`** on the far-left to pin the second row to the top.
+
+```{r}
+library(dtsmartr)
+dtsmartr(mtcars)
+```

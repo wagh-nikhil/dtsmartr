@@ -1,0 +1,103 @@
+﻿---
+title: "Saving HTML Reports & Documents"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Saving HTML Reports & Documents}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` supports exporting your interactive grid sessions as offline-capable standalone HTML files, as well as embedding them seamlessly inside **R Markdown (.Rmd)** and **Quarto (.qmd)** dynamic reports.
+
+---
+
+## 1. Standalone HTML Reports (`save_dtsmartr`)
+
+Export any data frame as a standalone web app using the `save_dtsmartr()` function:
+
+```r
+library(dtsmartr)
+
+# Export as a self-contained portable HTML file
+save_dtsmartr(
+  data = mtcars, 
+  file = "reports/mtcars_dashboard.html"
+)
+```
+
+The resulting file runs **offline in any browser** without needing R, Shiny, or a network connection.
+
+### Self-Contained vs. Lightweight Output Modes
+
+* **`selfcontained = TRUE` (Default)**: Combines all React code, styling assets, and data base64 streams directly into a single `.html` file. Requires Pandoc to compile.
+* **`selfcontained = FALSE`**: Recommended for large datasets or environments without Pandoc. It saves a lightweight `.html` file alongside a `<file>_files/` companion directory containing the shared javascript and style sheets.
+
+---
+
+## 2. R Markdown (.Rmd) Document Integration
+
+You can render `dtsmartr` interactive grids inline in any R Markdown HTML document. 
+
+Simply place the function inside standard code chunks. Set R Markdown chunk options (like `echo = FALSE` or `message = FALSE`) to suppress code display and warnings:
+
+````markdown
+---
+title: "Clinical Analysis Report"
+output: html_document
+---
+
+Below is the interactive labs analysis grid:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dtsmartr)
+dtsmartr(mtcars)
+```
+````
+
+When you knit the document, R Markdown compiles the widget as an interactive grid directly inline with your text.
+
+---
+
+## 3. Quarto (.qmd) Document Integration
+
+Quarto supports `dtsmartr` natively out of the box. Add the code chunk using Quarto's standard syntax and comments:
+
+````markdown
+---
+title: "Study Cohort Review"
+format: html
+---
+
+## Laboratory Panel Exploration
+
+Explore the interactive subject database:
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(dtsmartr)
+dtsmartr(mtcars)
+```
+````
+
+When Quarto renders to HTML (`quarto render report.qmd`), the widget embeds inside the page container.
+
+---
+
+## 4. Live Embedded Integration Preview
+
+Here is an actual live rendering of `dtsmartr` embedded inside the R Markdown page container of this article, showing how it looks inside your generated reports:
+
+```{r}
+library(dtsmartr)
+dtsmartr(mtcars)
+```

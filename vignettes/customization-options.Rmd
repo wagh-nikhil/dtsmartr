@@ -1,0 +1,73 @@
+﻿---
+title: "Customization & Themes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Customization & Themes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`dtsmartr` supports deep interface customization through `dtsmartr_options()`. Developers can toggle UI panels, control access to analytical utilities, customize missing cell representations, and switch between light and dark themes.
+
+## 1. Visual Color Themes (Dark Mode)
+
+`dtsmartr` features a modern, premium dark palette designed for clinical environments and night shifts.
+
+* **`theme = "auto"` (Default)**: Automatically detects browser/system settings and matches the theme of your IDE (RStudio or Positron).
+* **`theme = "light"`**: Forces the clean light theme.
+* **`theme = "dark"`**: Forces the sleek dark theme.
+
+---
+
+## 2. Optional UI Feature Toggles
+
+You can enable or disable individual layout elements depending on the context:
+
+* **`advanced_filter`**: Set `FALSE` to hide the rule-based Query Builder toolbar.
+* **`column_picker`**: Set `FALSE` to remove the column dropdown visibility picker in the top-right toolbar.
+* **`allow_export`**: Set `FALSE` to remove the clipboard code generator modal button.
+* **`header_summary`**: Set `FALSE` to collapse the column headers into clean, flat labels—removing the spark-histograms, top categories bar, and missingness progress indicators.
+
+---
+
+## 3. Custom Missing Value Strings (`na_string`)
+
+Control how missing/null values are represented. Cells containing `NA` or `null` will render as italicized, muted-gray cells:
+
+* **Default**: Displays `"NA"`.
+* **Custom**: Set `na_string = "—"` or `na_string = "Missing"` to specify custom text.
+
+---
+
+## 4. Pre-Hidden Columns (`hidden_columns`)
+
+Specify a vector of column names to hide by default on initial rendering. Users can still show them using the column picker (if enabled):
+
+* **Example**: `hidden_columns = c("cyl", "hp")`.
+
+---
+
+## 5. Live Theme & Customization Example
+
+Below is a live interactive grid rendering in **Dark Mode** with pre-hidden variables (`hp`, `vs`), custom missing cell markers (`na_string = "—"`), and the column picker disabled:
+
+```{r}
+library(dtsmartr)
+
+dtsmartr(
+  data = mtcars,
+  options = dtsmartr_options(
+    theme           = "dark",
+    hidden_columns  = c("hp", "vs"),
+    na_string       = "—",
+    column_picker   = FALSE
+  )
+)
+```

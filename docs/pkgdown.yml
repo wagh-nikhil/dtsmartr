@@ -4,10 +4,14 @@ pkgdown_sha: ~
 articles:
   code-generation: code-generation.html
   column-formatting: column-formatting.html
+  customization-options: customization-options.html
+  data-ingestion-launchers: data-ingestion-launchers.html
   filtering-queries: filtering-queries.html
   getting-started: getting-started.html
+  layout-customization: layout-customization.html
   multi-column-sorting: multi-column-sorting.html
-last_built: 2026-07-08T18:33Z
+  saving-reports: saving-reports.html
+last_built: 2026-07-08T18:44Z
 urls:
   reference: https://wagh-nikhil.github.io/dtsmartr/reference
   article: https://wagh-nikhil.github.io/dtsmartr/articles

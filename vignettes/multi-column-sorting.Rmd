@@ -30,3 +30,11 @@ To sort by multiple columns sequentially (e.g. sort by `CYL` first, then sort by
 ## 3. Clearing Column Sorts
 - To remove a single column from the multi-column sort list, open its sorting dropdown and select **❌ Remove from sort**.
 - To clear all sorting configurations at once, click the **Clear sort** link in the toolbar at the top of the grid.
+
+## 4. Live Multi-Column Sorting Example
+Try sorting by cylinders (`cyl`) first, and then sorting by miles-per-gallon (`mpg`) inside the cylinder groups:
+
+```{r}
+library(dtsmartr)
+dtsmartr(mtcars)
+```

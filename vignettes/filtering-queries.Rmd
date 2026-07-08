@@ -26,3 +26,11 @@ Click the **Advanced Filter** toggle on the top toolbar to reveal the rule-based
 - Create nested logical conditions using **AND** or **OR** connector groups.
 - Set complex column rules (operators like `equals`, `contains`, `in`, `greater than`, `is null`, etc.).
 - Combine quick filters and advanced rule conditions together (they evaluate concurrently).
+
+## 3. Live Interactive Filtering Example
+Try searching or filtering columns in the live grid below:
+
+```{r}
+library(dtsmartr)
+dtsmartr(mtcars)
+```

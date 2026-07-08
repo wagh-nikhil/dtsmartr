@@ -27,9 +27,9 @@ When columns contain long strings (e.g. sentences, address logs, or uppercase ca
 - Alignment remains perfect, and viewport performance stays smooth.
 
 ## 3. Custom Default Hidden Columns
-You can set columns to be hidden by default on load using the `hidden_columns` parameter in `dtsmartr_options()`:
+You can set columns to be hidden by default on load using the `hidden_columns` parameter in `dtsmartr_options()` (try using the Column Picker in the live widget below to show them!):
 
-```r
+```{r}
 library(dtsmartr)
 
 dtsmartr(
@@ -43,7 +43,7 @@ dtsmartr(
 ## 4. Toggle Header Summaries
 By default, column headers show a Kaggle-style summary micro-dashboard (histograms for numbers, stacked completeness bar charts for categories, evolutionary data ranges). You can turn this off to render a compact layout:
 
-```r
+```{r}
 # Collapses headers to standard compact labels
 dtsmartr(
   mtcars,

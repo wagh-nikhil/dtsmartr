@@ -31,3 +31,11 @@ The modal generates code in 5 different formats:
 
 ## 3. Copying Code
 Click the **Copy** button next to any code block to copy it to your clipboard. Paste it directly into your R scripts to reproduce the exact dataset subset.
+
+## 4. Live Code Export Example
+Apply some filters on the live explorer widget below, click the **Query Code** button, and copy the generated R/SQL scripts:
+
+```{r}
+library(dtsmartr)
+dtsmartr(mtcars)
+```

@@ -29,7 +29,7 @@ devtools::install_github("wagh-nikhil/dtsmartr")
 
 The primary function of the package is `dtsmartr()`. Simply pass any `data.frame` to launch the explorer:
 
-```r
+```{r}
 library(dtsmartr)
 
 # Explore the classic mtcars dataset
@@ -40,10 +40,9 @@ dtsmartr(mtcars)
 
 If you need a clean, lightweight, metadata-free grid viewer for high performance, you can use the newly added `dtsmart_lite()` or its alias `dtsmartr_lite()`:
 
-```r
-# Both functions are identical and supported:
+```{r}
+# Forces a compact, clean grid view of a dataset
 dtsmart_lite(mtcars, title = "Mtcars Lite")
-dtsmartr_lite(mtcars, title = "Mtcars Lite")
 ```
 
 The lightweight mode automatically configures the grid with:

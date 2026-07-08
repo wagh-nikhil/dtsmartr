@@ -86,6 +86,8 @@ dtsmartr_options <- function(
 #'
 #' @import htmlwidgets
 #' @importFrom jsonlite toJSON
+#' @importFrom arrow write_to_raw
+#' @importFrom base64enc base64encode
 #'
 #' @examples
 #' if (interactive()) {

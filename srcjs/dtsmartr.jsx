@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { tableFromIPC } from 'apache-arrow';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const ROW_HEIGHT         = 36;
@@ -2554,8 +2555,19 @@ const ColHeader = React.memo(({ meta, summary, isSorted, sortDir, sortPriority, 
   );
 });
 
+// Helper to decode Base64 to Uint8Array buffer for Arrow IPC decoding
+const base64ToUint8Array = (base64) => {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
+
 // ── Main Component ────────────────────────────────────────────────────────────
-const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} }) => {
+const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', options = {} }) => {
   const {
     advanced_filter = true,
     show_labels     = true,
@@ -2616,8 +2628,32 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
     setShowInsights(true);
   }, []);
 
-  // Raw rows from R column-oriented format
+  // Raw rows from R column-oriented format or Arrow IPC payload
   const rawRows = useMemo(() => {
+    if (arrow_payload) {
+      try {
+        const buffer = base64ToUint8Array(arrow_payload);
+        const table = tableFromIPC(buffer);
+        const columns = table.schema.fields.map(f => f.name);
+        const n = table.numRows;
+        const rows = [];
+        
+        // Contiguous column vector references for fast lookups
+        const vectors = columns.map(col => table.getChild(col));
+        
+        for (let i = 0; i < n; i++) {
+          const row = {};
+          for (let j = 0; j < columns.length; j++) {
+            row[columns[j]] = vectors[j].get(i);
+          }
+          rows.push(row);
+        }
+        return rows;
+      } catch (err) {
+        console.error("Failed to parse Arrow IPC payload, falling back to data:", err);
+      }
+    }
+
     if (!data) return [];
     if (Array.isArray(data)) return data;
     const keys = Object.keys(data);
@@ -2628,7 +2664,7 @@ const DTSmartRComponent = ({ data, metadata, datasetName = 'df', options = {} })
       for (const k of keys) row[k] = data[k][i];
       return row;
     });
-  }, [data]);
+  }, [data, arrow_payload]);
 
   // Unique values per column (including NA values)
   const uniqueVals = useMemo(() => {
@@ -3555,6 +3591,7 @@ window.HTMLWidgets.widget({
         }
         const elem = React.createElement(DTSmartRComponent, {
           data: x.data,
+          arrow_payload: x.arrow_payload,
           metadata: x.metadata,
           datasetName: x.dataset_name || 'df',
           options: x.options

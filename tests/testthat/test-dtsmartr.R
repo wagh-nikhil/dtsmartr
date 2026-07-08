@@ -65,11 +65,18 @@ test_that("dtsmartr creates a valid htmlwidget and processes metadata", {
   expect_s3_class(widget, "htmlwidget")
   expect_s3_class(widget, "dtsmartr")
   
-  # Verify data clean up (factors & dates coerced to character)
-  expect_type(widget$x$data$factor_col, "character")
-  expect_type(widget$x$data$date_col, "character")
-  expect_equal(widget$x$data$factor_col, c("high", "low", "high"))
-  expect_equal(widget$x$data$date_col, c("2026-06-01", "2026-06-02", "2026-06-03"))
+  # Verify Arrow payload exists and can be decoded
+  expect_type(widget$x$arrow_payload, "character")
+  
+  # Decode from base64 and parse via Arrow IPC
+  raw_bytes <- base64enc::base64decode(widget$x$arrow_payload)
+  reader <- arrow::RecordBatchStreamReader$create(raw_bytes)
+  decoded_df <- as.data.frame(reader$read_table())
+  
+  expect_type(decoded_df$factor_col, "character")
+  expect_type(decoded_df$date_col, "character")
+  expect_equal(decoded_df$factor_col, c("high", "low", "high"))
+  expect_equal(decoded_df$date_col, c("2026-06-01", "2026-06-02", "2026-06-03"))
   
   # Check dataset name
   expect_equal(widget$x$dataset_name, "test_dataset")

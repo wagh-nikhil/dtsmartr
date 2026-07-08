@@ -13,5 +13,8 @@
   "scripts": {
     "watch": "webpack --watch",
     "build": "webpack"
+  },
+  "dependencies": {
+    "apache-arrow": "^21.1.0"
   }
 }

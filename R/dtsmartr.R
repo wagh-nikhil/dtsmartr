@@ -178,11 +178,15 @@ dtsmartr <- function(
   )
   rownames(data_clean) <- rownames(data)
 
+  # Serialize clean data to Apache Arrow IPC stream (Base64 encoded)
+  raw_bytes <- arrow::write_to_raw(data_clean, format = "stream")
+  arrow_base64 <- base64enc::base64encode(raw_bytes)
+
   x <- list(
-    data         = data_clean,
-    metadata     = metadata,
-    dataset_name = ds_name,
-    options      = options
+    arrow_payload = arrow_base64,
+    metadata      = metadata,
+    dataset_name  = ds_name,
+    options       = options
   )
 
   # Create htmlwidget

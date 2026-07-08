@@ -23,14 +23,14 @@ Depending on the scale of your dataset and analytical needs, `dtsmartr` offers t
 ```mermaid
 graph TD
     A[Dataset] --> B{Choose Profile}
-    B -->|Full Analytics| C["dtsmartr()"]
-    B -->|Compact Viewer| D["dtsmart_lite()"]
-    C --> C1["Micro-Dashboard Headers"]
-    C --> C2["Advanced Query Builder"]
-    C --> C3["Reproducible Code Export"]
-    D --> D1["Flat Column Headers"]
-    D --> D2["Maximum Scroll Velocity"]
-    D --> D3["Minimalist Footprint"]
+    B -->|Full Analytics| C[dtsmartr]
+    B -->|Compact Viewer| D[dtsmart_lite]
+    C --> C1[Micro-Dashboard Headers]
+    C --> C2[Advanced Query Builder]
+    C --> C3[Reproducible Code Export]
+    D --> D1[Flat Column Headers]
+    D --> D2[Maximum Scroll Velocity]
+    D --> D3[Minimalist Footprint]
 ```
 
 ### 1. `dtsmartr()` — Full Analytics Mode (Default)

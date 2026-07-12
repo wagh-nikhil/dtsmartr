@@ -48,4 +48,5 @@ and rendering options for the dtsmartr interactive grid widget.
 \examples{
 dtsmartr_options(advanced_filter = FALSE, hidden_columns = c("STUDYID", "USUBJID"))
 dtsmartr_options(header_summary = FALSE)
+dtsmartr_options(header_density = "minimal", row_density = "compact")
 }

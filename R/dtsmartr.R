@@ -20,6 +20,7 @@
 #' @examples
 #' dtsmartr_options(advanced_filter = FALSE, hidden_columns = c("STUDYID", "USUBJID"))
 #' dtsmartr_options(header_summary = FALSE)
+#' dtsmartr_options(header_density = "minimal", row_density = "compact")
 dtsmartr_options <- function(
     advanced_filter = TRUE,
     show_labels     = TRUE,

@@ -36,6 +36,21 @@ library(dtsmartr)
 dtsmartr(mtcars)
 ```
 
+## Custom Layout Densities (v0.4.0)
+
+You can programmatically configure the default header and row density modes using `dtsmartr_options()`:
+
+```{r}
+# Launch in compact/minimal layout view
+dtsmartr(
+  data = mtcars,
+  options = dtsmartr_options(
+    header_density = "minimal",
+    row_density    = "compact"
+  )
+)
+```
+
 ## Lightweight Mode
 
 If you need a clean, lightweight, metadata-free grid viewer for high performance, you can use the newly added `dtsmart_lite()` or its alias `dtsmartr_lite()`:

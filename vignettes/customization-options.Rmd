@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Customization & Themes"
 output: rmarkdown::html_vignette
 vignette: >
@@ -54,9 +54,24 @@ Specify a vector of column names to hide by default on initial rendering. Users 
 
 ---
 
-## 5. Live Theme & Customization Example
+## 5. Grid Layout & Row Densities (`header_density` and `row_density`)
 
-Below is a live interactive grid rendering in **Dark Mode** with pre-hidden variables (`hp`, `vs`), custom missing cell markers (`na_string = "—"`), and the column picker disabled:
+Configure the initial layout density programmatically:
+
+* **`header_density`**: Sets the initial header layout height.
+  - `"auto"` (Default): Scales dynamically based on screen height.
+  - `"minimal"`: Forces a super-flat 48px header height.
+  - `"detailed"`: Forces the full Kaggle-style summary zone.
+* **`row_density`**: Sets the row padding and vertical spacing.
+  - `"standard"` (Default): Balanced 32px row height.
+  - `"compact"`: Ultra-dense 24px row height (max visibility).
+  - `"comfortable"`: Relaxed 40px row height.
+
+---
+
+## 6. Live Theme & Customization Example
+
+Below is a live interactive grid rendering in **Dark Mode** with pre-hidden variables (`hp`, `vs`), custom missing cell markers (`na_string = "—"`), and compact density preset:
 
 ```{r}
 library(dtsmartr)
@@ -67,7 +82,8 @@ dtsmartr(
     theme           = "dark",
     hidden_columns  = c("hp", "vs"),
     na_string       = "—",
-    column_picker   = FALSE
+    header_density  = "minimal",
+    row_density     = "compact"
   )
 )
 ```

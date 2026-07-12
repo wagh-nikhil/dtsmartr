@@ -17,15 +17,19 @@ knitr::opts_chunk$set(
 `dtsmartr` provides powerful column filtering tools, from quick checkboxes to complex logical query rules.
 
 ## 1. Column Quick Filters
-Click the hamburger icon (≡) on any column to open the dedicated filter panel:
+Click the filter funnel icon inside any column header to open the column quick-filter panel:
 - **Categorical & Low Cardinality Columns**: Columns with 20 or fewer unique values show a checklist. Search values dynamically, check the categories you want, and click **Apply** (or press **Enter**) to filter.
 - **Continuous / Numeric Columns**: Shows a text search input box. Type your filter query and press **Enter** to instantly filter matching values.
 
-## 2. Advanced Query Builder
-Click the **Advanced Filter** toggle on the top toolbar to reveal the rule-based Query Builder:
-- Create nested logical conditions using **AND** or **OR** connector groups.
-- Set complex column rules (operators like `equals`, `contains`, `in`, `greater than`, `is null`, etc.).
-- Combine quick filters and advanced rule conditions together (they evaluate concurrently).
+---
+
+## 2. Advanced Filter Side-Panel Drawer
+Click the Advanced Filter funnel button in the toolbar (or press `Ctrl + Alt + F`) to slide open the Advanced Query Builder drawer on the right side of the screen:
+- **Rule Groups**: Create nested logical conditions using **AND** or **OR** connector groups.
+- **Rules**: Set complex column rules (operators like `equals`, `contains`, `in`, `greater than`, `is null`, etc.).
+- **Live Preview Highlighting**: As you edit rules in the sidebar, matching rows are immediately highlighted in **yellow** in the table behind it, providing real-time visual feedback before you commit the query.
+- **Live Count**: Shows the matching row count in real-time.
+- Click **Apply Query** to filter, or click the refresh/clear button to reset.
 
 ## 3. Live Interactive Filtering Example
 Try searching or filtering columns in the live grid below:

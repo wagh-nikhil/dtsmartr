@@ -14,22 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
-`dtsmartr` supports complex multi-column sorting natively from the grid headers.
+`dtsmartr` supports modern, spreadsheet-like multi-column sorting natively by interacting with column headers.
 
 ## 1. Single Column Sort
-Clicking the sorting icon (⇅) on any column opens a dedicated dropdown menu:
-- **↑ Sort ascending (Primary)**: Sets this column as the primary ascending sort variable, replacing previous selections.
-- **↓ Sort descending (Primary)**: Sets this column as the primary descending sort variable, replacing previous selections.
+Clicking directly anywhere on a column header card triggers sorting:
+- **First Click**: Sorts the column ascending (`↑`).
+- **Second Click**: Sorts the column descending (`↓`).
+- **Third Click**: Clears the sort state for that column.
 
-## 2. Multi-Column Sort
-To sort by multiple columns sequentially (e.g. sort by `CYL` first, then sort by `MPG` inside each cylinder class):
-- Click the sorting icon (⇅) on the first column and select **Sort ascending (Primary)**.
-- Click the sorting icon (⇅) on the second column and select **➕ Add to sort (Ascending)** or **➕ Add to sort (Descending)**.
-- The UI will display sequence badges (e.g., `(1)`, `(2)`) next to the sorting direction indicators to help you track your sorting priority order.
+---
 
-## 3. Clearing Column Sorts
-- To remove a single column from the multi-column sort list, open its sorting dropdown and select **❌ Remove from sort**.
-- To clear all sorting configurations at once, click the **Clear sort** link in the toolbar at the top of the grid.
+## 2. Multi-Column Sort Chain
+To sort by multiple columns sequentially (e.g., sort by `cyl` first, then by `mpg` within each cylinder class):
+- Click the first column header (e.g., `cyl`) to set the primary sort.
+- **Hold `Shift` and click** the second column header (e.g., `mpg`) to append it to the sort chain.
+- The UI displays numbered emoji badges (e.g., `1️⃣ ↑`, `2️⃣ ↓`) next to the column names to show the sorting priority and direction.
+- The active sort chain is also printed in the grid's top toolbar (e.g., `↕ cyl asc (1) -> mpg desc (2)`).
+
+---
+
+## 3. Clearing Sorts
+- **Clear a Single Column**: Simply `Shift + Click` the sorted column header until its sort direction indicator disappears.
+- **Clear All Sorts**: Click the **Clear sort** button (refresh icon) inside the top-right toolbar.
 
 ## 4. Live Multi-Column Sorting Example
 Try sorting by cylinders (`cyl`) first, and then sorting by miles-per-gallon (`mpg`) inside the cylinder groups:

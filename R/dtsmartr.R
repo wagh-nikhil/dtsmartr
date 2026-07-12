@@ -11,6 +11,8 @@
 #' @param na_string Character. Custom string placeholder displayed in cells with missing values (`NA` or `null`). Defaults to `"NA"`.
 #' @param hidden_columns Character vector. Vector of column names to hide by default on initial widget rendering.
 #' @param header_summary Logical. If `TRUE` (default), renders the Kaggle-style summary zone (histograms, bar charts, completeness bar) in column headers.
+#' @param header_density Character. Density mode for column headers: `"auto"` (default), `"minimal"`, or `"detailed"`.
+#' @param row_density Character. Density mode for rows: `"standard"` (default), `"compact"`, or `"comfortable"`.
 #'
 #' @return A named list of validated configuration settings.
 #' @export
@@ -26,7 +28,9 @@ dtsmartr_options <- function(
     theme           = "auto",
     na_string       = "NA",
     hidden_columns  = NULL,
-    header_summary  = TRUE
+    header_summary  = TRUE,
+    header_density  = "auto",
+    row_density     = "standard"
 ) {
   # ── Validations ─────────────────────────────────────────────────────────────
   if (!is.logical(advanced_filter) || length(advanced_filter) != 1L) {
@@ -41,7 +45,9 @@ dtsmartr_options <- function(
   if (!is.logical(allow_export) || length(allow_export) != 1L) {
     stop("`allow_export` must be a single logical value (TRUE/FALSE).", call. = FALSE)
   }
-  theme <- match.arg(theme, c("auto", "light", "dark"))
+  theme          <- match.arg(theme, c("auto", "light", "dark"))
+  header_density <- match.arg(header_density, c("auto", "minimal", "detailed"))
+  row_density    <- match.arg(row_density, c("standard", "compact", "comfortable"))
 
   if (!is.character(na_string) || length(na_string) != 1L) {
     stop("`na_string` must be a single character string.", call. = FALSE)
@@ -61,7 +67,9 @@ dtsmartr_options <- function(
     theme           = theme,
     na_string       = na_string,
     hidden_columns  = if (is.null(hidden_columns)) list() else as.list(hidden_columns),
-    header_summary  = header_summary
+    header_summary  = header_summary,
+    header_density  = header_density,
+    row_density     = row_density
   )
 }
 

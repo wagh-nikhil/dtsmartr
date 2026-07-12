@@ -2228,7 +2228,7 @@ const ColMetaTooltip = ({ meta, rawRows, colors, isDarkMode, customSummary = nul
 const ColHeader = React.memo(({
   meta, summary, isSorted, sortDir, sortPriority, isFiltered, showLabels,
   onSort, onOpenPanel, onOpenInsights, onResizeStart, colWidth, colors,
-  isDarkMode, summary_header = true, insights = true,
+  isDarkMode, summary_header = true, insights = true, headerHeight,
   frozenLeftOffset, isFrozen, isAnchored, onAnchor,
   onDragStart, onDragOver, onDragEnd, onDrop, isDragOver
 }) => {
@@ -2260,6 +2260,78 @@ const ColHeader = React.memo(({
 
   const renderSummaryZone = () => {
     if (!summary) return null;
+
+    // Check conditions for hiding sparklines
+    const cv = (summary.stdDev != null && summary.mean) ? (summary.stdDev / Math.abs(summary.mean)) : null;
+    const isConstant = summary.uniqueCount === 1;
+    const isBinary = summary.uniqueCount === 2;
+    const isLowVariance = cv !== null && cv < 0.1;
+    const isLowCardinalityCategorical = summary.mode === 'categorical' && summary.uniqueCount < 5;
+
+    // If constant
+    if (isConstant && summary.topCats[0]) {
+      return (
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:60, fontSize:11, color:colors.subText }}>
+          <span style={{ background: isDarkMode ? '#1e293b' : '#f1f5f9', padding: '4px 8px', borderRadius: 6, border: `1px solid ${colors.border}` }}>
+            🔒 Constant: <b>{String(summary.topCats[0].val)}</b>
+          </span>
+        </div>
+      );
+    }
+
+    // If binary
+    if (isBinary && summary.topCats[0] && summary.topCats[1]) {
+      return (
+        <div style={{ display:'flex', flexDirection:'column', justifyContent:'center', height:60, fontSize:10, color:colors.subText, gap:4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 4px' }}>
+            <span>{String(summary.topCats[0].val)}</span>
+            <span>{String(summary.topCats[1].val)}</span>
+          </div>
+          <div style={{ height: 6, borderRadius: 3, overflow: 'hidden', background: isDarkMode ? '#334155' : '#e2e8f0', display: 'flex' }}>
+            <div style={{ width: `${summary.topCats[0].pct}%`, background: '#3b82f6', height: '100%' }} />
+            <div style={{ width: `${summary.topCats[1].pct}%`, background: '#10b981', height: '100%' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, fontWeight: 600, padding: '0 4px' }}>
+            <span>{summary.topCats[0].pct.toFixed(0)}%</span>
+            <span>{summary.topCats[1].pct.toFixed(0)}%</span>
+          </div>
+        </div>
+      );
+    }
+
+    // If low variance
+    if (isLowVariance && (summary.mode === 'numeric' || summary.mode === 'integer')) {
+      return (
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:60, fontSize:11, color:colors.subText }}>
+          <span style={{ background: isDarkMode ? '#1e293b' : '#f1f5f9', padding: '4px 8px', borderRadius: 6, border: `1px solid ${colors.border}` }} title={`CV = ${cv.toFixed(3)}`}>
+            ⚖️ CV: <b>{cv.toFixed(2)}</b> (low var)
+          </span>
+        </div>
+      );
+    }
+
+    // If low cardinality categorical
+    if (isLowCardinalityCategorical) {
+      const top3 = summary.topCats.slice(0, 3);
+      return (
+        <div style={{ display:'flex', flexDirection:'column', justifyContent:'center', height:60, gap:4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: colors.subText }}>
+            <span>🏷️ {summary.uniqueCount} categories</span>
+          </div>
+          <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            {top3.map((cat, idx) => (
+              <span key={idx} style={{
+                fontSize: 9, background: isDarkMode ? '#1e293b' : '#f1f5f9',
+                padding: '2px 6px', borderRadius: 4, border: `1px solid ${colors.border}`,
+                maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+              }} title={`${cat.val}: ${cat.pct.toFixed(0)}%`}>
+                {cat.val} ({cat.pct.toFixed(0)}%)
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
 
     if (summary.mode === 'identifier') {
       return (
@@ -2366,6 +2438,36 @@ const ColHeader = React.memo(({
   const qualityColor = summary ? (summary.validPct >= 90 ? '#22c55e' : summary.validPct >= 70 ? '#f59e0b' : '#ef4444') : '#22c55e';
   const missingTooltip = summary ? `${summary.totalRows.toLocaleString()} values • ${summary.naCount.toLocaleString()} missing (${summary.naPct.toFixed(0)}%)` : '';
 
+  const renderSortIndicator = () => {
+    if (!isSorted) return null;
+    const arrow = sortDir === 'asc' ? '↑' : '↓';
+    const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
+    const priorityBadge = sortPriority && sortPriority <= 9
+      ? numberEmojis[sortPriority - 1]
+      : sortPriority ? `[${sortPriority}]` : '';
+    
+    return (
+      <span
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          fontSize: 11,
+          color: '#3b82f6',
+          flexShrink: 0,
+          background: isDarkMode ? '#1e3a8a' : '#dbeafe',
+          padding: '2px 4px',
+          borderRadius: 4,
+          lineHeight: 1,
+          fontWeight: 700
+        }}
+        title={`Sorted ${sortDir === 'asc' ? 'ascending' : 'descending'} (Priority ${sortPriority})`}
+      >
+        {priorityBadge} {arrow}
+      </span>
+    );
+  };
+
   return (
     <div
       className="dtex-header-cell"
@@ -2377,6 +2479,13 @@ const ColHeader = React.memo(({
         }
         e.dataTransfer.setData("text/plain", meta.name);
         onDragStart(meta.name);
+        
+        // Add styling for drag image snapshot
+        const target = e.currentTarget;
+        target.classList.add('column-drag-ghost');
+        setTimeout(() => {
+          target.classList.remove('column-drag-ghost');
+        }, 0);
       }}
       onDragOver={(e) => {
         e.preventDefault();
@@ -2387,18 +2496,25 @@ const ColHeader = React.memo(({
         e.preventDefault();
         onDrop(meta.name);
       }}
+      onClick={(e) => {
+        if (e.target.closest('.dtex-resize-handle') || e.target.closest('button') || e.target.closest('span[onClick]')) {
+          return;
+        }
+        e.stopPropagation();
+        onSort(meta.name, e.shiftKey);
+      }}
       style={{
-        width: colWidth, flexShrink:0, height:HEADER_HEIGHT,
+        width: colWidth, flexShrink:0, height:headerHeight || HEADER_HEIGHT,
         padding:'5px 8px 8px 10px', display:'flex', flexDirection:'column',
         justifyContent:'space-between', cursor:'grab', userSelect:'none',
         borderRight: isAnchored ? '3px solid #3b82f6' : `1px solid ${colors.border}`, boxSizing:'border-box',
         background: isSorted ? colors.headerActiveBg : isFiltered ? (isDarkMode ? '#064e3b' : '#f0fdf4') : colors.headerBg,
         position: 'relative',
-        boxShadow: isDragOver ? 'inset 4px 0 0 #3b82f6' : undefined,
+        boxShadow: isDragOver ? 'inset 4px 0 0 #3b82f6, 0 0 8px rgba(59, 130, 246, 0.4)' : undefined,
         ...stickyStyle,
       }}
     >
-      {/* Row 1: type icon + column name + info icon + insights icon + sort arrow */}
+      {/* Row 1: type icon + column name + info icon + insights icon + sort indicator */}
       <div style={{ display:'flex', alignItems:'center', gap:4, flexDirection: isNumericCol ? 'row-reverse' : 'row' }}>
         <span style={{ fontSize:10, color:t.text, fontWeight:700,
           background:t.bg, borderRadius:3, padding:'0 4px', flexShrink:0 }}>{t.icon}</span>
@@ -2436,6 +2552,8 @@ const ColHeader = React.memo(({
             </span>
           )}
         </div>
+        
+        {renderSortIndicator()}
         
         {/* Insights button */}
         {insights && summary_header && (
@@ -2481,6 +2599,7 @@ const ColHeader = React.memo(({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            flexShrink: 0
           }}
           title={isAnchored ? "Unanchor column" : isFrozen ? "Frozen (anchored to the right)" : "Anchor column (freeze left)"}
           onMouseEnter={e => { if (!isFrozen) e.currentTarget.style.color = '#3b82f6'; }}
@@ -2488,42 +2607,32 @@ const ColHeader = React.memo(({
         >
           ⚓
         </button>
-        
-        <span
-          onClick={openSortDropdown}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            fontSize: 10,
-            color: isSorted ? '#3b82f6' : colors.subText,
-            flexShrink: 0,
-            cursor: 'pointer',
-            padding: '2px 4px',
-            borderRadius: 4,
-            background: isSorted ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : 'transparent'
-          }}
-          title="Click to sort..."
-        >
-          {isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
-          {sortPriority && (
-            <span style={{
-              fontSize: 9,
-              fontWeight: 700,
-              background: '#3b82f6',
-              color: '#fff',
-              borderRadius: '50%',
-              width: 12,
-              height: 12,
+
+        {/* Filter button (inline in Row 1 only when compact/minimal view) */}
+        {!summary_header && (
+          <button
+            ref={btnRef}
+            onClick={openFilterPanel}
+            title="Filter Menu"
+            style={{
+              border: 'none',
+              background: isFiltered ? '#3b82f6' : 'transparent',
+              color: isFiltered ? '#fff' : colors.subText,
+              cursor: 'pointer',
+              fontSize: 11,
+              padding: '2px',
+              borderRadius: 4,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              lineHeight: 1
-            }}>
-              {sortPriority}
-            </span>
-          )}
-        </span>
+              flexShrink: 0
+            }}
+            onMouseEnter={e => { if (!isFiltered) e.currentTarget.style.color = '#3b82f6'; }}
+            onMouseLeave={e => { if (!isFiltered) e.currentTarget.style.color = colors.subText; }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          </button>
+        )}
       </div>
 
       {/* Row 2 (label): shown only when showLabels=true and label exists */}
@@ -2541,28 +2650,6 @@ const ColHeader = React.memo(({
 
       {/* Summary Micro-Dashboard Zone */}
       {summary_header && renderSummaryZone()}
-
-      {/* Floating Panel Open Trigger button */}
-      <button ref={btnRef} onClick={openFilterPanel} title="Filter Menu"
-        style={{
-          position: 'absolute',
-          right: 8,
-          bottom: summary_header ? 8 : 4,
-          width: 18,
-          height: 18,
-          border: 'none',
-          borderRadius: 4,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 11,
-          background: isFiltered ? '#3b82f6' : 'transparent',
-          color: isFiltered ? '#fff' : colors.subText,
-          zIndex: 5
-        }}>
-        ≡
-      </button>
 
       {/* Thin data-quality bar at the bottom with explicit tooltip */}
       {summary_header && (
@@ -2590,6 +2677,35 @@ const ColHeader = React.memo(({
       {/* Metadata tooltip on column name hover */}
       {hoveringName && summary_header && summary && (
         <ColMetaTooltip meta={meta} rawRows={[]} colors={colors} isDarkMode={isDarkMode} customSummary={summary} />
+      )}
+
+      {/* Absolute Filter Menu button (detailed view only, aligned with summary zone at bottom) */}
+      {summary_header && (
+        <button
+          ref={btnRef}
+          onClick={openFilterPanel}
+          title="Filter Menu"
+          style={{
+            position: 'absolute',
+            right: 8,
+            bottom: 8,
+            width: 20,
+            height: 20,
+            border: 'none',
+            borderRadius: 4,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: isFiltered ? '#3b82f6' : 'transparent',
+            color: isFiltered ? '#fff' : colors.subText,
+            zIndex: 5
+          }}
+          onMouseEnter={e => { if (!isFiltered) e.currentTarget.style.color = '#3b82f6'; }}
+          onMouseLeave={e => { if (!isFiltered) e.currentTarget.style.color = colors.subText; }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        </button>
       )}
 
       {/* Drag-to-resize handle */}
@@ -2626,6 +2742,90 @@ const base64ToUint8Array = (base64) => {
   return bytes;
 };
 
+// Helper to evaluate a row against a list of Advanced Query rules
+const evaluateRow = (row, rules, logical) => {
+  if (!rules || rules.length === 0) return true;
+
+  const ruleEvaluations = rules.map(rule => {
+    const cell = row[rule.col];
+    const val = rule.val;
+    const op = rule.op;
+
+    // Null checks
+    if (op === 'is_null') {
+      return cell == null || cell === '';
+    }
+    if (op === 'is_not_null') {
+      return cell != null && cell !== '';
+    }
+
+    // Evaluate NA/null check for 'in' and 'not_in' before checking if cell == null
+    if (op === 'in') {
+      let allowed = [];
+      try { allowed = JSON.parse(val || '[]'); } catch(e) {}
+      if (allowed.length === 0) return true;
+      if (cell == null) return allowed.includes('NA') || allowed.includes(null);
+      return allowed.some(v => String(v).toLowerCase() === String(cell).toLowerCase());
+    }
+    if (op === 'not_in') {
+      let forbidden = [];
+      try { forbidden = JSON.parse(val || '[]'); } catch(e) {}
+      if (forbidden.length === 0) return true;
+      if (cell == null) return !(forbidden.includes('NA') || forbidden.includes(null));
+      return !forbidden.some(v => String(v).toLowerCase() === String(cell).toLowerCase());
+    }
+
+    // If the cell value is null but we are not doing a null check, then it is false
+    if (cell == null) return false;
+
+    const cellStr = String(cell).toLowerCase();
+    const valStr = String(val).toLowerCase();
+
+    switch (op) {
+      case '==':
+        if (typeof cell === 'boolean') {
+          return String(cell) === val;
+        }
+        if (typeof cell === 'number') {
+          return cell === Number(val);
+        }
+        return cellStr === valStr;
+      case '!=':
+        if (typeof cell === 'boolean') {
+          return String(cell) !== val;
+        }
+        if (typeof cell === 'number') {
+          return cell !== Number(val);
+        }
+        return cellStr !== valStr;
+      case '>':
+        return typeof cell === 'number' ? cell > Number(val) : cellStr > valStr;
+      case '<':
+        return typeof cell === 'number' ? cell < Number(val) : cellStr < valStr;
+      case '>=':
+        return typeof cell === 'number' ? cell >= Number(val) : cellStr >= valStr;
+      case '<=':
+        return typeof cell === 'number' ? cell <= Number(val) : cellStr <= valStr;
+      case 'contains':
+        return cellStr.includes(valStr);
+      case 'not_contains':
+        return !cellStr.includes(valStr);
+      case 'starts_with':
+        return cellStr.startsWith(valStr);
+      case 'ends_with':
+        return cellStr.endsWith(valStr);
+      default:
+        return true;
+    }
+  });
+
+  if (logical === 'AND') {
+    return ruleEvaluations.every(res => res);
+  } else {
+    return ruleEvaluations.some(res => res);
+  }
+};
+
 // ── Main Component ────────────────────────────────────────────────────────────
 const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', options = {} }) => {
   const {
@@ -2636,7 +2836,9 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
     theme           = 'auto',
     na_string       = 'NA',
     hidden_columns  = [],
-    header_summary  = true
+    header_summary  = true,
+    header_density  = 'auto',
+    row_density     = 'standard'
   } = options;
 
   const [showRCodeModal,   setShowRCodeModal]   = useState(false);
@@ -2657,11 +2859,29 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
   const [frozenColId,      setFrozenColId]      = useState(null);
   const [draggedColId,     setDraggedColId]     = useState(null);
   const [dragOverColId,    setDragOverColId]    = useState(null);
+  const [draftQueryRules,  setDraftQueryRules]  = useState([]);     // rules being edited in panel
+  const [headerDensity,    setHeaderDensity]    = useState(() => localStorage.getItem('dtsmartr-header-density') || header_density);
+  const [rowDensity,       setRowDensity]       = useState(() => localStorage.getItem('dtsmartr-row-density') || row_density);
+  const [showShortcuts,    setShowShortcuts]    = useState(false);  // keyboard cheatsheet overlay
+  const [showFilterTip,    setShowFilterTip]    = useState(() => !localStorage.getItem('dtsmartr-hint-filter-dismissed'));
+  const [showSortTip,      setShowSortTip]      = useState(() => !localStorage.getItem('dtsmartr-hint-sort-dismissed'));
   const wrapRef = useRef(null);
 
   const getColWidth = useCallback((colName) => colWidths[colName] || COL_WIDTH, [colWidths]);
 
   const resizingRef = useRef(null);
+
+  const ROW_HEIGHT = rowDensity === 'compact' ? 24 : rowDensity === 'comfortable' ? 40 : 32;
+
+  const handleHeaderDensityChange = useCallback((mode) => {
+    setHeaderDensity(mode);
+    localStorage.setItem('dtsmartr-header-density', mode);
+  }, []);
+
+  const handleRowDensityChange = useCallback((mode) => {
+    setRowDensity(mode);
+    localStorage.setItem('dtsmartr-row-density', mode);
+  }, []);
 
   const handleResizeStart = useCallback((colName, e) => {
     resizingRef.current = {
@@ -2797,13 +3017,22 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
       const validPct = totalRows > 0 ? ((validCount / totalRows) * 100) : 100;
       const naPct = totalRows > 0 ? ((naCount / totalRows) * 100) : 0;
 
-      // Calculate Median for numeric
+      // Calculate Median & Standard Deviation for numeric
       let median = null;
+      let stdDev = null;
       if (isNum && validCount > 0) {
         const sortedNums = values.map(Number).filter(v => !isNaN(v)).sort((a, b) => a - b);
         if (sortedNums.length > 0) {
           const mid = Math.floor(sortedNums.length / 2);
           median = sortedNums.length % 2 !== 0 ? sortedNums[mid] : (sortedNums[mid - 1] + sortedNums[mid]) / 2;
+        }
+        if (validCount > 1) {
+          const meanVal = sum / validCount;
+          const squaredDiffs = values.map(Number).filter(v => !isNaN(v)).map(v => (v - meanVal) ** 2);
+          const sumSquaredDiffs = squaredDiffs.reduce((a, b) => a + b, 0);
+          stdDev = Math.sqrt(sumSquaredDiffs / (validCount - 1));
+        } else {
+          stdDev = 0;
         }
       }
 
@@ -2927,6 +3156,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
         max: validCount > 0 && isNum ? max : null,
         mean: validCount > 0 && isNum ? (sum / validCount) : null,
         median: validCount > 0 && isNum ? median : null,
+        stdDev,
         topCats,
         histogramBins,
         histogramData,
@@ -3021,6 +3251,74 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
     }
   }, [metadata]);
 
+  // Synchronize draft rules when Query Builder opens or queryRules changes
+  useEffect(() => {
+    if (showQueryBuilder) {
+      setDraftQueryRules(queryRules);
+    }
+  }, [showQueryBuilder, queryRules]);
+
+  // Keyboard Shortcuts Event Listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // If focused inside input fields, don't run global shortcuts
+      if (
+        document.activeElement.tagName === 'INPUT' ||
+        document.activeElement.tagName === 'SELECT' ||
+        document.activeElement.tagName === 'TEXTAREA'
+      ) {
+        return;
+      }
+
+      // '?' key
+      if (e.key === '?') {
+        e.preventDefault();
+        setShowShortcuts(prev => !prev);
+      }
+
+      // Ctrl+F or Meta+F
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setShowQueryBuilder(prev => !prev);
+      }
+
+      // Ctrl+Shift+F
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        setFilters({});
+        setQueryRules([]);
+        setDraftQueryRules([]);
+      }
+
+      // Ctrl+Shift+[
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === '{') {
+        e.preventDefault();
+        handleRowDensityChange('compact');
+      }
+
+      // Ctrl+Shift+]
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === '}') {
+        e.preventDefault();
+        handleRowDensityChange('comfortable');
+      }
+
+      // Ctrl+Shift+0
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === ')') {
+        e.preventDefault();
+        handleRowDensityChange('standard');
+      }
+
+      // Escape key to close modals
+      if (e.key === 'Escape') {
+        setShowShortcuts(false);
+        setPopup(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleRowDensityChange]);
+
   // Reorder and filter columns
   const cols = useMemo(() => {
     const metaMap = {};
@@ -3099,20 +3397,15 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
 
 
 
-  // Filter
-  const filteredRows = useMemo(() => {
-    // 1. Column-level quick filters
+  // Filter 1: Column-level quick filters only
+  const quickFilteredRows = useMemo(() => {
     const activeQuick = Object.entries(filters).filter(([,v]) =>
       v != null && (Array.isArray(v) ? v.length>0 : v!==''));
 
-    // 2. Advanced Query rules
-    const hasRules = queryRules && queryRules.length > 0;
-
-    if (!activeQuick.length && !hasRules) return rawRows;
+    if (!activeQuick.length) return rawRows;
 
     return rawRows.filter(row => {
-      // Evaluate quick filters first (must all match - AND)
-      const matchesQuick = activeQuick.every(([col, val]) => {
+      return activeQuick.every(([col, val]) => {
         const cell = row[col];
         if (Array.isArray(val)) {
           return val.some(v => {
@@ -3124,92 +3417,34 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
         if (cell == null) return false;
         return String(cell).toLowerCase().includes(val.toLowerCase());
       });
+    });
+  }, [rawRows, filters]);
 
-      if (!matchesQuick) return false;
+  // Filter 2: Apply committed queryRules on top of quickFilteredRows
+  const filteredRows = useMemo(() => {
+    const hasRules = queryRules && queryRules.length > 0;
+    if (!hasRules) return quickFilteredRows;
+    return quickFilteredRows.filter(row => evaluateRow(row, queryRules, queryLogical));
+  }, [quickFilteredRows, queryRules, queryLogical]);
 
-      // Evaluate advanced query rules
-      if (!hasRules) return true;
-
-      const ruleEvaluations = queryRules.map(rule => {
-        const cell = row[rule.col];
-        const val = rule.val;
-        const op = rule.op;
-
-        // Null checks
-        if (op === 'is_null') {
-          return cell == null || cell === '';
-        }
-        if (op === 'is_not_null') {
-          return cell != null && cell !== '';
-        }
-
-        // Evaluate NA/null check for 'in' and 'not_in' before checking if cell == null
-        if (op === 'in') {
-          let allowed = [];
-          try { allowed = JSON.parse(val || '[]'); } catch(e) {}
-          if (allowed.length === 0) return true;
-          if (cell == null) return allowed.includes('NA') || allowed.includes(null);
-          return allowed.some(v => String(v).toLowerCase() === String(cell).toLowerCase());
-        }
-        if (op === 'not_in') {
-          let forbidden = [];
-          try { forbidden = JSON.parse(val || '[]'); } catch(e) {}
-          if (forbidden.length === 0) return true;
-          if (cell == null) return !(forbidden.includes('NA') || forbidden.includes(null));
-          return !forbidden.some(v => String(v).toLowerCase() === String(cell).toLowerCase());
-        }
-
-        // If the cell value is null but we are not doing a null check, then it is false
-        if (cell == null) return false;
-
-        const cellStr = String(cell).toLowerCase();
-        const valStr = String(val).toLowerCase();
-
-        switch (op) {
-          case '==':
-            if (typeof cell === 'boolean') {
-              return String(cell) === val;
-            }
-            if (typeof cell === 'number') {
-              return cell === Number(val);
-            }
-            return cellStr === valStr;
-          case '!=':
-            if (typeof cell === 'boolean') {
-              return String(cell) !== val;
-            }
-            if (typeof cell === 'number') {
-              return cell !== Number(val);
-            }
-            return cellStr !== valStr;
-          case '>':
-            return typeof cell === 'number' ? cell > Number(val) : cellStr > valStr;
-          case '<':
-            return typeof cell === 'number' ? cell < Number(val) : cellStr < valStr;
-          case '>=':
-            return typeof cell === 'number' ? cell >= Number(val) : cellStr >= valStr;
-          case '<=':
-            return typeof cell === 'number' ? cell <= Number(val) : cellStr <= valStr;
-          case 'contains':
-            return cellStr.includes(valStr);
-          case 'not_contains':
-            return !cellStr.includes(valStr);
-          case 'starts_with':
-            return cellStr.startsWith(valStr);
-          case 'ends_with':
-            return cellStr.endsWith(valStr);
-          default:
-            return true;
-        }
-      });
-
-      if (queryLogical === 'AND') {
-        return ruleEvaluations.every(res => res);
-      } else {
-        return ruleEvaluations.some(res => res);
+  // Preview highlighting matching set (based on draft rules)
+  const draftMatchingRows = useMemo(() => {
+    if (!showQueryBuilder || draftQueryRules.length === 0) return new Set();
+    const matched = new Set();
+    quickFilteredRows.forEach((row) => {
+      if (evaluateRow(row, draftQueryRules, queryLogical)) {
+        matched.add(row);
       }
     });
-  }, [rawRows, filters, queryRules, queryLogical]);
+    return matched;
+  }, [quickFilteredRows, draftQueryRules, queryLogical, showQueryBuilder]);
+
+  // Preview matching row count (based on draft rules)
+  const draftMatchCount = useMemo(() => {
+    if (!showQueryBuilder) return 0;
+    if (draftQueryRules.length === 0) return quickFilteredRows.length;
+    return quickFilteredRows.filter(row => evaluateRow(row, draftQueryRules, queryLogical)).length;
+  }, [quickFilteredRows, draftQueryRules, queryLogical, showQueryBuilder]);
 
   // Sort
   const rows = useMemo(() => {
@@ -3297,10 +3532,20 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
   const activeFilterCount = Object.values(filters).filter(v =>
     v != null && (Array.isArray(v) ? v.length>0 : v!=='')).length;
 
-  // Virtualisation — header height depends on label visibility and header_summary
-  const HEADER_HEIGHT = header_summary
-    ? ((showLabels && hasAnyLabel) ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE)
-    : ((showLabels && hasAnyLabel) ? HEADER_HEIGHT_COMPACT_LBL : HEADER_HEIGHT_COMPACT_BASE);
+  // Virtualisation — header height depends on label visibility, header_summary, and chosen density mode
+  const HEADER_HEIGHT = useMemo(() => {
+    const isDetailed = headerDensity === 'detailed' || (headerDensity === 'auto' && wrapH >= 600);
+    const isCompact = headerDensity === 'auto' && wrapH < 600;
+    const isMinimal = headerDensity === 'minimal';
+    
+    if (isMinimal) {
+      return (showLabels && hasAnyLabel) ? 48 : 32;
+    }
+    if (isCompact) {
+      return (showLabels && hasAnyLabel) ? 68 : 48;
+    }
+    return (showLabels && hasAnyLabel) ? HEADER_HEIGHT_LBL : HEADER_HEIGHT_BASE;
+  }, [headerDensity, wrapH, showLabels, hasAnyLabel]);
   const bodyH       = wrapH - HEADER_HEIGHT;
   const startIdx    = Math.max(0, Math.floor(scrollTop/ROW_HEIGHT) - OVERSCAN);
   const endIdx      = Math.min(rows.length, Math.ceil((scrollTop+bodyH)/ROW_HEIGHT) + OVERSCAN);
@@ -3384,37 +3629,120 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
             {/* Right-side buttons */}
             <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:8 }}>
 
+              {/* Header Density Button Group */}
+              <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${colors.border}`, borderRadius: 8, overflow: 'hidden', padding: 2, background: colors.toolbarBg }}>
+                <button
+                  onClick={() => handleHeaderDensityChange('minimal')}
+                  title="Minimal headers (32px)"
+                  style={{
+                    border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                    background: headerDensity === 'minimal' ? '#3b82f6' : 'transparent',
+                    color: headerDensity === 'minimal' ? '#fff' : colors.text,
+                    fontWeight: headerDensity === 'minimal' ? 600 : 400
+                  }}
+                >
+                  ≡ Min
+                </button>
+                <button
+                  onClick={() => handleHeaderDensityChange('auto')}
+                  title="Auto responsive headers"
+                  style={{
+                    border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                    background: headerDensity === 'auto' ? '#3b82f6' : 'transparent',
+                    color: headerDensity === 'auto' ? '#fff' : colors.text,
+                    fontWeight: headerDensity === 'auto' ? 600 : 400
+                  }}
+                >
+                  ≡ Auto
+                </button>
+                <button
+                  onClick={() => handleHeaderDensityChange('detailed')}
+                  title="Detailed headers (125px)"
+                  style={{
+                    border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                    background: headerDensity === 'detailed' ? '#3b82f6' : 'transparent',
+                    color: headerDensity === 'detailed' ? '#fff' : colors.text,
+                    fontWeight: headerDensity === 'detailed' ? 600 : 400
+                  }}
+                >
+                  ≡ Detail
+                </button>
+              </div>
+
+              {/* Row Density Button Group */}
+              <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${colors.border}`, borderRadius: 8, overflow: 'hidden', padding: 2, background: colors.toolbarBg }}>
+                <button
+                  onClick={() => handleRowDensityChange('compact')}
+                  title="Compact rows (24px) [Ctrl+Shift+[]"
+                  style={{
+                    border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                    background: rowDensity === 'compact' ? '#3b82f6' : 'transparent',
+                    color: rowDensity === 'compact' ? '#fff' : colors.text,
+                    fontWeight: rowDensity === 'compact' ? 600 : 400
+                  }}
+                >
+                  Compact
+                </button>
+                <button
+                  onClick={() => handleRowDensityChange('standard')}
+                  title="Standard rows (32px) [Ctrl+Shift+0]"
+                  style={{
+                    border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                    background: rowDensity === 'standard' ? '#3b82f6' : 'transparent',
+                    color: rowDensity === 'standard' ? '#fff' : colors.text,
+                    fontWeight: rowDensity === 'standard' ? 600 : 400
+                  }}
+                >
+                  Standard
+                </button>
+                <button
+                  onClick={() => handleRowDensityChange('comfortable')}
+                  title="Comfortable rows (40px) [Ctrl+Shift+]]"
+                  style={{
+                    border: 'none', padding: '4px 8px', borderRadius: 6, fontSize: 11, cursor: 'pointer',
+                    background: rowDensity === 'comfortable' ? '#3b82f6' : 'transparent',
+                    color: rowDensity === 'comfortable' ? '#fff' : colors.text,
+                    fontWeight: rowDensity === 'comfortable' ? 600 : 400
+                  }}
+                >
+                  Comfort
+                </button>
+              </div>
+
             {/* Label toggle — only shown when dataset has labelled columns */}
             {hasAnyLabel && (
               <button onClick={() => setShowLabels(v => !v)}
                 title={showLabels ? 'Hide column labels' : 'Show column labels'}
-                style={{ display:'flex', alignItems:'center', gap:5,
-                  padding:'6px 10px', border:`1px solid ${colors.border}`, borderRadius:8,
+                style={{ display:'flex', alignItems:'center', justifyContent:'center',
+                  width:32, height:32, padding:0, border:`1px solid ${colors.border}`, borderRadius:8,
                   background: showLabels ? (isDarkMode ? '#2e1065' : '#f5f3ff') : colors.btnBg,
-                  color: showLabels ? '#7c3aed' : colors.subText,
-                  fontSize:12, fontWeight:500, cursor:'pointer',
+                  color: showLabels ? '#7c3aed' : colors.text,
+                  cursor:'pointer',
                   boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-                  borderColor: showLabels ? '#c4b5fd' : colors.border }}>
-                <span style={{fontSize:13}}>🏷</span>
-                {showLabels ? 'Labels on' : 'Labels off'}
+                  borderColor: showLabels ? '#c4b5fd' : colors.border }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
               </button>
             )}
 
             {/* Advanced Filter button */}
             {advanced_filter && (
               <button onClick={() => setShowQueryBuilder(v => !v)} style={{
-                display:'flex', alignItems:'center', gap:6,
-                padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                width:32, height:32, padding:0, position:'relative', border:`1px solid ${colors.border}`, borderRadius:8,
                 background: showQueryBuilder ? (isDarkMode ? '#1e3a8a' : '#eff6ff') : colors.btnBg,
                 color: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#2563eb') : colors.text,
                 borderColor: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#bfdbfe') : colors.border,
-                fontSize:12, fontWeight:500, cursor:'pointer',
+                cursor:'pointer',
                 boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-              }} title="Build advanced multi-condition search queries">
-                <span style={{fontSize:14}}>🔍</span> Advanced Filter
+              }} title="Advanced Filter (Ctrl + F)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                 {queryRules.length > 0 && (
-                  <span style={{ fontSize:10, background:'#2563eb', color:'#fff',
-                    borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
+                  <span style={{
+                    position:'absolute', top:-4, right:-4, fontSize:9, background:'#2563eb', color:'#fff',
+                    borderRadius:'50%', width:14, height:14, display:'flex', alignItems:'center', justifyContent:'center',
+                    fontWeight:600
+                  }}>
                     {queryRules.length}
                   </span>
                 )}
@@ -3424,13 +3752,13 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
             {/* Query Code Button */}
             {allow_export && (
               <button onClick={() => setShowRCodeModal(true)} style={{
-                display:'flex', alignItems:'center', gap:6,
-                padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                width:32, height:32, padding:0, border:`1px solid ${colors.border}`, borderRadius:8,
                 background:colors.btnBg, color:colors.text,
-                fontSize:12, fontWeight:500, cursor:'pointer',
+                cursor:'pointer',
                 boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-              }} title="Show reproducible R or SQL query for these filters">
-                <span style={{fontSize:14}}>📊</span> Query Code
+              }} title="Query Code (Show R/SQL/DuckDB code)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
               </button>
             )}
 
@@ -3438,18 +3766,21 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
             {column_picker && (
               <div style={{ position:'relative' }}>
                 <button onClick={()=>setShowColVis(v=>!v)} style={{
-                  display:'flex', alignItems:'center', gap:6,
-                  padding:'6px 12px', border:`1px solid ${colors.border}`, borderRadius:8,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  width:32, height:32, padding:0, position:'relative', border:`1px solid ${colors.border}`, borderRadius:8,
                   background: showColVis ? colors.text : colors.btnBg,
                   color: showColVis ? colors.bg : colors.text,
-                  fontSize:12, fontWeight:500, cursor:'pointer',
+                  cursor:'pointer',
                   boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-                }}>
-                  <span style={{fontSize:14}}>⊞</span> Columns
+                }} title="Columns Show/Hide">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
                   {visible && visible.size < (metadata||[]).length && (
-                    <span style={{ fontSize:10, background:'#ef4444', color:'#fff',
-                      borderRadius:10, padding:'1px 5px', marginLeft:2 }}>
-                      {(metadata||[]).length - visible.size} hidden
+                    <span style={{
+                      position:'absolute', top:-4, right:-4, fontSize:9, background:'#ef4444', color:'#fff',
+                      borderRadius:'50%', width:14, height:14, display:'flex', alignItems:'center', justifyContent:'center',
+                      fontWeight:600
+                    }}>
+                      {(metadata||[]).length - visible.size}
                     </span>
                   )}
                 </button>
@@ -3468,44 +3799,12 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
             </div> {/* end right-side buttons */}
           </div>
 
-          {/* ── Collapsible Query Builder Panel ── */}
-          {showQueryBuilder && (
-            <QueryBuilder
-              metadata={metadata || []}
-              rules={queryRules}
-              logical={queryLogical}
-              onAddRule={() => {
-                const defaultCol = metadata[0]?.name || '';
-                const defaultType = metadata[0]?.type || 'character';
-                const defaultOps = getOperatorsForType(defaultType);
-                setQueryRules(p => [
-                  ...p,
-                  {
-                    id: 'rule_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    col: defaultCol,
-                    op: defaultOps[0].value,
-                    val: defaultType === 'logical' ? 'true' : ''
-                  }
-                ]);
-              }}
-              onRemoveRule={(id) => {
-                setQueryRules(p => p.filter(r => r.id !== id));
-              }}
-              onUpdateRule={(id, updates) => {
-                setQueryRules(p => p.map(r => r.id === id ? { ...r, ...updates } : r));
-              }}
-              onUpdateLogical={setQueryLogical}
-              onClearRules={() => setQueryRules([])}
-              uniqueVals={uniqueVals}
-              colors={colors}
-              isDarkMode={isDarkMode}
-            />
-          )}
-
-          {/* ── Single scroll container ── */}
-          <div
-            ref={wrapRef}
-            onScroll={e => setScrollTop(e.currentTarget.scrollTop)}
+          {/* ── Main content area with side panel ── */}
+          <div style={{ display:'flex', flex:1, overflow:'hidden', position:'relative' }}>
+            {/* Left: Scrollable grid container */}
+            <div
+              ref={wrapRef}
+              onScroll={e => setScrollTop(e.currentTarget.scrollTop)}
             style={{ flex:1, overflow:'auto', position:'relative', background: colors.bg }}
           >
             {/* Inner — full virtual width + height */}
@@ -3544,7 +3843,9 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                       colWidth={getColWidth(meta.name)}
                       colors={colors}
                       isDarkMode={isDarkMode}
-                      summary_header={header_summary}
+                      summary_header={headerDensity === 'detailed' || (headerDensity === 'auto' && wrapH >= 600)}
+                      insights={headerDensity === 'detailed' || (headerDensity === 'auto' && wrapH >= 600)}
+                      headerHeight={HEADER_HEIGHT}
                       frozenLeftOffset={frozenColIndices[meta.name]}
                       isFrozen={frozenColIndices[meta.name] != null}
                       isAnchored={frozenColId === meta.name}
@@ -3574,9 +3875,12 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                     {visibleRows.map((row, vi) => {
                       const idx = startIdx + vi;
                       const isPinned = pinnedRows.has(idx);
+                      const isMatch = draftMatchingRows.has(row);
                       const stripe = isPinned
                         ? (isDarkMode ? '#78350f' : '#fef9c3')  // gold-tinted pinned background
-                        : (idx%2===0 ? colors.rowBg : colors.stripe);
+                        : isMatch
+                          ? (isDarkMode ? 'rgba(234, 179, 8, 0.15)' : 'rgba(254, 240, 138, 0.35)') // highlight matching rows in yellow
+                          : (idx%2===0 ? colors.rowBg : colors.stripe);
 
                       const togglePin = (e) => {
                         e.stopPropagation();
@@ -3613,6 +3917,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                               color: isPinned ? '#f59e0b' : colors.subText,
                               fontWeight: isPinned ? 700 : 400,
                               borderRight:`1px solid ${colors.border}`,
+                              borderLeft: isMatch ? '3px solid #eab308' : undefined, // matching row border
                               background: stripe, boxSizing: 'border-box',
                               fontSize: 11,
                             }}
@@ -3625,22 +3930,32 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                             const isNumericCol = meta.type === 'numeric' || meta.type === 'integer';
                             const cellVal = row[meta.name];
                             const isFrozen = frozenColIndices[meta.name] != null;
+                            const isNA = cellVal == null;
+                            const cellBg = isNA
+                              ? (isDarkMode
+                                  ? 'repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(239, 68, 68, 0.05) 4px, rgba(239, 68, 68, 0.05) 8px)'
+                                  : 'repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(239, 68, 68, 0.03) 4px, rgba(239, 68, 68, 0.03) 8px)')
+                              : undefined;
+
                             const frozenStyle = isFrozen ? {
                               position: 'sticky',
                               left: frozenColIndices[meta.name],
                               zIndex: 2,
-                              background: stripe,
-                            } : {};
+                              background: cellBg || stripe,
+                            } : {
+                              background: cellBg || undefined
+                            };
                             
                             return (
                               <div key={meta.name} style={{
-                                width: getColWidth(meta.name), flexShrink:0, padding:'6px 10px',
+                                width: getColWidth(meta.name), flexShrink:0,
+                                padding: rowDensity === 'compact' ? '2px 8px' : rowDensity === 'comfortable' ? '10px 12px' : '6px 10px',
                                 borderRight: meta.name === frozenColId ? '3px solid #3b82f6' : `1px solid ${colors.border}`, color:colors.text,
                                 fontVariantNumeric:'tabular-nums', height:'100%',
                                 display:'flex', alignItems:'center', boxSizing: 'border-box',
                                 justifyContent: isNumericCol ? 'flex-end' : 'flex-start',
                                 fontFamily: isNumericCol ? "'Fira Code', 'Consolas', monospace" : 'inherit',
-                                fontSize: isNumericCol ? 12 : 13,
+                                fontSize: isNumericCol ? (rowDensity === 'compact' ? 11 : 12) : (rowDensity === 'compact' ? 12 : 13),
                                 whiteSpace: 'normal',
                                 wordBreak: 'break-word',
                                 lineHeight: '1.4',
@@ -3648,7 +3963,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                               }} title={cellVal!=null?String(cellVal):'NA'}>
                                 {cellVal != null
                                   ? String(cellVal)
-                                  : <span style={{color:isDarkMode ? '#475569' : '#cbd5e1',fontStyle:'italic'}}>{na_string}</span>}
+                                  : <span style={{color:isDarkMode ? '#64748b' : '#94a3b8', fontWeight: 500, fontStyle:'italic'}}>{na_string}</span>}
                               </div>
                             );
                           })}
@@ -3657,8 +3972,137 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                     })}
                   </div>
                 )}
-              </div>
             </div>
+          </div>
+        </div>
+
+            {/* Right: Collapsible Filter Panel */}
+            {showQueryBuilder && (
+              <div style={{
+                width: 350,
+                borderLeft: `1px solid ${colors.border}`,
+                background: colors.toolbarBg,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                boxSizing: 'border-box',
+                zIndex: 20
+              }}>
+                {/* Panel Header */}
+                <div style={{
+                  padding: '12px 16px',
+                  borderBottom: `1px solid ${colors.border}`,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: colors.headerBg
+                }}>
+                  <h3 style={{ margin: 0, fontSize: 14, color: colors.text, fontWeight: 600 }}>🔍 Advanced Filter</h3>
+                  <button 
+                    onClick={() => setShowQueryBuilder(false)}
+                    style={{
+                      background: 'transparent', border: 'none', cursor: 'pointer',
+                      color: colors.subText, fontSize: 16
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                {/* Panel Content: Scrollable QueryBuilder */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
+                  {showFilterTip && (
+                    <div style={{
+                      background: isDarkMode ? '#1e293b' : '#eff6ff',
+                      border: `1px solid ${isDarkMode ? '#3b82f6' : '#bfdbfe'}`,
+                      padding: '8px 12px', borderRadius: 6, fontSize: 11, color: colors.text,
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12
+                    }}>
+                      <span>💡 Tip: Press Ctrl+F to quickly toggle this filter panel.</span>
+                      <button
+                        onClick={() => {
+                          setShowFilterTip(false);
+                          localStorage.setItem('dtsmartr-hint-filter-dismissed', 'true');
+                        }}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.subText, fontWeight: 700 }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                  
+                  <QueryBuilder
+                    metadata={metadata || []}
+                    rules={draftQueryRules}
+                    logical={queryLogical}
+                    onAddRule={() => {
+                      const defaultCol = metadata[0]?.name || '';
+                      const defaultType = metadata[0]?.type || 'character';
+                      const defaultOps = getOperatorsForType(defaultType);
+                      setDraftQueryRules(p => [
+                        ...p,
+                        {
+                          id: 'rule_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                          col: defaultCol,
+                          op: defaultOps[0].value,
+                          val: defaultType === 'logical' ? 'true' : ''
+                        }
+                      ]);
+                    }}
+                    onRemoveRule={(id) => {
+                      setDraftQueryRules(p => p.filter(r => r.id !== id));
+                    }}
+                    onUpdateRule={(id, updates) => {
+                      setDraftQueryRules(p => p.map(r => r.id === id ? { ...r, ...updates } : r));
+                    }}
+                    onUpdateLogical={setQueryLogical}
+                    onClearRules={() => setDraftQueryRules([])}
+                    uniqueVals={uniqueVals}
+                    colors={colors}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+                
+                {/* Panel Footer */}
+                <div style={{
+                  padding: '12px 16px',
+                  borderTop: `1px solid ${colors.border}`,
+                  background: colors.headerBg,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#3b82f6' }}>
+                    Showing {draftMatchCount.toLocaleString()} of {quickFilteredRows.length.toLocaleString()} rows
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={() => {
+                        setQueryRules(draftQueryRules);
+                      }}
+                      style={{
+                        flex: 1, padding: '8px 12px', background: '#2563eb', color: '#fff',
+                        border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer'
+                      }}
+                    >
+                      Apply Filter
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDraftQueryRules([]);
+                        setQueryRules([]);
+                      }}
+                      style={{
+                        padding: '8px 12px', background: '#ef4444', color: '#fff',
+                        border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer'
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ── Floating filter panel & Sort dropdown ── */}
@@ -3712,6 +4156,43 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
           colors={colors}
           isDarkMode={isDarkMode}
         />
+      )}
+      {/* ── Keyboard Shortcuts Cheatsheet modal ── */}
+      {showShortcuts && (
+        <div style={{
+          position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100
+        }} onClick={() => setShowShortcuts(false)}>
+          <div style={{
+            background: colors.cardBg, border: `1px solid ${colors.border}`,
+            borderRadius: 12, padding: 24, width: 420, maxWidth: '90%',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, color: colors.text, fontSize: 16 }}>⌨️ Keyboard Shortcuts</h3>
+              <button onClick={() => setShowShortcuts(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: colors.subText, fontSize: 16 }}>✕</button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13, color: colors.text }}>
+              <div style={{ fontWeight: 600, borderBottom: `1px solid ${colors.border}`, paddingBottom: 4, color: colors.subText }}>Navigation</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>↑ ↓ ← →</span> <span>Navigate cells</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Home / End</span> <span>First / Last column</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>PgUp / PgDn</span> <span>Scroll page</span></div>
+              
+              <div style={{ fontWeight: 600, borderBottom: `1px solid ${colors.border}`, paddingBottom: 4, marginTop: 8, color: colors.subText }}>Filtering & Sorting</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + F</span> <span>Toggle advanced filter panel</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + Shift + F</span> <span>Clear all filters</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Click Header</span> <span>Sort ascending/descending/clear</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Shift + Click Header</span> <span>Multi-column sort</span></div>
+              
+              <div style={{ fontWeight: 600, borderBottom: `1px solid ${colors.border}`, paddingBottom: 4, marginTop: 8, color: colors.subText }}>View Options</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + Shift + [</span> <span>Compact row height (24px)</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + Shift + ]</span> <span>Comfortable row height (40px)</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + Shift + 0</span> <span>Standard row height (32px)</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>?</span> <span>Show this cheatsheet</span></div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

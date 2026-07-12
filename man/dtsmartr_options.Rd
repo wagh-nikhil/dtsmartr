@@ -12,7 +12,9 @@ dtsmartr_options(
   theme = "auto",
   na_string = "NA",
   hidden_columns = NULL,
-  header_summary = TRUE
+  header_summary = TRUE,
+  header_density = "auto",
+  row_density = "standard"
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ dtsmartr_options(
 \item{hidden_columns}{Character vector. Vector of column names to hide by default on initial widget rendering.}
 
 \item{header_summary}{Logical. If \code{TRUE} (default), renders the Kaggle-style summary zone (histograms, bar charts, completeness bar) in column headers.}
+
+\item{header_density}{Character. Density mode for column headers: \code{"auto"} (default), \code{"minimal"}, or \code{"detailed"}.}
+
+\item{row_density}{Character. Density mode for rows: \code{"standard"} (default), \code{"compact"}, or \code{"comfortable"}.}
 }
 \value{
 A named list of validated configuration settings.

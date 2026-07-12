@@ -45,7 +45,7 @@ Forces a compact, ultra-clean grid layout optimized for raw scrolling performanc
 * **Collapsible Right-Sidebar Filter Drawer**: Replaces the blocking full-screen advanced filter modal with a 350px right-sidebar drawer. Features **Live Preview Highlighting** (rows matching draft rules highlighted in yellow in real-time) and live match counters.
 * **Shift+Click Multi-Column Sorting**: Chain sort conditions directly by clicking headers (Shift+Click) showing priority badges (`1️⃣ ↑`, `2️⃣ ↓`) and a toolbar sort chain display.
 * **Compact Toolbar Icon Buttons**: Replaced large text-based buttons with clean SVG icons for label toggle, filter sidebar, query code, and column picker.
-* **Keyboard Shortcuts Cheatsheet**: Press `?` to open the overlay cheatsheet modal. Shortcuts include `Ctrl+F` for filter, `Ctrl+Shift+[` / `]` for density, and `Ctrl+Shift+F` to clear.
+* **Keyboard Shortcuts Cheatsheet**: Press `?` to open the overlay cheatsheet modal. Shortcuts include `Ctrl+Alt+F` for filter, `Ctrl+Shift+[` / `]` for density, and `Ctrl+Shift+F` to clear.
 
 ### 🆕 Grid Layout Enhancements (v0.3.0)
 * **Interactive Column Freezing & Anchoring (⚓)**: Click the anchor symbol in any column header to freeze that column and all columns to its left. Sticky cells remain fixed on the left while you scroll horizontally.

@@ -3276,8 +3276,8 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
         setShowShortcuts(prev => !prev);
       }
 
-      // Ctrl+F or Meta+F
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+      // Ctrl+Alt+F
+      if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         setShowQueryBuilder(prev => !prev);
       }
@@ -3735,7 +3735,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
                 borderColor: showQueryBuilder ? (isDarkMode ? '#3b82f6' : '#bfdbfe') : colors.border,
                 cursor:'pointer',
                 boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
-              }} title="Advanced Filter (Ctrl + F)">
+              }} title="Advanced Filter (Ctrl + Alt + F)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                 {queryRules.length > 0 && (
                   <span style={{
@@ -4180,7 +4180,7 @@ const DTSmartRComponent = ({ data, arrow_payload, metadata, datasetName = 'df', 
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>PgUp / PgDn</span> <span>Scroll page</span></div>
               
               <div style={{ fontWeight: 600, borderBottom: `1px solid ${colors.border}`, paddingBottom: 4, marginTop: 8, color: colors.subText }}>Filtering & Sorting</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + F</span> <span>Toggle advanced filter panel</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + Alt + F</span> <span>Toggle advanced filter panel</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ctrl + Shift + F</span> <span>Clear all filters</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Click Header</span> <span>Sort ascending/descending/clear</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Shift + Click Header</span> <span>Multi-column sort</span></div>

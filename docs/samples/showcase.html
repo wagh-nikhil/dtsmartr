@@ -6,21 +6,29 @@
   <title>dtsmartr Feature Showcase & Interactive Tour</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-base: #0b0f19;
-      --bg-surface: rgba(17, 24, 39, 0.8);
+      --bg-surface: rgba(15, 23, 42, 0.6);
       --border-color: rgba(255, 255, 255, 0.08);
       --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
+      --text-muted: #64748b;
       --primary: #10b981;
       --primary-hover: #34d399;
       --secondary: #3b82f6;
       --accent: #f59e0b;
-      --font-display: 'Outfit', sans-serif;
-      --font-body: 'Plus Jakarta Sans', sans-serif;
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      
+      /* Widget Theme Variables (Matches real widget dark mode) */
+      --w-bg: #0f172a;
+      --w-border: rgba(255, 255, 255, 0.08);
+      --w-header-bg: #1e293b;
+      --w-toolbar-bg: #0f172a;
+      --w-text: #e2e8f0;
+      --w-subtext: #64748b;
+      --w-row-bg: #0f172a;
+      --w-stripe: #1e293b;
+      --w-row-hover: #334155;
     }
 
     * {
@@ -33,7 +41,7 @@
     body {
       background-color: var(--bg-base);
       color: var(--text-main);
-      font-family: var(--font-body);
+      font-family: 'Inter', system-ui, sans-serif;
       overflow: hidden;
       height: 100vh;
       width: 100vw;
@@ -43,10 +51,10 @@
 
     /* Header Styling */
     header {
-      background: rgba(11, 15, 25, 0.8);
+      background: rgba(11, 15, 25, 0.85);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
+      padding: 0.75rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -69,13 +77,11 @@
       justify-content: center;
       font-weight: 800;
       color: white;
-      font-family: var(--font-display);
       font-size: 1.25rem;
       box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
     }
 
     .brand-title {
-      font-family: var(--font-display);
       font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: -0.025em;
@@ -110,22 +116,21 @@
       border-right: 1px solid var(--border-color);
       background: rgba(15, 23, 42, 0.4);
       backdrop-filter: blur(8px);
-      padding: 2rem;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
       overflow-y: auto;
       z-index: 50;
     }
 
     .section-title {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
       color: var(--text-main);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -170,9 +175,8 @@
     }
 
     .tour-title {
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 1rem;
+      font-weight: 700;
+      font-size: 0.95rem;
       color: var(--text-main);
     }
 
@@ -182,7 +186,7 @@
 
     .tour-desc {
       font-size: 0.8rem;
-      color: var(--text-muted);
+      color: #94a3b8;
       line-height: 1.4;
     }
 
@@ -201,11 +205,10 @@
       background: var(--primary);
       color: #fff;
       border: none;
-      padding: 0.75rem 1rem;
+      padding: 0.7rem 1rem;
       border-radius: 0.5rem;
-      font-family: var(--font-display);
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -256,7 +259,7 @@
     }
 
     .log-entry {
-      color: var(--text-muted);
+      color: #94a3b8;
       line-height: 1.4;
       animation: fadeIn 0.2s ease forwards;
     }
@@ -277,7 +280,7 @@
     .viewport {
       flex: 1;
       background: radial-gradient(circle at 30% 30%, #111827 0%, #030712 100%);
-      padding: 2.5rem;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -298,7 +301,6 @@
       align-items: center;
       gap: 0.75rem;
       font-size: 0.8rem;
-      font-family: var(--font-display);
       font-weight: 600;
       opacity: 0.3;
       transform: translateY(-5px);
@@ -327,53 +329,144 @@
       width: 100%;
       max-width: 820px;
       height: 520px;
-      background: #0f172a;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
+      background: var(--w-bg);
+      border: 1px solid var(--w-border);
+      border-radius: 8px;
       box-shadow: var(--glass-shadow);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
+      font-family: 'Inter', system-ui, sans-serif;
     }
 
     /* Widget Header Toolbar */
     .widget-toolbar {
-      background: #1e293b;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 0.75rem 1rem;
+      background: var(--w-bg);
+      border-bottom: 1px solid var(--w-border);
+      padding: 8px 14px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 12px;
     }
 
     .widget-dataset-name {
-      font-family: var(--font-display);
       font-weight: 700;
-      font-size: 0.95rem;
-      color: #38bdf8;
+      font-size: 12px;
+      color: var(--w-text);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 6px;
+      border-right: 1px solid var(--w-border);
+      padding-right: 12px;
     }
 
-    .widget-actions {
+    .widget-stats {
+      color: var(--w-subtext);
+      font-size: 12px;
+    }
+
+    .widget-stats b {
+      color: var(--w-text);
+    }
+
+    .widget-active-filters {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--secondary);
+      background: rgba(59, 130, 246, 0.15);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .widget-active-sorts {
       display: flex;
-      gap: 0.5rem;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .widget-sort-badge {
+      font-size: 11px;
+      color: var(--w-text);
+      background: #334155;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .widget-sort-badge span {
+      font-size: 9px;
+      opacity: 0.7;
+    }
+
+    .widget-clear-btn {
+      font-size: 11px;
+      padding: 2px 6px;
+      border: none;
+      background: transparent;
+      color: #ef4444;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .widget-actions-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Density Controls styling matching real package */
+    .density-btn-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--w-border);
+      border-radius: 8px;
+      overflow: hidden;
+      padding: 2px;
+      background: var(--w-bg);
+    }
+
+    .density-btn {
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--w-text);
+      transition: all 0.2s ease;
+    }
+
+    .density-btn.active {
+      background: var(--secondary);
+      color: #fff;
+      font-weight: 600;
     }
 
     .widget-icon-btn {
-      width: 1.75rem;
-      height: 1.75rem;
-      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid var(--w-border);
+      border-radius: 8px;
       background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--w-text);
       cursor: pointer;
-      color: #cbd5e1;
-      font-size: 0.8rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .widget-icon-btn.active {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--secondary);
+      border-color: rgba(59, 130, 246, 0.4);
     }
 
     /* Grid Area */
@@ -387,66 +480,291 @@
 
     /* Grid Header */
     .grid-header {
-      background: #1e293b;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      background: var(--w-header-bg);
+      border-bottom: 2px solid var(--w-border);
       display: flex;
       position: relative;
       z-index: 10;
     }
 
-    .header-cell {
-      height: 2.75rem;
+    /* Corner Row Number Cell */
+    .rownum-header-cell {
+      width: 52px;
+      height: 125px; /* HEADER_HEIGHT_BASE */
+      background: var(--w-header-bg);
+      border-right: 1px solid var(--w-border);
+      flex-shrink: 0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 0.75rem;
-      font-family: var(--font-display);
+      justify-content: center;
+      color: var(--w-subtext);
+      font-size: 10px;
       font-weight: 600;
-      font-size: 0.85rem;
-      color: #94a3b8;
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      position: sticky;
+      left: 0;
+      z-index: 13;
+    }
+
+    /* Column Header Cell */
+    .header-cell {
+      height: 125px; /* HEADER_HEIGHT_BASE */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 5px 8px 8px 10px;
+      border-right: 1px solid var(--w-border);
       position: relative;
-      background: #1e293b;
-      transition: background-color 0.2s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--w-header-bg);
       flex-shrink: 0;
+      cursor: grab;
+      transition: background-color 0.2s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .header-cell.active-sort {
+      background: #1e293b;
+      box-shadow: inset 0 -2px 0 var(--secondary);
     }
 
     .header-cell.frozen {
-      background: #172554; /* Highlight sticky area */
-      border-right: 2px solid var(--accent);
-      color: #f8fafc;
-      z-index: 20;
+      position: sticky;
+      z-index: 12;
+      background: var(--w-header-bg);
     }
 
-    .header-cell-title {
+    .header-cell.frozen-boundary {
+      border-right: 3px solid var(--secondary) !important;
+    }
+
+    /* Header Row 1: Type + Name + Sort Badge */
+    .header-row-top {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .header-row-top.reverse {
+      flex-direction: row-reverse;
+    }
+
+    .col-type-badge {
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 3px;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .col-type-character {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .col-type-numeric {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .col-name-container {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .col-name-container.right-align {
+      justify-content: flex-end;
+    }
+
+    .col-name-text {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--w-text);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .header-icons {
+    .col-info-icon {
+      font-size: 10px;
+      color: var(--w-subtext);
+      flex-shrink: 0;
+    }
+
+    .sort-indicator-badge {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 2px;
+      font-size: 11px;
+      color: var(--secondary);
+      background: rgba(59, 130, 246, 0.15);
+      padding: 2px 4px;
+      border-radius: 4px;
+      line-height: 1;
+      font-weight: 700;
+      flex-shrink: 0;
     }
 
-    .header-icon {
+    /* Header Row 2: Quality Bar */
+    .quality-bar-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 4px 0;
+    }
+
+    .quality-bar-fill {
+      height: 100%;
+      background: #22c55e; /* green for 100% valid */
+    }
+
+    /* Header Row 3: Summary Zone */
+    .summary-zone {
+      height: 60px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Mini Histogram (Numeric) */
+    .summary-histogram {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 40px;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .histogram-bar {
+      flex: 1;
+      background: #38bdf8;
+      border-radius: 1px 1px 0 0;
+    }
+
+    .summary-range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--w-subtext);
+    }
+
+    /* Stacked Categorical Bar */
+    .summary-stacked-bar {
+      display: flex;
+      height: 14px;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid var(--w-border);
+      box-sizing: border-box;
+      margin-bottom: 4px;
+    }
+
+    .stacked-segment {
+      height: 100%;
+    }
+
+    .summary-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--w-subtext);
+      line-height: 1;
+    }
+
+    .legend-label {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      overflow: hidden;
+    }
+
+    .legend-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 95px;
+    }
+
+    .legend-pct {
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    /* Unique Counts identifier */
+    .summary-unique-counts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 2px;
+    }
+
+    .unique-count-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--w-text);
+      line-height: 1.1;
+    }
+
+    .unique-count-label {
+      font-size: 10px;
+      color: var(--w-subtext);
+      text-transform: lowercase;
+    }
+
+    /* Header Row 4: Action Icons */
+    .header-row-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 4px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.05);
+      padding-top: 4px;
+    }
+
+    .header-action-icon {
       cursor: pointer;
       opacity: 0.4;
+      font-size: 11px;
+      color: var(--w-text);
       transition: opacity 0.2s ease, color 0.2s ease;
-      font-size: 0.75rem;
     }
 
-    .header-icon:hover {
+    .header-action-icon:hover {
       opacity: 1;
+      color: var(--secondary);
     }
 
-    .header-icon.active {
+    .header-action-icon.active {
       opacity: 1;
       color: var(--primary);
     }
 
-    .header-icon.pin-icon.active {
+    .header-action-icon.pin-icon.active {
       color: var(--accent);
     }
 
@@ -459,7 +777,7 @@
       width: 4px;
       cursor: col-resize;
       background: transparent;
-      transition: background-color 0.2s ease;
+      z-index: 5;
     }
 
     .resize-handle:hover {
@@ -476,63 +794,99 @@
 
     .grid-row {
       display: flex;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      height: 2.25rem;
-      background: #0f172a;
-      transition: background-color 0.2s ease, opacity 0.3s ease, height 0.3s ease;
+      border-bottom: 1px solid var(--w-border);
+      height: 36px; /* Standard row height */
+      background: var(--w-row-bg);
       position: absolute;
       left: 0;
       right: 0;
+      transition: opacity 0.3s ease;
+      cursor: pointer;
     }
 
-    .grid-row:nth-child(even) {
-      background: #1e293b;
+    .grid-row.stripe {
+      background: var(--w-stripe);
+    }
+
+    .grid-row:hover {
+      background-color: var(--w-row-hover) !important;
+    }
+
+    .grid-row:hover .rownum-cell {
+      background-color: var(--w-row-hover) !important;
+    }
+
+    .grid-row.pinned {
+      background: #78350f !important; /* Gold tinted pinned background */
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    .grid-row.pinned .rownum-cell {
+      background: #78350f !important;
+      color: var(--accent);
+      font-weight: 700;
     }
 
     .grid-row.hidden {
       opacity: 0;
-      height: 0;
-      overflow: hidden;
-      pointer-events: none;
+      display: none;
     }
 
+    /* Row Number Column cell */
+    .rownum-cell {
+      width: 52px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--w-subtext);
+      border-right: 1px solid var(--w-border);
+      flex-shrink: 0;
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      box-sizing: border-box;
+      background: inherit;
+    }
+
+    .rownum-pin-indicator {
+      font-size: 9px;
+      margin-right: 2px;
+    }
+
+    /* Table Data Cell */
     .grid-cell {
       height: 100%;
       display: flex;
       align-items: center;
-      padding: 0 0.75rem;
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      border-right: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--w-text);
+      border-right: 1px solid var(--w-border);
       flex-shrink: 0;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
     }
 
-    .grid-cell.frozen-cell {
-      background: rgba(23, 37, 84, 0.5);
-      border-right: 2px solid var(--accent);
-      z-index: 5;
+    .grid-cell.numeric-cell {
+      justify-content: flex-end;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* Highlight column on hover/sort */
-    .sort-indicator {
-      display: inline-block;
-      margin-left: 0.25rem;
-      font-size: 0.75rem;
-      color: var(--secondary);
-      font-weight: 800;
+    .grid-cell.frozen {
+      position: sticky;
+      z-index: 2;
+      background: inherit;
     }
 
-    .sort-priority {
-      background: rgba(59, 130, 246, 0.2);
-      color: #60a5fa;
-      font-size: 0.6rem;
-      padding: 0.05rem 0.25rem;
-      border-radius: 3px;
-      margin-left: 0.2rem;
+    .grid-cell.frozen-boundary {
+      border-right: 3px solid var(--secondary) !important;
     }
 
     /* Floating/Dropdown Filter Panel */
@@ -540,15 +894,15 @@
       position: absolute;
       top: 6.5rem;
       right: 10rem;
-      width: 260px;
+      width: 250px;
       background: #1e293b;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      border: 1px solid var(--w-border);
       border-radius: 8px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-      padding: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      padding: 8px;
       display: none;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 6px;
       z-index: 100;
       animation: zoomIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
@@ -558,29 +912,70 @@
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    .filter-title {
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #38bdf8;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      padding-bottom: 0.4rem;
+    .filter-input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--w-border);
+      border-radius: 6px;
+      outline: none;
+      font-size: 12px;
+      margin-bottom: 6px;
+      background: #0f172a;
+      color: var(--w-text);
+    }
+
+    .filter-bulk-actions {
+      display: flex;
+      gap: 10px;
+      padding: 0 4px 6px 4px;
+      border-bottom: 1px solid var(--w-border);
+      margin-bottom: 6px;
+      font-size: 11px;
+    }
+
+    .filter-action-link {
+      color: #2563eb;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .filter-action-link.clear {
+      color: var(--w-subtext);
+    }
+
+    .filter-count-label {
+      margin-left: auto;
+      color: var(--w-subtext);
+    }
+
+    .filter-options-list {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .filter-option {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: #cbd5e1;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--w-text);
       cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+    }
+
+    .filter-option:hover {
+      background: #334155;
     }
 
     .filter-checkbox {
-      width: 14px;
-      height: 14px;
+      width: 13px;
+      height: 13px;
       border-radius: 3px;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1.5px solid var(--w-subtext);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -588,14 +983,14 @@
     }
 
     .filter-checkbox.checked {
-      background: var(--primary);
-      border-color: var(--primary);
+      background: var(--secondary);
+      border-color: var(--secondary);
     }
 
     .filter-checkbox.checked::after {
       content: '✓';
       color: white;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 900;
     }
 
@@ -609,12 +1004,6 @@
       transition: transform 0.1s ease;
       left: 50%;
       top: 50%;
-    }
-
-    /* Text wrap simulation style */
-    .grid-cell.text-wrap {
-      white-space: normal;
-      line-height: 1.2;
     }
 
     /* Keyframes and Animations */
@@ -733,12 +1122,47 @@
       <div class="widget-container">
         <!-- Toolbar -->
         <div class="widget-toolbar">
-          <div class="widget-dataset-name">
-            📊 <span id="dataset-title">pharmaverseadam::adsl</span>
+          <div class="widget-dataset-name" id="widget-dataset-name-label">
+            📁 pharmaverseadam::adsl
           </div>
-          <div class="widget-actions">
-            <div class="widget-icon-btn" title="Toggle Wrap">Wrap</div>
-            <div class="widget-icon-btn" title="Fullscreen" style="font-size:0.9rem;">⛶</div>
+          
+          <div class="widget-stats">
+            <span id="stat-row-count"><b>7</b></span> rows · <span id="stat-col-count"><b>6</b></span> columns
+          </div>
+
+          <!-- Active Badges (Filters / Sorts) -->
+          <div id="active-badges-area" style="display:flex; gap:6px; align-items:center;">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Right Action Controls (密度、フィルター、コード) -->
+          <div class="widget-actions-right">
+            <!-- Header Density Button Group -->
+            <div class="density-btn-group" title="Header Density">
+              <button class="density-btn" id="hdr-min">Min</button>
+              <button class="density-btn" id="hdr-auto">Auto</button>
+              <button class="density-btn active" id="hdr-detail">Detail</button>
+            </div>
+
+            <!-- Row Density Button Group -->
+            <div class="density-btn-group" title="Row Density">
+              <button class="density-btn" id="row-compact">Compact</button>
+              <button class="density-btn active" id="row-standard">Standard</button>
+              <button class="density-btn" id="row-comfort">Comfort</button>
+            </div>
+
+            <button class="widget-icon-btn" title="Show Column Labels">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            </button>
+            <button class="widget-icon-btn" title="Advanced Filter">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            </button>
+            <button class="widget-icon-btn" title="Show Query Code">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+            </button>
+            <button class="widget-icon-btn" title="Show/Hide Columns">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+            </button>
           </div>
         </div>
 
@@ -746,12 +1170,12 @@
         <div class="grid-wrapper">
           <!-- Grid Header -->
           <div class="grid-header" id="grid-header-row">
-            <!-- Headers will be generated dynamically by JS -->
+            <!-- Headers generated dynamically by JS -->
           </div>
 
           <!-- Grid Rows Body -->
           <div class="grid-body" id="grid-body-rows">
-            <!-- Rows will be generated dynamically by JS -->
+            <!-- Rows generated dynamically by JS -->
           </div>
         </div>
       </div>
@@ -761,14 +1185,14 @@
   </div>
 
   <script>
-    // Grid Data Definition
+    // Grid Data Definition with accurate metadata mapping
     const initialColumns = [
-      { id: 'subjid', label: 'Subject ID', width: 110, frozen: false },
-      { id: 'sex', label: 'Sex', width: 75, frozen: false },
-      { id: 'age', label: 'Age', width: 70, frozen: false },
-      { id: 'trt01a', label: 'Treatment Group', width: 230, frozen: false },
-      { id: 'race', label: 'Race', width: 180, frozen: false },
-      { id: 'arm', label: 'Description ARM', width: 150, frozen: false }
+      { id: 'subjid', label: 'Subject ID', width: 135, type: 'character', frozen: false },
+      { id: 'sex', label: 'Sex', width: 85, type: 'character', frozen: false },
+      { id: 'age', label: 'Age', width: 85, type: 'integer', frozen: false },
+      { id: 'trt01a', label: 'Treatment Group', width: 200, type: 'character', frozen: false },
+      { id: 'race', label: 'Race', width: 140, type: 'character', frozen: false },
+      { id: 'arm', label: 'Description ARM', width: 140, type: 'character', frozen: false }
     ];
 
     const initialRows = [
@@ -784,8 +1208,9 @@
     let columns = JSON.parse(JSON.stringify(initialColumns));
     let rows = JSON.parse(JSON.stringify(initialRows));
     let sortConfig = []; // { columnId, direction, priority }
-    let filterConfig = { trt01a: null }; // values: ['Placebo Group', 'Active Treatment A', 'Active Treatment B']
-    let scrollOffset = 0;
+    let filterConfig = { trt01a: null };
+    let frozenColId = null; // Track frozen boundary
+    let pinnedRows = new Set(); // Track pinned rows
 
     // Dom Elements
     const gridHeader = document.getElementById('grid-header-row');
@@ -793,34 +1218,165 @@
     const virtualCursor = document.getElementById('virtual-cursor');
     const keyboardIndicator = document.getElementById('keyboard-indicator');
     const logBox = document.getElementById('log-box');
-    const datasetTitle = document.getElementById('dataset-title');
+    const datasetTitle = document.getElementById('widget-dataset-name-label');
+    const activeBadgesArea = document.getElementById('active-badges-area');
+    const statRowCount = document.getElementById('stat-row-count');
 
     // Layout Rendering
     function renderGrid() {
       // 1. Render Headers
       gridHeader.innerHTML = '';
-      let accumLeft = 0;
+      
+      // Render Corner Row Number Cell
+      const cornerCell = document.createElement('div');
+      cornerCell.className = 'rownum-header-cell';
+      cornerCell.textContent = '#';
+      gridHeader.appendChild(cornerCell);
+
+      let accumulatedLeft = 52; // Offset for row number column
+      let isPastFrozenBoundary = false;
+
       columns.forEach((col, idx) => {
         const cell = document.createElement('div');
         cell.className = `header-cell ${col.frozen ? 'frozen' : ''}`;
         cell.id = `header-${col.id}`;
         cell.style.width = `${col.width}px`;
         
-        let sortIndicatorHtml = '';
-        const sortInfo = sortConfig.find(s => s.columnId === col.id);
-        if (sortInfo) {
-          sortIndicatorHtml = `<span class="sort-indicator">${sortInfo.direction === 'asc' ? '▲' : '▼'}</span>`;
-          if (sortConfig.length > 1) {
-            sortIndicatorHtml += `<span class="sort-priority">${sortInfo.priority}</span>`;
-          }
+        // Sticky layout offset
+        if (col.frozen) {
+          cell.style.position = 'sticky';
+          cell.style.left = `${accumulatedLeft}px`;
+          cell.style.zIndex = 12;
+          accumulatedLeft += col.width;
+        }
+
+        // Draw boundary line on the right edge of the frozen boundary
+        if (col.id === frozenColId) {
+          cell.classList.add('frozen-boundary');
+        }
+
+        const isNumeric = col.type === 'numeric' || col.type === 'integer';
+        const typeBadgeText = isNumeric ? '#' : 'A';
+        const typeBadgeClass = isNumeric ? 'col-type-numeric' : 'col-type-character';
+
+        // Check Sort Info
+        const sortIdx = sortConfig.findIndex(s => s.columnId === col.id);
+        const isSorted = sortIdx > -1;
+        const sortDir = isSorted ? sortConfig[sortIdx].direction : null;
+        
+        let sortBadgeHtml = '';
+        if (isSorted) {
+          cell.classList.add('active-sort');
+          const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
+          const priorityIcon = numberEmojis[sortIdx] || `[${sortIdx + 1}]`;
+          const arrow = sortDir === 'asc' ? '↑' : '↓';
+          sortBadgeHtml = `<span class="sort-indicator-badge">${priorityIcon} ${arrow}</span>`;
+        }
+
+        // Render Summary Zone content
+        let summaryHtml = '';
+        if (col.id === 'age') {
+          // Numeric Histogram
+          summaryHtml = `
+            <div class="summary-histogram">
+              <div class="histogram-bar" style="height: 25%"></div>
+              <div class="histogram-bar" style="height: 50%"></div>
+              <div class="histogram-bar" style="height: 100%"></div>
+              <div class="histogram-bar" style="height: 75%"></div>
+              <div class="histogram-bar" style="height: 40%"></div>
+            </div>
+            <div class="summary-range-labels">
+              <span>43</span>
+              <span>81</span>
+            </div>
+          `;
+        } else if (col.id === 'trt01a') {
+          // Categorical stacked bar
+          summaryHtml = `
+            <div class="summary-stacked-bar">
+              <div class="stacked-segment" style="width: 42.8%; background: #3b82f6;"></div>
+              <div class="stacked-segment" style="width: 28.6%; background: #10b981;"></div>
+              <div class="stacked-segment" style="width: 28.6%; background: #f59e0b;"></div>
+            </div>
+            <div class="summary-legend">
+              <div class="legend-row">
+                <div class="legend-label">
+                  <span class="legend-dot" style="background: #3b82f6;"></span>
+                  <span class="legend-name">Active Treatment A</span>
+                </div>
+                <span class="legend-pct">43%</span>
+              </div>
+              <div class="legend-row">
+                <div class="legend-label">
+                  <span class="legend-dot" style="background: #10b981;"></span>
+                  <span class="legend-name">Placebo Group</span>
+                </div>
+                <span class="legend-pct">29%</span>
+              </div>
+            </div>
+          `;
+        } else if (col.id === 'sex') {
+          // Binary stacked bar
+          summaryHtml = `
+            <div class="summary-stacked-bar">
+              <div class="stacked-segment" style="width: 57.1%; background: #3b82f6;"></div>
+              <div class="stacked-segment" style="width: 42.9%; background: #10b981;"></div>
+            </div>
+            <div class="summary-legend">
+              <div class="legend-row">
+                <div class="legend-label">
+                  <span class="legend-dot" style="background: #3b82f6;"></span>
+                  <span class="legend-name">F</span>
+                </div>
+                <span class="legend-pct">57%</span>
+              </div>
+              <div class="legend-row">
+                <div class="legend-label">
+                  <span class="legend-dot" style="background: #10b981;"></span>
+                  <span class="legend-name">M</span>
+                </div>
+                <span class="legend-pct">43%</span>
+              </div>
+            </div>
+          `;
+        } else {
+          // Unique Counts representation
+          summaryHtml = `
+            <div class="summary-unique-counts">
+              <div class="unique-count-value">7</div>
+              <div class="unique-count-label">unique values</div>
+            </div>
+          `;
         }
 
         cell.innerHTML = `
-          <span class="header-cell-title">${col.label} ${sortIndicatorHtml}</span>
-          <div class="header-icons">
-            <span class="header-icon pin-icon ${col.frozen ? 'active' : ''}" onclick="toggleAnchor('${col.id}', event)">📌</span>
-            <span class="header-icon filter-trigger" id="filter-trigger-${col.id}">🔍</span>
+          <!-- Row 1: Type + Name + Sort Badge -->
+          <div class="header-row-top ${isNumeric ? 'reverse' : ''}">
+            <span class="col-type-badge ${typeBadgeClass}">${typeBadgeText}</span>
+            <div class="col-name-container ${isNumeric ? 'right-align' : ''}">
+              <span class="col-name-text">${col.label}</span>
+              <span class="col-info-icon">ⓘ</span>
+            </div>
+            ${sortBadgeHtml}
           </div>
+
+          <!-- Row 2: Quality Bar -->
+          <div class="quality-bar-container">
+            <div class="quality-bar-fill"></div>
+          </div>
+
+          <!-- Row 3: Summary Zone -->
+          <div class="summary-zone">
+            ${summaryHtml}
+          </div>
+
+          <!-- Row 4: Action icons -->
+          <div class="header-row-bottom">
+            <span class="header-action-icon pin-icon ${col.frozen ? 'active' : ''}">📌</span>
+            <span class="header-action-icon filter-icon" id="filter-trigger-${col.id}">🔍</span>
+            <span class="header-action-icon" style="font-size:8px;">▼</span>
+          </div>
+
           <div class="resize-handle"></div>
         `;
         gridHeader.appendChild(cell);
@@ -828,11 +1384,8 @@
 
       // 2. Render Rows
       gridBody.innerHTML = '';
+      let visibleIdx = 0;
       rows.forEach((row, rowIdx) => {
-        const rowEl = document.createElement('div');
-        rowEl.className = 'grid-row';
-        rowEl.style.top = `${rowIdx * 36}px`;
-
         // Apply filters
         let isFilteredOut = false;
         if (filterConfig.trt01a) {
@@ -841,40 +1394,137 @@
           }
         }
 
+        const rowEl = document.createElement('div');
+        rowEl.className = `grid-row ${visibleIdx % 2 === 1 ? 'stripe' : ''}`;
+        
         if (isFilteredOut) {
           rowEl.classList.add('hidden');
+        } else {
+          rowEl.style.top = `${visibleIdx * 36}px`;
+          visibleIdx++;
         }
 
+        const isPinned = pinnedRows.has(rowIdx);
+        if (isPinned) {
+          rowEl.classList.add('pinned');
+        }
+
+        // Render sticky row number cell
+        const rowNumCell = document.createElement('div');
+        rowNumCell.className = 'rownum-cell';
+        rowNumCell.innerHTML = `
+          ${isPinned ? '<span class="rownum-pin-indicator">📌</span>' : ''}
+          <span>${rowIdx + 1}</span>
+        `;
+        rowEl.appendChild(rowNumCell);
+
+        // Render table columns
+        let bodyAccumLeft = 52;
         columns.forEach(col => {
           const cellEl = document.createElement('div');
-          cellEl.className = `grid-cell ${col.frozen ? 'frozen-cell' : ''}`;
+          const isNumeric = col.type === 'numeric' || col.type === 'integer';
+          
+          cellEl.className = `grid-cell ${isNumeric ? 'numeric-cell' : ''}`;
           cellEl.style.width = `${col.width}px`;
           cellEl.textContent = row[col.id];
+
+          if (col.frozen) {
+            cellEl.classList.add('frozen');
+            cellEl.style.position = 'sticky';
+            cellEl.style.left = `${bodyAccumLeft}px`;
+            cellEl.style.zIndex = 2;
+            bodyAccumLeft += col.width;
+          }
+
+          if (col.id === frozenColId) {
+            cellEl.classList.add('frozen-boundary');
+          }
+
           rowEl.appendChild(cellEl);
         });
 
+        // Clicking a row toggles pinning
+        rowEl.onclick = (e) => {
+          if (isFilteredOut) return;
+          togglePinRow(rowIdx);
+        };
+
         gridBody.appendChild(rowEl);
       });
+
+      // Update Toolbar Badges
+      updateToolbarBadges();
     }
 
-    // Toggle anchor column manually
-    function toggleAnchor(colId, event) {
-      if (event) event.stopPropagation();
-      const colIdx = columns.findIndex(c => c.id === colId);
-      if (colIdx !== -1) {
-        columns[colIdx].frozen = !columns[colIdx].frozen;
-        logAction(`Anchor toggled for column '${columns[colIdx].label}'`, 'info');
-        renderGrid();
+    // Toggle Pin Row
+    function togglePinRow(rowIdx) {
+      if (pinnedRows.has(rowIdx)) {
+        pinnedRows.delete(rowIdx);
+        logAction(`Unpinned row #${rowIdx + 1}`, 'info');
+      } else {
+        pinnedRows.add(rowIdx);
+        logAction(`Pinned row #${rowIdx + 1} (gold highlighted)`, 'highlight');
+      }
+      renderGrid();
+    }
+
+    // Render Active Filter / Sort Badges in Toolbar
+    function updateToolbarBadges() {
+      activeBadgesArea.innerHTML = '';
+      
+      // Update stats text
+      const totalFiltered = rows.filter(r => !filterConfig.trt01a || r.trt01a === filterConfig.trt01a).length;
+      statRowCount.innerHTML = `<b>${totalFiltered}</b>` + (filterConfig.trt01a ? ` / ${rows.length}` : '');
+
+      // Render Sort Badges
+      if (sortConfig.length > 0) {
+        sortConfig.forEach((sortItem, idx) => {
+          const badge = document.createElement('span');
+          badge.className = 'widget-sort-badge';
+          const colLabel = initialColumns.find(c => c.id === sortItem.columnId).label;
+          badge.innerHTML = `↕ ${colLabel} ${sortItem.direction} <span>(${idx + 1})</span>`;
+          activeBadgesArea.appendChild(badge);
+        });
+
+        const clearSortBtn = document.createElement('button');
+        clearSortBtn.className = 'widget-clear-btn';
+        clearSortBtn.textContent = 'Clear sort';
+        clearSortBtn.onclick = () => {
+          sortConfig = [];
+          logAction("Cleared sorting configurations", "info");
+          renderGrid();
+        };
+        activeBadgesArea.appendChild(clearSortBtn);
+      }
+
+      // Render Filter Badges
+      if (filterConfig.trt01a) {
+        const filterBadge = document.createElement('span');
+        filterBadge.className = 'widget-active-filters';
+        filterBadge.innerHTML = `🔍 1 filter`;
+        activeBadgesArea.appendChild(filterBadge);
+
+        const clearFilterBtn = document.createElement('button');
+        clearFilterBtn.className = 'widget-clear-btn';
+        clearFilterBtn.textContent = 'Clear filter';
+        clearFilterBtn.onclick = () => {
+          filterConfig.trt01a = null;
+          logAction("Cleared treatment filter", "info");
+          renderGrid();
+        };
+        activeBadgesArea.appendChild(clearFilterBtn);
       }
     }
 
-    // Reset everything
+    // Reset layout
     function resetGrid() {
       columns = JSON.parse(JSON.stringify(initialColumns));
       rows = JSON.parse(JSON.stringify(initialRows));
       sortConfig = [];
       filterConfig = { trt01a: null };
-      datasetTitle.textContent = "pharmaverseadam::adsl";
+      frozenColId = null;
+      pinnedRows.clear();
+      datasetTitle.innerHTML = "📁 pharmaverseadam::adsl";
       keyboardIndicator.classList.remove('active');
       closeFilterPanel();
       logAction("Widget layout reset to default.", "info");
@@ -901,10 +1551,12 @@
     let tourTimeoutId = null;
 
     // Floating Filter Panel Setup
-    const filterPanel = document.createElement('div');
-    filterPanel.className = 'filter-panel';
-    filterPanel.id = 'demo-filter-panel';
-    document.body.appendChild(filterPanel);
+    const filterPanel = document.getElementById('demo-filter-panel') || document.createElement('div');
+    if (!filterPanel.parentNode) {
+      filterPanel.className = 'filter-panel';
+      filterPanel.id = 'demo-filter-panel';
+      document.body.appendChild(filterPanel);
+    }
 
     function showFilterPanel(targetEl, checkedItem = '') {
       const rect = targetEl.getBoundingClientRect();
@@ -914,17 +1566,24 @@
       
       filterPanel.innerHTML = `
         <div class="filter-title">Filter: Treatment Group</div>
-        <div class="filter-option" id="opt-all">
-          <div class="filter-checkbox ${checkedItem === '' ? 'checked' : ''}"></div>
-          <span>Select All</span>
+        <input type="text" placeholder="Search values..." class="filter-input" disabled value="${checkedItem}">
+        <div class="filter-bulk-actions">
+          <span class="filter-action-link">Select All</span>
+          <span class="filter-action-link clear">Clear</span>
         </div>
-        <div class="filter-option" id="opt-placebo">
-          <div class="filter-checkbox ${checkedItem === 'Placebo Group' ? 'checked' : ''}"></div>
-          <span>Placebo Group</span>
-        </div>
-        <div class="filter-option" id="opt-active-a">
-          <div class="filter-checkbox ${checkedItem === 'Active Treatment A' ? 'checked' : ''}"></div>
-          <span>Active Treatment A</span>
+        <div class="filter-options-list">
+          <div class="filter-option" id="opt-all">
+            <div class="filter-checkbox ${checkedItem === '' ? 'checked' : ''}"></div>
+            <span>Select All</span>
+          </div>
+          <div class="filter-option" id="opt-placebo">
+            <div class="filter-checkbox ${checkedItem === 'Placebo Group' ? 'checked' : ''}"></div>
+            <span>Placebo Group</span>
+          </div>
+          <div class="filter-option" id="opt-active-a">
+            <div class="filter-checkbox ${checkedItem === 'Active Treatment A' ? 'checked' : ''}"></div>
+            <span>Active Treatment A</span>
+          </div>
         </div>
       `;
     }
@@ -962,7 +1621,6 @@
         function animate(time) {
           const elapsed = time - startTime;
           const progress = Math.min(elapsed / duration, 1);
-          // Ease in out cubic
           const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
           const currentX = startX + (targetX - startX) * ease;
@@ -1018,15 +1676,15 @@
       // Step A: Move cursor to "Age" column header
       const ageHeader = document.getElementById('header-age');
       let rect = ageHeader.getBoundingClientRect();
-      showTooltip("Step 1: Click and drag 'Age' column header...", rect.left + rect.width/2, rect.top + rect.height/2);
-      await moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+      showTooltip("Step 1: Click and drag 'Age' column header...", rect.left + rect.width/2, rect.top + 20);
+      await moveCursor(rect.left + rect.width / 2, rect.top + 20, 1000);
       await animateClick();
 
       // Step B: Drag "Age" to the left, swap positions
       logAction("Dragging column 'Age' left to position 2...", "warn");
       const targetPos = document.getElementById('header-sex').getBoundingClientRect();
-      showTooltip("Drag to reorder layout position...", targetPos.left, targetPos.top + rect.height/2);
-      await moveCursor(targetPos.left, targetPos.top + rect.height / 2, 1200);
+      showTooltip("Drag to reorder layout position...", targetPos.left, targetPos.top + 20);
+      await moveCursor(targetPos.left, targetPos.top + 20, 1200);
       
       // Perform Swap
       const ageCol = columns.splice(2, 1)[0];
@@ -1045,8 +1703,9 @@
       await animateClick();
       
       columns[0].frozen = true;
+      frozenColId = 'subjid';
       renderGrid();
-      logAction("Anchored column 'Subject ID'. Sticky boundary set.", "highlight");
+      logAction("Anchored column 'Subject ID'. Sticky blue boundary set.", "highlight");
       removeTooltip();
 
       // Step D: Move to anchor/pin icon on "Age" (now at index 1)
@@ -1058,6 +1717,7 @@
       await animateClick();
       
       columns[1].frozen = true;
+      frozenColId = 'age';
       renderGrid();
       logAction("Anchored column 'Age'. Multi-column sticky area active.", "highlight");
       removeTooltip();
@@ -1079,15 +1739,14 @@
       // Step A: Click "Sex" column to sort primary
       const sexHeader = document.getElementById('header-sex');
       let rect = sexHeader.getBoundingClientRect();
-      showTooltip("Step 1: Click 'Sex' to sort Ascending", rect.left + rect.width/2, rect.top + rect.height/2);
-      await moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+      showTooltip("Step 1: Click 'Sex' to sort Ascending", rect.left + rect.width/2, rect.top + 20);
+      await moveCursor(rect.left + rect.width / 2, rect.top + 20, 1000);
       await animateClick();
 
       sortConfig = [{ columnId: 'sex', direction: 'asc', priority: 1 }];
-      // Sort rows
       rows.sort((a, b) => a.sex.localeCompare(b.sex));
       renderGrid();
-      logAction("Sorted dataset by 'Sex' (Ascending).", "highlight");
+      logAction("Sorted dataset by 'Sex' (Ascending) as priority 1.", "highlight");
       removeTooltip();
 
       // Step B: Hold Shift and Click "Age"
@@ -1097,12 +1756,11 @@
       
       const ageHeader = document.getElementById('header-age');
       rect = ageHeader.getBoundingClientRect();
-      showTooltip("Step 2: Hold Shift + Click 'Age' for multi-sort", rect.left + rect.width/2, rect.top + rect.height/2);
-      await moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+      showTooltip("Step 2: Hold Shift + Click 'Age' for multi-sort", rect.left + rect.width/2, rect.top + 20);
+      await moveCursor(rect.left + rect.width / 2, rect.top + 20, 1000);
       await animateClick();
 
       sortConfig.push({ columnId: 'age', direction: 'asc', priority: 2 });
-      // Sort rows multi-column: sex then age
       rows.sort((a, b) => {
         const sexCompare = a.sex.localeCompare(b.sex);
         if (sexCompare !== 0) return sexCompare;
@@ -1125,7 +1783,7 @@
       currentTour = 'filter';
       setTourCardActive('filter');
       resetGrid();
-      logAction("Starting Tour: Floating Filter Panels", "info");
+      logAction("Starting Tour: Checklist Filtering", "info");
 
       // Step A: Move to "Treatment Group" filter icon
       const filterIcon = document.getElementById('filter-trigger-trt01a');
@@ -1135,7 +1793,7 @@
       await animateClick();
 
       showFilterPanel(filterIcon);
-      logAction("Opened filter dropdown panel for 'trt01a'.", "info");
+      logAction("Opened filter dropdown checklist for 'trt01a'.", "info");
       removeTooltip();
 
       // Step B: Select "Placebo Group" checkbox
@@ -1174,7 +1832,7 @@
       setTourCardActive('scroll');
       resetGrid();
       
-      datasetTitle.textContent = "pharmaverseadam::adlb (83,652 Rows)";
+      datasetTitle.innerHTML = "📁 pharmaverseadam::adlb";
       logAction("Starting Tour: Zero-lag Virtualized Scrolling (adlb dataset)", "info");
 
       // Generate large mock rows for scrolling
@@ -1194,8 +1852,8 @@
       renderGrid();
 
       // Step A: Scroll down animation
-      showTooltip("Scroll rapidly: watch indices render smoothly...", window.innerWidth / 2, window.innerHeight / 2);
-      logAction("Simulating rapid mouse-wheel scroll on grid body...", "warn");
+      showTooltip("Scroll vertical axis: watch row numbers update...", window.innerWidth / 2, window.innerHeight / 2);
+      logAction("Simulating rapid scroll on virtual grid body...", "warn");
       
       // Animate scrolling in steps
       let scrollTimer = null;
@@ -1210,13 +1868,21 @@
           const slicedRows = rows.slice(Math.floor(scrollCount / 36), Math.floor(scrollCount / 36) + 12);
           gridBody.innerHTML = '';
           slicedRows.forEach((row, rowIdx) => {
+            const actualRowIdx = Math.floor(scrollCount / 36) + rowIdx;
             const rowEl = document.createElement('div');
-            rowEl.className = 'grid-row';
+            rowEl.className = `grid-row ${actualRowIdx % 2 === 1 ? 'stripe' : ''}`;
             rowEl.style.top = `${scrollCount + (rowIdx * 36)}px`;
             
+            // Row num
+            const rnCell = document.createElement('div');
+            rnCell.className = 'rownum-cell';
+            rnCell.innerHTML = `<span>${actualRowIdx + 1}</span>`;
+            rowEl.appendChild(rnCell);
+
             columns.forEach(col => {
               const cellEl = document.createElement('div');
-              cellEl.className = `grid-cell`;
+              const isNumeric = col.type === 'numeric' || col.type === 'integer';
+              cellEl.className = `grid-cell ${isNumeric ? 'numeric-cell' : ''}`;
               cellEl.style.width = `${col.width}px`;
               cellEl.textContent = row[col.id];
               rowEl.appendChild(cellEl);
@@ -1231,7 +1897,7 @@
         }, 40);
       });
 
-      logAction(`Scrolled smoothly to Row ${Math.floor(2200 / 36)}. Render latency: 0ms.`, "highlight");
+      logAction(`Scrolled smoothly to Row ${Math.floor(2200 / 36)}. Virtualization ensures 0ms latency.`, "highlight");
       removeTooltip();
 
       // Schedule loop back to start if playing
@@ -1242,7 +1908,6 @@
 
     // Tour router/manager
     function startTour(tourId) {
-      // Clear current schedules
       if (tourTimeoutId) clearTimeout(tourTimeoutId);
       closeFilterPanel();
       removeTooltip();
@@ -1266,7 +1931,6 @@
         btn.textContent = "Pause Auto-Tour";
         btn.classList.remove('btn-secondary');
         logAction("Resumed auto-playing tour cycles.", "info");
-        // Start from current tour
         startTour(currentTour);
       } else {
         btn.textContent = "Resume Auto-Tour";

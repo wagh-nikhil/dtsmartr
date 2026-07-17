@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dtsmartr Feature Showcase & Interactive Tour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0b0f19;
+      --bg-surface: rgba(17, 24, 39, 0.8);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #10b981;
+      --primary-hover: #34d399;
+      --secondary: #3b82f6;
+      --accent: #f59e0b;
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styling */
+    header {
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 2.25rem;
+      height: 2.25rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #ffffff, #9ca3af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Main Content Layout */
+    .container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Sidebar / Control Panel */
+    .sidebar {
+      width: 380px;
+      border-right: 1px solid var(--border-color);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      overflow-y: auto;
+      z-index: 50;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    /* Tour Option Card */
+    .tour-card {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tour-card:hover {
+      background: rgba(30, 41, 59, 0.7);
+      border-color: rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .tour-card.active {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+    }
+
+    .tour-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .tour-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .tour-icon {
+      font-size: 1.25rem;
+    }
+
+    .tour-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Auto-play Controls */
+    .controls-panel {
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Status & Log Box */
+    .log-panel {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      overflow-y: auto;
+    }
+
+    .log-title {
+      font-weight: 700;
+      color: var(--secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .log-entry {
+      color: var(--text-muted);
+      line-height: 1.4;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    .log-entry.highlight {
+      color: var(--primary);
+    }
+
+    .log-entry.info {
+      color: var(--secondary);
+    }
+
+    .log-entry.warn {
+      color: var(--accent);
+    }
+
+    /* Main Demo Area */
+    .viewport {
+      flex: 1;
+      background: radial-gradient(circle at 30% 30%, #111827 0%, #030712 100%);
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Floating Virtual Keyboard / Shift Indicator */
+    .keyboard-indicator {
+      position: absolute;
+      top: 1.5rem;
+      right: 2.5rem;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      opacity: 0.3;
+      transform: translateY(-5px);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .keyboard-indicator.active {
+      opacity: 1;
+      transform: translateY(0);
+      border-color: var(--secondary);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    }
+
+    .key-cap {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.7rem;
+      box-shadow: 0 2px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    /* Simulated dtsmartr Widget */
+    .widget-container {
+      width: 100%;
+      max-width: 820px;
+      height: 520px;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Widget Header Toolbar */
+    .widget-toolbar {
+      background: #1e293b;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .widget-dataset-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .widget-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .widget-icon-btn {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      color: #cbd5e1;
+      font-size: 0.8rem;
+    }
+
+    /* Grid Area */
+    .grid-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Grid Header */
+    .grid-header {
+      background: #1e293b;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-cell {
+      height: 2.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0.75rem;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      background: #1e293b;
+      transition: background-color 0.2s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .header-cell.frozen {
+      background: #172554; /* Highlight sticky area */
+      border-right: 2px solid var(--accent);
+      color: #f8fafc;
+      z-index: 20;
+    }
+
+    .header-cell-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .header-icon {
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.2s ease, color 0.2s ease;
+      font-size: 0.75rem;
+    }
+
+    .header-icon:hover {
+      opacity: 1;
+    }
+
+    .header-icon.active {
+      opacity: 1;
+      color: var(--primary);
+    }
+
+    .header-icon.pin-icon.active {
+      color: var(--accent);
+    }
+
+    /* Resize Handle */
+    .resize-handle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 4px;
+      cursor: col-resize;
+      background: transparent;
+      transition: background-color 0.2s ease;
+    }
+
+    .resize-handle:hover {
+      background: var(--secondary);
+    }
+
+    /* Grid Rows Container */
+    .grid-body {
+      flex: 1;
+      overflow-y: hidden;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .grid-row {
+      display: flex;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      height: 2.25rem;
+      background: #0f172a;
+      transition: background-color 0.2s ease, opacity 0.3s ease, height 0.3s ease;
+      position: absolute;
+      left: 0;
+      right: 0;
+    }
+
+    .grid-row:nth-child(even) {
+      background: #1e293b;
+    }
+
+    .grid-row.hidden {
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .grid-cell {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      border-right: 1px solid rgba(255, 255, 255, 0.04);
+      flex-shrink: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .grid-cell.frozen-cell {
+      background: rgba(23, 37, 84, 0.5);
+      border-right: 2px solid var(--accent);
+      z-index: 5;
+    }
+
+    /* Highlight column on hover/sort */
+    .sort-indicator {
+      display: inline-block;
+      margin-left: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--secondary);
+      font-weight: 800;
+    }
+
+    .sort-priority {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      font-size: 0.6rem;
+      padding: 0.05rem 0.25rem;
+      border-radius: 3px;
+      margin-left: 0.2rem;
+    }
+
+    /* Floating/Dropdown Filter Panel */
+    .filter-panel {
+      position: absolute;
+      top: 6.5rem;
+      right: 10rem;
+      width: 260px;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 100;
+      animation: zoomIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .filter-title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #38bdf8;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.4rem;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+
+    .filter-checkbox {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .filter-checkbox.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .filter-checkbox.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    /* Virtual Cursor */
+    #virtual-cursor {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+      z-index: 999;
+      transition: transform 0.1s ease;
+      left: 50%;
+      top: 50%;
+    }
+
+    /* Text wrap simulation style */
+    .grid-cell.text-wrap {
+      white-space: normal;
+      line-height: 1.2;
+    }
+
+    /* Keyframes and Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .floating-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.95);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      pointer-events: none;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      animation: fadeIn 0.2s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">dt</div>
+      <div class="brand-title">dtsmartr</div>
+    </div>
+    <div class="header-badge">Live Interactive Showcase</div>
+  </header>
+
+  <!-- Container -->
+  <div class="container">
+
+    <!-- Virtual Cursor (SVG Mouse Pointer) -->
+    <svg id="virtual-cursor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 3L20 11.5L12 13.5L8 19.5L4 3Z" fill="#ffffff" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Sidebar controls -->
+    <div class="sidebar">
+      <div>
+        <h3 class="section-title">Showcase Features</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4;">
+          Click a feature card below to start the simulated animated tour demonstrating `dtsmartr` core options.
+        </p>
+      </div>
+
+      <!-- Tour Cards -->
+      <div class="tour-card active" onclick="startTour('reorder')" id="tour-reorder">
+        <div class="tour-header">
+          <span class="tour-title">1. Reorder & Anchor</span>
+          <span class="tour-icon">📌</span>
+        </div>
+        <div class="tour-desc">
+          Drag columns to reorder layout. Anchor columns to the left side with a sticky boundary for easy sideways scroll comparison.
+        </div>
+      </div>
+
+      <div class="tour-card" onclick="startTour('sorting')" id="tour-sorting">
+        <div class="tour-header">
+          <span class="tour-title">2. Multi-Sort</span>
+          <span class="tour-icon">⚡</span>
+        </div>
+        <div class="tour-desc">
+          Hold Shift and click multiple headers to trigger advanced multi-variable sorting with visual priority badges (1, 2, 3).
+        </div>
+      </div>
+
+      <div class="tour-card" onclick="startTour('filter')" id="tour-filter">
+        <div class="tour-header">
+          <span class="tour-title">3. Filter Checklist</span>
+          <span class="tour-icon">🔍</span>
+        </div>
+        <div class="tour-desc">
+          Trigger the floating column filter panel to query datasets using checklist items and see results filter instantly.
+        </div>
+      </div>
+
+      <div class="tour-card" onclick="startTour('scroll')" id="tour-scroll">
+        <div class="tour-header">
+          <span class="tour-title">4. Virtual Scrolling</span>
+          <span class="tour-icon">🚀</span>
+        </div>
+        <div class="tour-desc">
+          Smooth, zero-lag scrolling through thousands of clinical records powered by virtual DOM rendering.
+        </div>
+      </div>
+
+      <!-- Action Panel -->
+      <div class="controls-panel">
+        <button class="btn" onclick="togglePlayPause()" id="play-pause-btn">Pause Auto-Tour</button>
+        <button class="btn btn-secondary" onclick="resetGrid()">Reset Widget View</button>
+      </div>
+
+      <!-- Log Panel -->
+      <div class="log-panel" id="log-box">
+        <div class="log-title">Animation Action Log</div>
+        <div class="log-entry info">System ready. Click any tour to run.</div>
+      </div>
+    </div>
+
+    <!-- Main Viewport -->
+    <div class="viewport">
+      
+      <!-- Key cap Shift Indicator -->
+      <div class="keyboard-indicator" id="keyboard-indicator">
+        <span class="key-cap">Shift</span> key held for multi-sort
+      </div>
+
+      <!-- Mock Grid Widget -->
+      <div class="widget-container">
+        <!-- Toolbar -->
+        <div class="widget-toolbar">
+          <div class="widget-dataset-name">
+            📊 <span id="dataset-title">pharmaverseadam::adsl</span>
+          </div>
+          <div class="widget-actions">
+            <div class="widget-icon-btn" title="Toggle Wrap">Wrap</div>
+            <div class="widget-icon-btn" title="Fullscreen" style="font-size:0.9rem;">⛶</div>
+          </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="grid-wrapper">
+          <!-- Grid Header -->
+          <div class="grid-header" id="grid-header-row">
+            <!-- Headers will be generated dynamically by JS -->
+          </div>
+
+          <!-- Grid Rows Body -->
+          <div class="grid-body" id="grid-body-rows">
+            <!-- Rows will be generated dynamically by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Grid Data Definition
+    const initialColumns = [
+      { id: 'subjid', label: 'Subject ID', width: 110, frozen: false },
+      { id: 'sex', label: 'Sex', width: 75, frozen: false },
+      { id: 'age', label: 'Age', width: 70, frozen: false },
+      { id: 'trt01a', label: 'Treatment Group', width: 230, frozen: false },
+      { id: 'race', label: 'Race', width: 180, frozen: false },
+      { id: 'arm', label: 'Description ARM', width: 150, frozen: false }
+    ];
+
+    const initialRows = [
+      { subjid: '01-701-1015', sex: 'F', age: 63, trt01a: 'Active Treatment A', race: 'WHITE', arm: 'Arm A' },
+      { subjid: '01-701-1023', sex: 'M', age: 74, trt01a: 'Placebo Group', race: 'WHITE', arm: 'Placebo' },
+      { subjid: '01-701-1028', sex: 'F', age: 52, trt01a: 'Active Treatment B', race: 'ASIAN', arm: 'Arm B' },
+      { subjid: '01-701-1035', sex: 'M', age: 81, trt01a: 'Active Treatment A', race: 'BLACK', arm: 'Arm A' },
+      { subjid: '01-701-1044', sex: 'F', age: 43, trt01a: 'Placebo Group', race: 'WHITE', arm: 'Placebo' },
+      { subjid: '01-701-1051', sex: 'M', age: 67, trt01a: 'Active Treatment B', race: 'WHITE', arm: 'Arm B' },
+      { subjid: '01-701-1060', sex: 'F', age: 59, trt01a: 'Active Treatment A', race: 'ASIAN', arm: 'Arm A' }
+    ];
+
+    let columns = JSON.parse(JSON.stringify(initialColumns));
+    let rows = JSON.parse(JSON.stringify(initialRows));
+    let sortConfig = []; // { columnId, direction, priority }
+    let filterConfig = { trt01a: null }; // values: ['Placebo Group', 'Active Treatment A', 'Active Treatment B']
+    let scrollOffset = 0;
+
+    // Dom Elements
+    const gridHeader = document.getElementById('grid-header-row');
+    const gridBody = document.getElementById('grid-body-rows');
+    const virtualCursor = document.getElementById('virtual-cursor');
+    const keyboardIndicator = document.getElementById('keyboard-indicator');
+    const logBox = document.getElementById('log-box');
+    const datasetTitle = document.getElementById('dataset-title');
+
+    // Layout Rendering
+    function renderGrid() {
+      // 1. Render Headers
+      gridHeader.innerHTML = '';
+      let accumLeft = 0;
+      columns.forEach((col, idx) => {
+        const cell = document.createElement('div');
+        cell.className = `header-cell ${col.frozen ? 'frozen' : ''}`;
+        cell.id = `header-${col.id}`;
+        cell.style.width = `${col.width}px`;
+        
+        let sortIndicatorHtml = '';
+        const sortInfo = sortConfig.find(s => s.columnId === col.id);
+        if (sortInfo) {
+          sortIndicatorHtml = `<span class="sort-indicator">${sortInfo.direction === 'asc' ? '▲' : '▼'}</span>`;
+          if (sortConfig.length > 1) {
+            sortIndicatorHtml += `<span class="sort-priority">${sortInfo.priority}</span>`;
+          }
+        }
+
+        cell.innerHTML = `
+          <span class="header-cell-title">${col.label} ${sortIndicatorHtml}</span>
+          <div class="header-icons">
+            <span class="header-icon pin-icon ${col.frozen ? 'active' : ''}" onclick="toggleAnchor('${col.id}', event)">📌</span>
+            <span class="header-icon filter-trigger" id="filter-trigger-${col.id}">🔍</span>
+          </div>
+          <div class="resize-handle"></div>
+        `;
+        gridHeader.appendChild(cell);
+      });
+
+      // 2. Render Rows
+      gridBody.innerHTML = '';
+      rows.forEach((row, rowIdx) => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'grid-row';
+        rowEl.style.top = `${rowIdx * 36}px`;
+
+        // Apply filters
+        let isFilteredOut = false;
+        if (filterConfig.trt01a) {
+          if (row.trt01a !== filterConfig.trt01a) {
+            isFilteredOut = true;
+          }
+        }
+
+        if (isFilteredOut) {
+          rowEl.classList.add('hidden');
+        }
+
+        columns.forEach(col => {
+          const cellEl = document.createElement('div');
+          cellEl.className = `grid-cell ${col.frozen ? 'frozen-cell' : ''}`;
+          cellEl.style.width = `${col.width}px`;
+          cellEl.textContent = row[col.id];
+          rowEl.appendChild(cellEl);
+        });
+
+        gridBody.appendChild(rowEl);
+      });
+    }
+
+    // Toggle anchor column manually
+    function toggleAnchor(colId, event) {
+      if (event) event.stopPropagation();
+      const colIdx = columns.findIndex(c => c.id === colId);
+      if (colIdx !== -1) {
+        columns[colIdx].frozen = !columns[colIdx].frozen;
+        logAction(`Anchor toggled for column '${columns[colIdx].label}'`, 'info');
+        renderGrid();
+      }
+    }
+
+    // Reset everything
+    function resetGrid() {
+      columns = JSON.parse(JSON.stringify(initialColumns));
+      rows = JSON.parse(JSON.stringify(initialRows));
+      sortConfig = [];
+      filterConfig = { trt01a: null };
+      datasetTitle.textContent = "pharmaverseadam::adsl";
+      keyboardIndicator.classList.remove('active');
+      closeFilterPanel();
+      logAction("Widget layout reset to default.", "info");
+      renderGrid();
+    }
+
+    // Log Action helper
+    function logAction(msg, type = 'normal') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // Initialize Grid
+    renderGrid();
+
+    // -------------------------------------------------------------
+    // Virtual Animation Engine
+    // -------------------------------------------------------------
+    let currentTour = 'reorder';
+    let isPlaying = true;
+    let tourTimeoutId = null;
+
+    // Floating Filter Panel Setup
+    const filterPanel = document.createElement('div');
+    filterPanel.className = 'filter-panel';
+    filterPanel.id = 'demo-filter-panel';
+    document.body.appendChild(filterPanel);
+
+    function showFilterPanel(targetEl, checkedItem = '') {
+      const rect = targetEl.getBoundingClientRect();
+      filterPanel.style.left = `${rect.left - 200}px`;
+      filterPanel.style.top = `${rect.bottom + 10}px`;
+      filterPanel.style.display = 'flex';
+      
+      filterPanel.innerHTML = `
+        <div class="filter-title">Filter: Treatment Group</div>
+        <div class="filter-option" id="opt-all">
+          <div class="filter-checkbox ${checkedItem === '' ? 'checked' : ''}"></div>
+          <span>Select All</span>
+        </div>
+        <div class="filter-option" id="opt-placebo">
+          <div class="filter-checkbox ${checkedItem === 'Placebo Group' ? 'checked' : ''}"></div>
+          <span>Placebo Group</span>
+        </div>
+        <div class="filter-option" id="opt-active-a">
+          <div class="filter-checkbox ${checkedItem === 'Active Treatment A' ? 'checked' : ''}"></div>
+          <span>Active Treatment A</span>
+        </div>
+      `;
+    }
+
+    function closeFilterPanel() {
+      filterPanel.style.display = 'none';
+    }
+
+    // Tooltip Helper
+    let activeTooltip = null;
+    function showTooltip(text, x, y) {
+      removeTooltip();
+      activeTooltip = document.createElement('div');
+      activeTooltip.className = 'floating-tooltip';
+      activeTooltip.textContent = text;
+      activeTooltip.style.left = `${x + 15}px`;
+      activeTooltip.style.top = `${y + 15}px`;
+      document.body.appendChild(activeTooltip);
+    }
+
+    function removeTooltip() {
+      if (activeTooltip) {
+        activeTooltip.remove();
+        activeTooltip = null;
+      }
+    }
+
+    // Mouse movement animation
+    function moveCursor(targetX, targetY, duration = 800) {
+      return new Promise(resolve => {
+        const startX = parseFloat(virtualCursor.style.left || window.innerWidth / 2);
+        const startY = parseFloat(virtualCursor.style.top || window.innerHeight / 2);
+        const startTime = performance.now();
+
+        function animate(time) {
+          const elapsed = time - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease in out cubic
+          const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+          const currentX = startX + (targetX - startX) * ease;
+          const currentY = startY + (targetY - startY) * ease;
+
+          virtualCursor.style.left = `${currentX}px`;
+          virtualCursor.style.top = `${currentY}px`;
+
+          if (activeTooltip) {
+            activeTooltip.style.left = `${currentX + 15}px`;
+            activeTooltip.style.top = `${currentY + 15}px`;
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            resolve();
+          }
+        }
+        requestAnimationFrame(animate);
+      });
+    }
+
+    // Simulated click effect
+    function animateClick() {
+      return new Promise(resolve => {
+        virtualCursor.style.transform = 'scale(0.8)';
+        setTimeout(() => {
+          virtualCursor.style.transform = 'scale(1)';
+          resolve();
+        }, 150);
+      });
+    }
+
+    // Highlight active tour card visually
+    function setTourCardActive(tourId) {
+      document.querySelectorAll('.tour-card').forEach(card => card.classList.remove('active'));
+      document.getElementById(`tour-${tourId}`).classList.add('active');
+    }
+
+    // -------------------------------------------------------------
+    // Tour Definitions
+    // -------------------------------------------------------------
+    
+    // 1. Column Drag & Drop + Anchoring Tour
+    async function runReorderTour() {
+      if (!isPlaying) return;
+      currentTour = 'reorder';
+      setTourCardActive('reorder');
+      resetGrid();
+      logAction("Starting Tour: Column Reordering & Anchoring", "info");
+
+      // Step A: Move cursor to "Age" column header
+      const ageHeader = document.getElementById('header-age');
+      let rect = ageHeader.getBoundingClientRect();
+      showTooltip("Step 1: Click and drag 'Age' column header...", rect.left + rect.width/2, rect.top + rect.height/2);
+      await moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+      await animateClick();
+
+      // Step B: Drag "Age" to the left, swap positions
+      logAction("Dragging column 'Age' left to position 2...", "warn");
+      const targetPos = document.getElementById('header-sex').getBoundingClientRect();
+      showTooltip("Drag to reorder layout position...", targetPos.left, targetPos.top + rect.height/2);
+      await moveCursor(targetPos.left, targetPos.top + rect.height / 2, 1200);
+      
+      // Perform Swap
+      const ageCol = columns.splice(2, 1)[0];
+      columns.splice(1, 0, ageCol);
+      renderGrid();
+      logAction("Swapped 'Age' and 'Sex' columns.", "highlight");
+      await animateClick();
+      removeTooltip();
+
+      // Step C: Move to anchor/pin icon on "Subject ID"
+      await new Promise(r => setTimeout(r, 600));
+      const subjidPin = document.querySelector('#header-subjid .pin-icon');
+      rect = subjidPin.getBoundingClientRect();
+      showTooltip("Step 2: Anchor 'Subject ID' to freeze it left...", rect.left + 5, rect.top + 5);
+      await moveCursor(rect.left + 5, rect.top + 5, 800);
+      await animateClick();
+      
+      columns[0].frozen = true;
+      renderGrid();
+      logAction("Anchored column 'Subject ID'. Sticky boundary set.", "highlight");
+      removeTooltip();
+
+      // Step D: Move to anchor/pin icon on "Age" (now at index 1)
+      await new Promise(r => setTimeout(r, 600));
+      const agePin = document.querySelector('#header-age .pin-icon');
+      rect = agePin.getBoundingClientRect();
+      showTooltip("Step 3: Anchor 'Age' as well...", rect.left + 5, rect.top + 5);
+      await moveCursor(rect.left + 5, rect.top + 5, 800);
+      await animateClick();
+      
+      columns[1].frozen = true;
+      renderGrid();
+      logAction("Anchored column 'Age'. Multi-column sticky area active.", "highlight");
+      removeTooltip();
+
+      // Schedule next tour if playing
+      if (isPlaying) {
+        tourTimeoutId = setTimeout(() => startTour('sorting'), 4000);
+      }
+    }
+
+    // 2. Multi-column Sorting Tour
+    async function runSortingTour() {
+      if (!isPlaying) return;
+      currentTour = 'sorting';
+      setTourCardActive('sorting');
+      resetGrid();
+      logAction("Starting Tour: Multi-Column Sorting", "info");
+
+      // Step A: Click "Sex" column to sort primary
+      const sexHeader = document.getElementById('header-sex');
+      let rect = sexHeader.getBoundingClientRect();
+      showTooltip("Step 1: Click 'Sex' to sort Ascending", rect.left + rect.width/2, rect.top + rect.height/2);
+      await moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+      await animateClick();
+
+      sortConfig = [{ columnId: 'sex', direction: 'asc', priority: 1 }];
+      // Sort rows
+      rows.sort((a, b) => a.sex.localeCompare(b.sex));
+      renderGrid();
+      logAction("Sorted dataset by 'Sex' (Ascending).", "highlight");
+      removeTooltip();
+
+      // Step B: Hold Shift and Click "Age"
+      await new Promise(r => setTimeout(r, 800));
+      keyboardIndicator.classList.add('active');
+      logAction("Shift Key held down virtually...", "info");
+      
+      const ageHeader = document.getElementById('header-age');
+      rect = ageHeader.getBoundingClientRect();
+      showTooltip("Step 2: Hold Shift + Click 'Age' for multi-sort", rect.left + rect.width/2, rect.top + rect.height/2);
+      await moveCursor(rect.left + rect.width / 2, rect.top + rect.height / 2, 1000);
+      await animateClick();
+
+      sortConfig.push({ columnId: 'age', direction: 'asc', priority: 2 });
+      // Sort rows multi-column: sex then age
+      rows.sort((a, b) => {
+        const sexCompare = a.sex.localeCompare(b.sex);
+        if (sexCompare !== 0) return sexCompare;
+        return a.age - b.age;
+      });
+      renderGrid();
+      logAction("Multi-sorted dataset by 'Sex' -> 'Age' (Priority 1 -> 2).", "highlight");
+      keyboardIndicator.classList.remove('active');
+      removeTooltip();
+
+      // Schedule next tour if playing
+      if (isPlaying) {
+        tourTimeoutId = setTimeout(() => startTour('filter'), 4500);
+      }
+    }
+
+    // 3. Filtering Checklist Tour
+    async function runFilterTour() {
+      if (!isPlaying) return;
+      currentTour = 'filter';
+      setTourCardActive('filter');
+      resetGrid();
+      logAction("Starting Tour: Floating Filter Panels", "info");
+
+      // Step A: Move to "Treatment Group" filter icon
+      const filterIcon = document.getElementById('filter-trigger-trt01a');
+      let rect = filterIcon.getBoundingClientRect();
+      showTooltip("Step 1: Open filter panel for Treatment Group", rect.left + 5, rect.top + 5);
+      await moveCursor(rect.left + 5, rect.top + 5, 1000);
+      await animateClick();
+
+      showFilterPanel(filterIcon);
+      logAction("Opened filter dropdown panel for 'trt01a'.", "info");
+      removeTooltip();
+
+      // Step B: Select "Placebo Group" checkbox
+      await new Promise(r => setTimeout(r, 800));
+      const placeboOpt = document.getElementById('opt-placebo');
+      rect = placeboOpt.getBoundingClientRect();
+      showTooltip("Step 2: Check 'Placebo Group' to filter rows", rect.left + 20, rect.top + 10);
+      await moveCursor(rect.left + 20, rect.top + 10, 800);
+      await animateClick();
+
+      showFilterPanel(filterIcon, 'Placebo Group');
+      filterConfig.trt01a = 'Placebo Group';
+      renderGrid();
+      logAction("Filtered rows to show only 'Placebo Group'. Unmatched rows collapsed.", "highlight");
+      removeTooltip();
+
+      // Step C: Move to close/outside click
+      await new Promise(r => setTimeout(r, 1000));
+      rect = gridBody.getBoundingClientRect();
+      showTooltip("Step 3: Click outside to save filter state", rect.left + 150, rect.top + 150);
+      await moveCursor(rect.left + 150, rect.top + 150, 800);
+      await animateClick();
+      closeFilterPanel();
+      removeTooltip();
+
+      // Schedule next tour if playing
+      if (isPlaying) {
+        tourTimeoutId = setTimeout(() => startTour('scroll'), 4500);
+      }
+    }
+
+    // 4. Virtual Scrolling Tour
+    async function runScrollTour() {
+      if (!isPlaying) return;
+      currentTour = 'scroll';
+      setTourCardActive('scroll');
+      resetGrid();
+      
+      datasetTitle.textContent = "pharmaverseadam::adlb (83,652 Rows)";
+      logAction("Starting Tour: Zero-lag Virtualized Scrolling (adlb dataset)", "info");
+
+      // Generate large mock rows for scrolling
+      rows = [];
+      const treatments = ['Placebo Group', 'Active Treatment A', 'Active Treatment B'];
+      const races = ['WHITE', 'ASIAN', 'BLACK', 'HISPANIC'];
+      for (let i = 1; i <= 5000; i++) {
+        rows.push({
+          subjid: `01-701-${1000 + i}`,
+          sex: Math.random() > 0.5 ? 'M' : 'F',
+          age: Math.floor(Math.random() * 45) + 35,
+          trt01a: treatments[Math.floor(Math.random() * treatments.length)],
+          race: races[Math.floor(Math.random() * races.length)],
+          arm: `Arm ${i % 3 + 1}`
+        });
+      }
+      renderGrid();
+
+      // Step A: Scroll down animation
+      showTooltip("Scroll rapidly: watch indices render smoothly...", window.innerWidth / 2, window.innerHeight / 2);
+      logAction("Simulating rapid mouse-wheel scroll on grid body...", "warn");
+      
+      // Animate scrolling in steps
+      let scrollTimer = null;
+      let scrollCount = 0;
+      
+      await new Promise(resolve => {
+        scrollTimer = setInterval(() => {
+          scrollCount += 85;
+          gridBody.scrollTop = scrollCount;
+          
+          // Re-render offset rows to simulate virtualization
+          const slicedRows = rows.slice(Math.floor(scrollCount / 36), Math.floor(scrollCount / 36) + 12);
+          gridBody.innerHTML = '';
+          slicedRows.forEach((row, rowIdx) => {
+            const rowEl = document.createElement('div');
+            rowEl.className = 'grid-row';
+            rowEl.style.top = `${scrollCount + (rowIdx * 36)}px`;
+            
+            columns.forEach(col => {
+              const cellEl = document.createElement('div');
+              cellEl.className = `grid-cell`;
+              cellEl.style.width = `${col.width}px`;
+              cellEl.textContent = row[col.id];
+              rowEl.appendChild(cellEl);
+            });
+            gridBody.appendChild(rowEl);
+          });
+
+          if (scrollCount >= 2200) {
+            clearInterval(scrollTimer);
+            resolve();
+          }
+        }, 40);
+      });
+
+      logAction(`Scrolled smoothly to Row ${Math.floor(2200 / 36)}. Render latency: 0ms.`, "highlight");
+      removeTooltip();
+
+      // Schedule loop back to start if playing
+      if (isPlaying) {
+        tourTimeoutId = setTimeout(() => startTour('reorder'), 5000);
+      }
+    }
+
+    // Tour router/manager
+    function startTour(tourId) {
+      // Clear current schedules
+      if (tourTimeoutId) clearTimeout(tourTimeoutId);
+      closeFilterPanel();
+      removeTooltip();
+
+      if (tourId === 'reorder') {
+        runReorderTour();
+      } else if (tourId === 'sorting') {
+        runSortingTour();
+      } else if (tourId === 'filter') {
+        runFilterTour();
+      } else if (tourId === 'scroll') {
+        runScrollTour();
+      }
+    }
+
+    // Play/Pause
+    function togglePlayPause() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('play-pause-btn');
+      if (isPlaying) {
+        btn.textContent = "Pause Auto-Tour";
+        btn.classList.remove('btn-secondary');
+        logAction("Resumed auto-playing tour cycles.", "info");
+        // Start from current tour
+        startTour(currentTour);
+      } else {
+        btn.textContent = "Resume Auto-Tour";
+        btn.classList.add('btn-secondary');
+        if (tourTimeoutId) clearTimeout(tourTimeoutId);
+        logAction("Paused auto-playing tour cycles. You can click feature cards manually.", "warn");
+      }
+    }
+
+    // Kickstart the default tour
+    setTimeout(() => {
+      startTour('reorder');
+    }, 1000);
+
+  </script>
+</body>
+</html>

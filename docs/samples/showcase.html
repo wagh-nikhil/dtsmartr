@@ -522,7 +522,6 @@
 
     .header-cell.active-sort {
       background: #1e293b;
-      box-shadow: inset 0 -2px 0 var(--secondary);
     }
 
     .header-cell.frozen {
@@ -535,7 +534,7 @@
       border-right: 3px solid var(--secondary) !important;
     }
 
-    /* Header Row 1: Type + Name + Sort Badge */
+    /* Header Row 1: Type + Name + Sort Badge + Action Buttons */
     .header-row-top {
       display: flex;
       align-items: center;
@@ -604,6 +603,32 @@
       line-height: 1;
       font-weight: 700;
       flex-shrink: 0;
+    }
+
+    /* Col Actions (📊 and ⚓) */
+    .header-action-button {
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--w-subtext);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 2px;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .header-action-button:hover {
+      color: var(--secondary);
+    }
+
+    .header-action-button.anchor-btn {
+      font-size: 12px;
+    }
+
+    .header-action-button.anchor-btn.active {
+      color: var(--secondary) !important;
     }
 
     /* Header Row 2: Quality Bar */
@@ -735,37 +760,32 @@
       text-transform: lowercase;
     }
 
-    /* Header Row 4: Action Icons */
-    .header-row-bottom {
+    /* Absolute positioned filter button at bottom right (funnel SVG) */
+    .header-filter-btn {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 4px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.05);
-      padding-top: 4px;
+      justify-content: center;
+      background: transparent;
+      color: var(--w-subtext);
+      transition: all 0.2s ease;
+      z-index: 5;
     }
 
-    .header-action-icon {
-      cursor: pointer;
-      opacity: 0.4;
-      font-size: 11px;
-      color: var(--w-text);
-      transition: opacity 0.2s ease, color 0.2s ease;
-    }
-
-    .header-action-icon:hover {
-      opacity: 1;
+    .header-filter-btn:hover {
       color: var(--secondary);
     }
 
-    .header-action-icon.active {
-      opacity: 1;
-      color: var(--primary);
-    }
-
-    .header-action-icon.pin-icon.active {
-      color: var(--accent);
+    .header-filter-btn.active {
+      background: var(--secondary);
+      color: #fff;
     }
 
     /* Resize Handle */
@@ -1234,16 +1254,16 @@
       gridHeader.appendChild(cornerCell);
 
       let accumulatedLeft = 52; // Offset for row number column
-      let isPastFrozenBoundary = false;
 
       columns.forEach((col, idx) => {
         const cell = document.createElement('div');
-        cell.className = `header-cell ${col.frozen ? 'frozen' : ''}`;
+        cell.className = `header-cell`;
         cell.id = `header-${col.id}`;
         cell.style.width = `${col.width}px`;
         
         // Sticky layout offset
         if (col.frozen) {
+          cell.classList.add('frozen');
           cell.style.position = 'sticky';
           cell.style.left = `${accumulatedLeft}px`;
           cell.style.zIndex = 12;
@@ -1270,10 +1290,10 @@
           const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
           const priorityIcon = numberEmojis[sortIdx] || `[${sortIdx + 1}]`;
           const arrow = sortDir === 'asc' ? '↑' : '↓';
-          sortBadgeHtml = `<span class="sort-indicator-badge">${priorityIcon} ${arrow}</span>`;
+          sortBadgeHtml = `<span class="sort-indicator-badge" title="Sorted priority ${sortIdx+1}">${priorityIcon} ${arrow}</span>`;
         }
 
-        // Render Summary Zone content
+        // Render Summary Zone
         let summaryHtml = '';
         if (col.id === 'age') {
           // Numeric Histogram
@@ -1349,36 +1369,70 @@
           `;
         }
 
+        const isFiltered = filterConfig.trt01a && col.id === 'trt01a';
+
         cell.innerHTML = `
-          <!-- Row 1: Type + Name + Sort Badge -->
+          <!-- Row 1: Type + Name + Sort Badge + Action Buttons (📊 and ⚓) -->
           <div class="header-row-top ${isNumeric ? 'reverse' : ''}">
             <span class="col-type-badge ${typeBadgeClass}">${typeBadgeText}</span>
             <div class="col-name-container ${isNumeric ? 'right-align' : ''}">
               <span class="col-name-text">${col.label}</span>
-              <span class="col-info-icon">ⓘ</span>
+              <span class="col-info-icon" style="opacity: 0;">ⓘ</span>
             </div>
             ${sortBadgeHtml}
+            <span class="header-action-button insights-btn" title="Open Data Insights Drawer">📊</span>
+            <span class="header-action-button anchor-btn ${col.frozen ? 'active' : ''}" id="anchor-btn-${col.id}" title="Anchor column (freeze left)">⚓</span>
           </div>
 
-          <!-- Row 2: Quality Bar -->
-          <div class="quality-bar-container">
-            <div class="quality-bar-fill"></div>
-          </div>
-
-          <!-- Row 3: Summary Zone -->
+          <!-- Row 2: Summary Zone -->
           <div class="summary-zone">
             ${summaryHtml}
           </div>
 
-          <!-- Row 4: Action icons -->
-          <div class="header-row-bottom">
-            <span class="header-action-icon pin-icon ${col.frozen ? 'active' : ''}">📌</span>
-            <span class="header-action-icon filter-icon" id="filter-trigger-${col.id}">🔍</span>
-            <span class="header-action-icon" style="font-size:8px;">▼</span>
+          <!-- Row 3: Bottom Quality Bar -->
+          <div class="quality-bar-container">
+            <div class="quality-bar-fill"></div>
           </div>
 
+          <!-- Absolute positioned filter button at bottom right (funnel SVG) -->
+          <button class="header-filter-btn ${isFiltered ? 'active' : ''}" id="filter-trigger-${col.id}" title="Filter Menu">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          </button>
+          
           <div class="resize-handle"></div>
         `;
+        
+        // Add click listener for sort (triggered by clicking header cell, unless clicking buttons)
+        cell.onclick = (e) => {
+          if (e.target.closest('.header-action-button') || e.target.closest('.header-filter-btn') || e.target.closest('.resize-handle')) {
+            return;
+          }
+          // Sort column
+          handleHeaderSort(col.id, e.shiftKey);
+        };
+
+        // Add click listener for anchor button
+        const anchorBtn = cell.querySelector(`.anchor-btn`);
+        anchorBtn.onclick = (e) => {
+          e.stopPropagation();
+          handleAnchorToggle(col.id);
+        };
+
+        // Add click listener for filter button
+        const filterBtn = cell.querySelector(`.header-filter-btn`);
+        filterBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (col.id === 'trt01a') {
+            toggleFilterPanel(filterBtn);
+          }
+        };
+
+        // Add hover listener to show info icon
+        const nameContainer = cell.querySelector('.col-name-container');
+        const infoIcon = cell.querySelector('.col-info-icon');
+        nameContainer.onmouseenter = () => infoIcon.style.opacity = 1;
+        nameContainer.onmouseleave = () => infoIcon.style.opacity = 0;
+
         gridHeader.appendChild(cell);
       });
 
@@ -1468,6 +1522,97 @@
       renderGrid();
     }
 
+    // Anchor toggle handler
+    function handleAnchorToggle(colId) {
+      const colIdx = columns.findIndex(c => c.id === colId);
+      if (colIdx === -1) return;
+
+      // Toggle frozen state
+      const isFrozenNow = !columns[colIdx].frozen;
+      columns[colIdx].frozen = isFrozenNow;
+
+      if (isFrozenNow) {
+        frozenColId = colId;
+        logAction(`Anchored column '${columns[colIdx].label}'. Sticky boundary updated.`, 'info');
+      } else {
+        // Find previous frozen column if any
+        const lastFrozen = [...columns].reverse().find(c => c.frozen && c.id !== colId);
+        frozenColId = lastFrozen ? lastFrozen.id : null;
+        logAction(`Unanchored column '${columns[colIdx].label}'.`, 'info');
+      }
+      renderGrid();
+    }
+
+    // Header Sort handler
+    function handleHeaderSort(colId, shiftKey) {
+      const existingIdx = sortConfig.findIndex(s => s.columnId === colId);
+      
+      if (!shiftKey) {
+        // Single sort
+        if (existingIdx > -1) {
+          const currentDir = sortConfig[existingIdx].direction;
+          if (currentDir === 'asc') {
+            sortConfig = [{ columnId: colId, direction: 'desc', priority: 1 }];
+            logAction(`Sorted by '${colId}' Descending`, 'info');
+          } else {
+            sortConfig = [];
+            logAction(`Cleared sorting`, 'info');
+          }
+        } else {
+          sortConfig = [{ columnId: colId, direction: 'asc', priority: 1 }];
+          logAction(`Sorted by '${colId}' Ascending`, 'info');
+        }
+      } else {
+        // Multi sort (Shift key)
+        if (existingIdx > -1) {
+          const currentDir = sortConfig[existingIdx].direction;
+          if (currentDir === 'asc') {
+            sortConfig[existingIdx].direction = 'desc';
+            logAction(`Multi-sort updated: '${colId}' Descending`, 'info');
+          } else {
+            sortConfig.splice(existingIdx, 1);
+            logAction(`Multi-sort: removed '${colId}'`, 'info');
+          }
+        } else {
+          sortConfig.push({ columnId: colId, direction: 'asc', priority: sortConfig.length + 1 });
+          logAction(`Multi-sort added: '${colId}' Ascending`, 'info');
+        }
+      }
+
+      // Perform Sort on rows
+      if (sortConfig.length === 0) {
+        rows = JSON.parse(JSON.stringify(initialRows));
+      } else {
+        rows.sort((a, b) => {
+          for (let s of sortConfig) {
+            const valA = a[s.columnId];
+            const valB = b[s.columnId];
+            let comp = 0;
+            if (typeof valA === 'number') {
+              comp = valA - valB;
+            } else {
+              comp = String(valA).localeCompare(String(valB));
+            }
+            if (comp !== 0) {
+              return s.direction === 'asc' ? comp : -comp;
+            }
+          }
+          return 0;
+        });
+      }
+
+      renderGrid();
+    }
+
+    // Toggle filter panel dropdown
+    function toggleFilterPanel(targetEl) {
+      if (filterPanel.style.display === 'flex') {
+        closeFilterPanel();
+      } else {
+        showFilterPanel(targetEl, filterConfig.trt01a || '');
+      }
+    }
+
     // Render Active Filter / Sort Badges in Toolbar
     function updateToolbarBadges() {
       activeBadgesArea.innerHTML = '';
@@ -1491,6 +1636,7 @@
         clearSortBtn.textContent = 'Clear sort';
         clearSortBtn.onclick = () => {
           sortConfig = [];
+          rows = JSON.parse(JSON.stringify(initialRows));
           logAction("Cleared sorting configurations", "info");
           renderGrid();
         };
@@ -1576,7 +1722,7 @@
             <div class="filter-checkbox ${checkedItem === '' ? 'checked' : ''}"></div>
             <span>Select All</span>
           </div>
-          <div class="filter-option" id="opt-placebo">
+          <div class="filter-option" id="opt-placebo" onclick="applyPlaceboFilter(event)">
             <div class="filter-checkbox ${checkedItem === 'Placebo Group' ? 'checked' : ''}"></div>
             <span>Placebo Group</span>
           </div>
@@ -1586,6 +1732,14 @@
           </div>
         </div>
       `;
+    }
+
+    function applyPlaceboFilter(e) {
+      e.stopPropagation();
+      filterConfig.trt01a = filterConfig.trt01a === 'Placebo Group' ? null : 'Placebo Group';
+      showFilterPanel(document.getElementById('filter-trigger-trt01a'), filterConfig.trt01a || '');
+      logAction(filterConfig.trt01a ? "Filtered by 'Placebo Group'" : "Cleared filters", "highlight");
+      renderGrid();
     }
 
     function closeFilterPanel() {
@@ -1694,23 +1848,23 @@
       await animateClick();
       removeTooltip();
 
-      // Step C: Move to anchor/pin icon on "Subject ID"
+      // Step C: Move to anchor icon (⚓) on "Subject ID"
       await new Promise(r => setTimeout(r, 600));
-      const subjidPin = document.querySelector('#header-subjid .pin-icon');
+      const subjidPin = document.getElementById('anchor-btn-subjid');
       rect = subjidPin.getBoundingClientRect();
-      showTooltip("Step 2: Anchor 'Subject ID' to freeze it left...", rect.left + 5, rect.top + 5);
+      showTooltip("Step 2: Anchor 'Subject ID' (freeze left) using the ⚓ button...", rect.left + 5, rect.top + 5);
       await moveCursor(rect.left + 5, rect.top + 5, 800);
       await animateClick();
       
       columns[0].frozen = true;
       frozenColId = 'subjid';
       renderGrid();
-      logAction("Anchored column 'Subject ID'. Sticky blue boundary set.", "highlight");
+      logAction("Anchored column 'Subject ID'. Sticky boundary set.", "highlight");
       removeTooltip();
 
-      // Step D: Move to anchor/pin icon on "Age" (now at index 1)
+      // Step D: Move to anchor icon (⚓) on "Age" (now at index 1)
       await new Promise(r => setTimeout(r, 600));
-      const agePin = document.querySelector('#header-age .pin-icon');
+      const agePin = document.getElementById('anchor-btn-age');
       rect = agePin.getBoundingClientRect();
       showTooltip("Step 3: Anchor 'Age' as well...", rect.left + 5, rect.top + 5);
       await moveCursor(rect.left + 5, rect.top + 5, 800);
@@ -1719,7 +1873,7 @@
       columns[1].frozen = true;
       frozenColId = 'age';
       renderGrid();
-      logAction("Anchored column 'Age'. Multi-column sticky area active.", "highlight");
+      logAction("Anchored column 'Age'. Multi-column sticky boundary updated.", "highlight");
       removeTooltip();
 
       // Schedule next tour if playing
@@ -1736,10 +1890,10 @@
       resetGrid();
       logAction("Starting Tour: Multi-Column Sorting", "info");
 
-      // Step A: Click "Sex" column to sort primary
+      // Step A: Click "Sex" column header cell to sort primary
       const sexHeader = document.getElementById('header-sex');
       let rect = sexHeader.getBoundingClientRect();
-      showTooltip("Step 1: Click 'Sex' to sort Ascending", rect.left + rect.width/2, rect.top + 20);
+      showTooltip("Step 1: Click 'Sex' header cell to sort Ascending", rect.left + rect.width/2, rect.top + 20);
       await moveCursor(rect.left + rect.width / 2, rect.top + 20, 1000);
       await animateClick();
 
@@ -1756,7 +1910,7 @@
       
       const ageHeader = document.getElementById('header-age');
       rect = ageHeader.getBoundingClientRect();
-      showTooltip("Step 2: Hold Shift + Click 'Age' for multi-sort", rect.left + rect.width/2, rect.top + 20);
+      showTooltip("Step 2: Hold Shift + Click 'Age' header cell for multi-sort", rect.left + rect.width/2, rect.top + 20);
       await moveCursor(rect.left + rect.width / 2, rect.top + 20, 1000);
       await animateClick();
 
@@ -1785,11 +1939,11 @@
       resetGrid();
       logAction("Starting Tour: Checklist Filtering", "info");
 
-      // Step A: Move to "Treatment Group" filter icon
+      // Step A: Move to "Treatment Group" funnel filter button
       const filterIcon = document.getElementById('filter-trigger-trt01a');
       let rect = filterIcon.getBoundingClientRect();
-      showTooltip("Step 1: Open filter panel for Treatment Group", rect.left + 5, rect.top + 5);
-      await moveCursor(rect.left + 5, rect.top + 5, 1000);
+      showTooltip("Step 1: Click the funnel filter button in the bottom right of the header...", rect.left + 8, rect.top + 8);
+      await moveCursor(rect.left + 8, rect.top + 8, 1000);
       await animateClick();
 
       showFilterPanel(filterIcon);
@@ -1800,7 +1954,7 @@
       await new Promise(r => setTimeout(r, 800));
       const placeboOpt = document.getElementById('opt-placebo');
       rect = placeboOpt.getBoundingClientRect();
-      showTooltip("Step 2: Check 'Placebo Group' to filter rows", rect.left + 20, rect.top + 10);
+      showTooltip("Step 2: Click the 'Placebo Group' option...", rect.left + 20, rect.top + 10);
       await moveCursor(rect.left + 20, rect.top + 10, 800);
       await animateClick();
 
